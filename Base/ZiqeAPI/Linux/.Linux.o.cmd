@@ -1,0 +1,1 @@
+cmd_/home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/Linux.o := ld -m elf_x86_64   -r -o /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/Linux.o /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/../../../../Build/Base/libBase.a /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/SystemCalls.o 

@@ -1,0 +1,1 @@
+cmd_/home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/Linux.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/Linux.ko /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/Linux.o /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/Linux.mod.o
