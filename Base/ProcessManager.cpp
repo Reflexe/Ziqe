@@ -26,14 +26,20 @@ ProcessManager::ProcessManager()
 
 }
 
-LocalThread ProcessManager::createThread(LocalProcess &process)
+LocalThread ProcessManager::createThread(LocalProcess &process,
+                                         ZqAddress stackAddress,
+                                         ZqAddress runAddress)
 {
-
+    return LocalThread {ZqCreateThread (process.getProcessID (), stackAddress, runAddress, nullptr)};
 }
 
 LocalProcess ProcessManager::createProcess()
 {
+}
 
+LocalThread ProcessManager::getCurrentThread()
+{
+    return LocalThread{ZqGetCurrent (nullptr)};
 }
 
 } // namespace Ziqe

@@ -25,12 +25,13 @@
 #include "Base/Memory.h"
 #include "Base/LinkedList.h"
 
-#include "Process.h"
+#include "Base/LocalProcess.h"
+#include "Base/LocalThread.h"
+
+#include "Core/GlobalProcess.h"
+#include "Core/GlobalThread.h"
 
 namespace Ziqe {
-
-class Process;
-class Thread;
 
 class Peer
 {
@@ -45,7 +46,8 @@ public:
      * the this peer and tell it to run this thread. Any future
      * system calls / memory requests will get to us.
      */
-    void runThread (const Thread &thread);
+    void runThread (const LocalThread &thread,
+                    const LocalProcess &process);
 
     // Stop this thread until this peer give us an answer for this syscall.
     void requestSystemCallForThread (const Thread &thread);
@@ -72,7 +74,7 @@ private:
         };
     };
 
-    LinkedList<Process> mSharedProcesses;
+    LinkedList<GlobalProcess> mSharedProcesses;
 
     /// @brief A stream that sent to this peer.
     UniquePointer<OutputStreamInterface> mOutputStream;

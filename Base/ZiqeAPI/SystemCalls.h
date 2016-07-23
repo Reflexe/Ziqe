@@ -39,13 +39,17 @@ void ZqInitSystemCallsHook(ZqSystemCallHookType hook);
 
 void ZqDeinitSystemCallsHook(void);
 
+typedef struct {
+    ZqSystemCallIDType id;
+    const ZqRegisterType *params;
+} ZqSyscallParameter;
+
 /**
  * @brief ZiqeCallSyscall  Blocking!!
  * @param id
  * @return
  */
-ZqRegisterType ZqCallSyscall(const ZqSystemCallIDType *id,
-                             const ZqRegisterType *params);
+ZqRegisterType ZqCallSyscall(const ZqSyscallParameter *parameter);
 
 ZQ_END_C_DECL
 

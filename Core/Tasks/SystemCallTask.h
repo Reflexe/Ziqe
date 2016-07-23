@@ -21,6 +21,8 @@
 #define ZIQE_SYSTEMCALLTASK_H
 
 #include "Base/Memory.h"
+#include "Base/SystemCalls.h"
+#include "Base/SharedVector.h"
 
 #include "Core/Process.h"
 #include "Core/ProcessMemory.h"
@@ -28,18 +30,31 @@
 
 namespace Ziqe {
 
+// System calls in Ziqe all sepical: there're also a sync point.
+// In other words, after a syscall, s
 class SystemCallTask final : public Task
 {
 public:
-    SystemCallTask(const SharedPointer<Process> &process,
+    SystemCallTask(SharedVector<ZqRegisterType> &&systemCallParameters,
+                   SystemCalls::SystemCallID systemCallID,
+                   const SharedPointer<Process> &process,
+                   const SharedPointer<Thread> &thread,
                    const SharedPointer<ProcessMemory> &memoryMap);
 
     virtual bool run () override;
 
 private:
+    void onSystemCallFinished (ZqRegisterType result);
+
     bool isValidMemoryMap(const Process &process, const ProcessMemory &memoryMap);
 
+    SharedVector<ZqRegisterType> mSystemCallParameters;
+
+    SystemCalls::SystemCallID mSystemCallID;
+
     SharedPointer<Process> mProcess;
+    SharedPointer<Thread> mThread;
+
     SharedPointer<ProcessMemory> mMemoryMap;
 };
 

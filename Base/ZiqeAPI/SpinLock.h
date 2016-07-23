@@ -1,5 +1,5 @@
 /**
- * @file Process.cpp
+ * @file SpinLock.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,25 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Process.h"
+#ifndef ZIQE_API_SPINLOCK_H
+#define ZIQE_API_SPINLOCK_H
 
-namespace Ziqe {
+#include "Macros.h"
+#include "Memory.h"
 
-Process::Process(const ProcessMemory::MemoryConfiguration &memoryConfiguration)
-    : mProcessMemory{memoryConfiguration}
-{
+ZQ_BEGIN_C_DECL
 
-}
+typedef ZqAddress ZqSpinLock;
 
-void Process::updateMemoryPage(const ProcessMemory::Address address,
-                               ProcessMemory::MemoryPage &&page)
-{
-    mProcessMemory.lookupPage (address) = std::move (page);
-}
+void ZqSpinLockInit(ZqSpinLock *spinlock);
+void ZqSpinLockDeinit(ZqSpinLock *spinlock);
 
-const ProcessMemory &Process::getProcessMemory() const
-{
-    return mProcessMemory;
-}
+ZqBool ZqSpinLockTryLock(ZqSpinLock *spinlock);
+void ZqSpinLockLock(ZqSpinLock *spinlock);
+void ZqSpinLockUnlock(ZqSpinLock *spinlock);
 
-} // namespace Ziqe
+ZQ_END_C_DECL
+
+#endif // ZIQE_API_SPINLOCK_H

@@ -26,7 +26,7 @@
 namespace Ziqe {
 
 // CHECK things that shouldn't happend.
-#define CHECK(expr) (void)(expr)
+#define DEBUG_CHECK(expr) (void)(expr)
 
 template<class X, class Y>
 bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
@@ -34,7 +34,7 @@ bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
      return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
 }
 
-#define CHECK_ADD_OVERFLOW(x, y) CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
+#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
 
 } // namespace Ziqe
 

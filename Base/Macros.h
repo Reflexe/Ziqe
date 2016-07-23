@@ -61,6 +61,37 @@ T &min(T &one, T &two)
     return (one < two) ? one : two;
 }
 
+/**
+ * An holder for a build time known value. Used in places
+ * that we want to get a temlate variable as a parameter.
+ *
+ * Example:
+ * \code
+ * template<int n>
+ * void printN()
+ * {
+ *     std::cout << n;
+ * }
+ *
+ * // Not really a parameter,
+ * printN(MakeStaticVariable(6));
+ * \endcode
+ */
+#define MakeStaticVariable(expr) StaticVariable<decltype(expr), (expr)>()
+template<class T, T sValue>
+class StaticVariable
+{
+};
+
+/**
+  * Another way to declare and use template variables: but as a template parameters.
+  *
+  * Use it when you can use the template parameter (everywhere except template constructors).
+  */
+#define MakeTemplateVariable(expr) decltype(expr), (expr)
+#define TemplateVariable(name) class _T##name, _T##name name
+
+
 }
 
 

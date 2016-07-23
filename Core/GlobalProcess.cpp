@@ -1,5 +1,5 @@
 /**
- * @file Memory.cpp
+ * @file GlobalProcess.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,8 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Memory.h"
+#include "GlobalProcess.h"
 
 namespace Ziqe {
+
+GlobalProcess::GlobalProcess(GlobalProcessID processID)
+    : mProcessID{processID}
+{
+
+}
+
+GlobalProcess::GlobalProcessID GlobalProcess::getProcessID() const
+{
+    return mProcessID;
+}
 
 } // namespace Ziqe

@@ -21,10 +21,13 @@
 #define ZIQE_SYSTEMCALLS_H
 
 #include "Base/Types.h"
+#include "Base/Callback.h"
+#include "Base/FunctionTools.h"
 
 #include "ZiqeAPI/SystemCalls.h"
 
 #include "LocalThread.h"
+#include "LocalProcess.h"
 
 namespace Ziqe {
 
@@ -33,8 +36,13 @@ class SystemCalls
 public:
     typedef ZqSystemCallIDType SystemCallID;
 
+
+    typedef Callback<void(ZqRegisterType)> RunSyscallCallbackType;
+
     static ZqRegisterType runSystemCall(LocalThread &thread,
-                                      SystemCallID id, const ZqRegisterType *parameters);
+                                        SystemCallID id,
+                                        const ZqRegisterType *parameters,
+                                        RunSyscallCallbackType &&callback);
     
     static void setSystemCallHook (ZqSystemCallHookType hook);
 

@@ -21,9 +21,15 @@
 
 namespace Ziqe {
 
-LocalProcess::LocalProcess()
+LocalProcess::LocalProcess(ProcessID processID)
+    : mProcessID{processID}
 {
 
+}
+
+ZqProcessID LocalProcess::getProcessID() const
+{
+    return mProcessID;
 }
 
 } // namespace Ziqe

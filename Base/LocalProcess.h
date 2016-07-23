@@ -21,6 +21,9 @@
 #define ZIQE_LOCALPROCESS_H
 
 #include "Base/LinkedList.h"
+#include "Base/Macros.h"
+
+#include "ZiqeAPI/Process.h"
 
 namespace Ziqe {
 
@@ -28,9 +31,13 @@ namespace Ziqe {
 class LocalProcess
 {
 public:
-    LocalProcess();
+    typedef ZqProcessID ProcessID;
 
-    typedef uint64_t ProcessID;
+    LocalProcess(ProcessID processID);
+
+    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (LocalProcess, mProcessID)
+
+    ZqProcessID getProcessID() const;
 
 private:
     ProcessID mProcessID;

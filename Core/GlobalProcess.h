@@ -1,5 +1,5 @@
 /**
- * @file Process.h
+ * @file GlobalProcess.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,42 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_PROCESS_H
-#define ZIQE_PROCESS_H
+#ifndef ZIQE_GLOBALPROCESS_H
+#define ZIQE_GLOBALPROCESS_H
 
-#include "Base/Memory.h"
-#include "Base/LinkedList.h"
-
-#include "Thread.h"
-#include "ProcessMemory.h"
+#include "Base/Types.h"
 
 namespace Ziqe {
 
-class Process
+class GlobalProcess
 {
 public:
-    Process(const ProcessMemory::MemoryConfiguration &memoryConfiguration);
+    // A type that can hold all of the supported archs' processIDs.
+    typedef uint64_t GlobalProcessID;
 
-    /**
-     * @brief updateMemoryPage Replace a page in the process's memory.
-     * @param address
-     * @param page
-     */
-    void updateMemoryPage (const ProcessMemory::Address address,
-                           ProcessMemory::MemoryPage  &&page);
+    GlobalProcess(GlobalProcessID processID);
 
-    const ProcessMemory &getProcessMemory() const;
+    GlobalProcessID getProcessID() const;
 
 private:
-    /// The threads this process has.
-    LinkedList<Thread> mThreads;
-
-    /**
-     * @brief mProcessMemory  The process's memory.
-     */
-    ProcessMemory mProcessMemory;
+    GlobalProcessID mProcessID;
 };
 
 } // namespace Ziqe
 
-#endif // ZIQE_PROCESS_H
+#endif // ZIQE_GLOBALPROCESS_H

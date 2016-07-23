@@ -1,5 +1,5 @@
 /**
- * @file Thread.cpp
+ * @file Mutex.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,13 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Thread.h"
+#ifndef ZIQE_API_MUTEX_H
+#define ZIQE_API_MUTEX_H
 
-namespace Ziqe {
+#include "Macros.h"
+#include "Memory.h"
 
-Thread::Thread()
-{
+ZQ_BEGIN_C_DECL
 
-}
+typedef ZqAddress ZqMutex;
+#define ZQ_UNDEFINED_MUTEX (0)
 
-} // namespace Ziqe
+void ZqMutexInit(ZqMutex *mutex);
+void ZqMutexDeinit(ZqMutex *mutex);
+
+ZqBool ZqMutexTryLock(ZqMutex *mutex);
+void ZqMutexLock(ZqMutex *mutex);
+void ZqMutexUnlock(ZqMutex *mutex);
+
+ZQ_END_C_DECL
+
+#endif // ZIQE_API_MUTEX_H

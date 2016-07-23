@@ -21,19 +21,51 @@
 #define ZIQE_LOCALTHREAD_H
 
 #include "Base/Types.h"
+#include "Base/Callback.h"
+
+#include "ZiqeAPI/Process.h"
+
+#include "Core/Thread.h"
 
 namespace Ziqe {
 
 class LocalThread
 {
 public:
-    typedef uint64_t ThreadID;
+    typedef ZqThreadID ThreadID;
 
-    LocalThread();
+    LocalThread(ThreadID threadID);
+
+    ZqThreadInfo &getThreadInfo() const;
+
+    ThreadID getThreadID () const
+    {
+        return mThreadID;
+    }
+
+    void stop ();
+
+    void cont();
+
+    void run(Callback<void ()> &&toCall);
+
+    template<class ParameterType>
+    void runAnyFunction (void (*function)(ParameterType), ParameterType parameter)
+    {
+        static_assert(sizeof (ParameterType) == sizeof (ZqRegisterType),
+                      "Invalid size of ParameterType");
+
+        return runFunction (reinterpret_cast<void (*)(ZqRegisterType)>(function),
+                            reinterpret_cast<ZqRegisterType>(parameter));
+    }
+
+    void runFunction (void (*function)(ZqRegisterType), ZqRegisterType parameter);
 
 private:
     ThreadID mThreadID;
 
+    mutable ZqThreadInfo mThreadInfo;
+    mutable bool         mIsThreadInfoUpdated = false;
 };
 
 } // namespace Ziqe

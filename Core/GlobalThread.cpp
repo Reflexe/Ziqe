@@ -1,5 +1,5 @@
 /**
- * @file Memory.cpp
+ * @file GlobalThread.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,8 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Memory.h"
+#include "GlobalThread.h"
 
 namespace Ziqe {
+
+GlobalThread::GlobalThread(GlobalThread::GlobalThreadID threadID)
+    : mThreadID{threadID}
+{
+
+}
+
+GlobalThread::GlobalThreadID GlobalThread::getThreadID() const
+{
+    return mThreadID;
+}
 
 } // namespace Ziqe

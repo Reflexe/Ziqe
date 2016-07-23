@@ -19,11 +19,42 @@
  */
 #include "LocalThread.h"
 
+#include "Checks.h"
+#include "Macros.h"
+
 namespace Ziqe {
 
-LocalThread::LocalThread()
+LocalThread::LocalThread(ThreadID threadID)
+    : mThreadID{threadID}
 {
+}
 
+ZqThreadInfo &LocalThread::getThreadInfo() const{
+    if (! mIsThreadInfoUpdated) {
+        DEBUG_CHECK (ZqGetThreadInfo (mThreadID, &mThreadInfo) == ZQ_TRUE);
+        mIsThreadInfoUpdated = true;
+    }
+
+    return mThreadInfo;
+}
+
+template<class ClassType, void (ClassType::*Function) ()>
+void runMemberFunction (ClassType *c)
+{
+    (c->*Function) ();
+}
+
+void LocalThread::run(Callback<void ()> &&toCall) {
+    Callback<void ()> *newCallback = new Callback<void ()> (std::move (toCall));
+
+    return runAnyFunction(&runMemberFunction<Callback<void ()>, &Callback<void ()>::operator ()>,
+                          newCallback);
+}
+
+void LocalThread::runFunction(void (*function)(ZqRegisterType), ZqRegisterType parameter) {
+    ZqThreadCall (mThreadID,
+                  reinterpret_cast<ZqRegisterType>(function),
+                  parameter);
 }
 
 } // namespace Ziqe

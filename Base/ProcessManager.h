@@ -23,6 +23,8 @@
 #include "LocalThread.h"
 #include "LocalProcess.h"
 
+#include "Base/HashTable.h"
+
 namespace Ziqe {
 
 class ProcessManager
@@ -30,12 +32,18 @@ class ProcessManager
 public:
     ProcessManager();
 
-    static LocalThread createThread (LocalProcess &process);
+    static LocalThread createThread (LocalProcess &process,
+                                     ZqAddress stackAddress,
+                                     ZqAddress runAddress);
 
     static LocalProcess createProcess ();
 
     static void runThread (LocalThread &thread);
 
+    static LocalThread getCurrentThread();
+
+private:
+    LinkedList<LocalThread>
 };
 
 } // namespace Ziqe

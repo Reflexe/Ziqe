@@ -27,6 +27,8 @@
 #include "Types.h"
 #include "Memory.h"
 
+// You can implement these types as a real PID and TID or
+// just pointers to the Process / Thread structure in the kernel.
 typedef ZqRegisterType ZqProcessID;
 typedef ZqRegisterType ZqThreadID;
 
@@ -43,20 +45,73 @@ typedef struct {
     ZqMemoryEntry *entries;
     ZqRegisterType entriesLength;
 
-
 } ZqProcessMemory;
+
+#define ZQ_NO_PROCESS_ID (0)
 
 ZQ_BEGIN_C_DECL
 
+/**
+ * @brief ZqCreateProcessFromMemory  Create a process from a memory map.
+ * @param memory  The memory for the process.
+ * @param isMemoryMoved  After the call, will contain whether @arg memory
+ *                       is still valid or get owned by the process.
+ * @param processInfo [nullable] If not null, will contain the new process'
+ *                    info on success.
+ * @return The new process' ID on success, ZQ_NO_PROCESS_ID on fail.
+ */
 ZqProcessID ZqCreateProcessFromMemory (ZqProcessMemory *memory,
                                        ZqBool          *isMemoryMoved,
-                                       ZqProcessInfo  **processInfo);
+                                       ZqProcessInfo   *processInfo);
 
-ZqBool ZqGetProcessInfo (ZqProcessID processID, ZqProcessInfo *processInfo);
+/**
+ * @brief ZqGetProcessInfo  Get the process' info.
+ * @param processID
+ * @param processInfo Pointer to a ZqProcessInfo struct.
+ * @return ZQ_TRUE on success; ZQ_FALSE on fail.
+ */
+ZqBool ZqGetProcessInfo (ZqProcessID processID,
+                         ZqProcessInfo *processInfo);
 
-ZqBool ZqGetThreadInfo (ZqThreadID threadID, ZqThreadInfo *threadInfo);
+/**
+ * @brief ZqGetThreadInfo  Get the thread's info.
+ * @param threadID
+ * @param threadInfo Pointer to a ZqThreadInfo struct
+ * @return ZQ_TRUE on success; ZQ_FALSE on fail.
+ */
+ZqBool ZqGetThreadInfo (ZqThreadID threadID,
+                        ZqThreadInfo *threadInfo);
 
-ZqThreadID ZqCreateThread (ZqProcessID processID, ZqThreadInfo **threadInfo);
+/**
+ * @brief ZqCreateThread  Create a new thread for @arg processID.
+ * @param processID
+ * @param threadInfo
+ * @return
+ */
+ZqThreadID ZqCreateThread (ZqProcessID processID,
+                           ZqAddress instructionPointer,
+                           ZqAddress stackPointer,
+                           ZqThreadInfo *threadInfo);
+
+/**
+ * @brief ZqGetCurrent  Get the thread ID of the caller.
+ * @param threadInfo  [nullable] If not null, will contain
+ *                    the current thread' info.
+ * @return The current thread ID.
+ */
+ZqThreadID ZqGetCurrent (ZqThreadInfo *threadInfo);
+
+
+/**
+ * @brief ZqThreadCall  Run a function by a thread.
+ * @param threadID
+ * @param address
+ * @param argument
+ * @return
+ */
+ZqBool ZqThreadCall (ZqThreadID threadID,
+                     ZqAddress address,
+                     ZqRegisterType argument);
 
 ZQ_END_C_DECL
 

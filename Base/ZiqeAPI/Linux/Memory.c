@@ -23,12 +23,12 @@
 
 #include "Memory.h"
 
-void ZqDeallocate (ZqAddress address)
+inline void ZqDeallocate (ZqAddress address)
 {
     kfree ((void *) address);
 }
 
-ZqAddress ZqAllocate (ZqRegisterType size)
+inline ZqAddress ZqAllocate (ZqRegisterType size)
 {
     return (ZqAddress) kmalloc (size, GFP_KERNEL);
 }

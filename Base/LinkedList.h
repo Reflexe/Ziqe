@@ -69,14 +69,14 @@ public:
         ALLOW_COPY_AND_MOVE (DoubleLinkedListIterator)
 
         DoubleLinkedListIterator &operator++ () {
-            CHECK (mCurrent->next != nullptr);
+            DEBUG_CHECK (mCurrent->next != nullptr);
             mCurrent = mCurrent->next;
 
             return *this;
         }
 
         DoubleLinkedListIterator &operator-- () {
-            CHECK (mCurrent->previous != nullptr);
+            DEBUG_CHECK (mCurrent->previous != nullptr);
             mCurrent = mCurrent->previous;
 
             return *this;
@@ -93,25 +93,25 @@ public:
         }
 
         T &operator* () {
-            CHECK (mCurrent != nullptr && mCurrent->data);
+            DEBUG_CHECK (mCurrent != nullptr && mCurrent->data);
 
             return *mCurrent->data;
         }
 
         T *operator-> () {
-            CHECK (mCurrent != nullptr && mCurrent->data);
+            DEBUG_CHECK (mCurrent != nullptr && mCurrent->data);
 
             return mCurrent->data.get();
         }
 
         const T &operator* () const{
-            CHECK (mCurrent != nullptr && mCurrent->data);
+            DEBUG_CHECK (mCurrent != nullptr && mCurrent->data);
 
             return *mCurrent->data;
         }
 
         const T *operator-> () const{
-            CHECK (mCurrent != nullptr && mCurrent->data);
+            DEBUG_CHECK (mCurrent != nullptr && mCurrent->data);
 
             return mCurrent->data.get();
         }
@@ -191,7 +191,7 @@ public:
     // Emplace before.
     template<class ...Args>
     Iterator emplace(ConstIterator &where, Args&&... args) {
-        CHECK (where.mCurrent);
+        DEBUG_CHECK (where.mCurrent);
 
         NodeType *newNode;
 
@@ -209,7 +209,7 @@ public:
     }
 
     void erase(ConstIterator &begin, ConstIterator &end) {
-        CHECK (begin.mCurrent);
+        DEBUG_CHECK (begin.mCurrent);
 
         if (begin == end)
             return;

@@ -19,13 +19,23 @@
  */
 #include "SystemCalls.h"
 
+#include "Base/ProcessManager.h"
+#include "Base/FunctionTools.h"
+
 namespace Ziqe {
 
-ZqRegisterType SystemCalls::runSystemCall(LocalThread &thread, SystemCalls::SystemCallID id,
-                                        const ZqRegisterType *parameters) {
-    // TODO: switch to @thread.
+ZqRegisterType SystemCalls::runSystemCall(LocalThread &thread,
+                                          SystemCalls::SystemCallID id,
+                                          const ZqRegisterType *parameters,
+                                          RunSyscallCallbackType &&callback) {
 
-    return ZqCallSyscall (&id, parameters);
+    auto parameter = new runAndCallParam<RunSyscallCallbackType, ZqSyscallParameter>{std::move(callback),
+                ZqSyscallParameter{id, parameters}};
+
+    thread.runAnyFunction(&runAndCallbackSingleParameter<MakeTemplateVariable (&ZqCallSyscall)>,
+                          parameter);
+
+    return 0;
 }
 
 void SystemCalls::setSystemCallHook(ZqSystemCallHookType hook)

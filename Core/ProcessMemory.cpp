@@ -28,7 +28,7 @@ ProcessMemory::ProcessMemory(const MemoryConfiguration &memoryConfiguration)
 
 ProcessMemory::MemoryPage &ProcessMemory::lookupPage(ProcessMemory::Address address) {
     auto iterator = mPagesTable.find (alignMemoryAddressTo (address, mMemoryConfiguration.pageSize));
-    CHECK (iterator != mPagesTable.end ());
+    DEBUG_CHECK (iterator != mPagesTable.end ());
 
     return iterator->second;
 }

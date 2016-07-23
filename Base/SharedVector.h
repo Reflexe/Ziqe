@@ -49,21 +49,21 @@ public:
           mIndexBegin{indexBegin},
           mIndexEnd{(indexEnd == kNoIndex) ? mVector->size() : indexEnd}
     {
-        CHECK (mIndexEnd > mIndexBegin);
+        DEBUG_CHECK (mIndexEnd > mIndexBegin);
     }
 
     ALLOW_COPY_AND_MOVE (SharedVector)
 
     T &operator [](SizeType index) {
-        CHECK_ADD_OVERFLOW (index, mIndexBegin);
+        DEBUG_CHECK_ADD_OVERFLOW (index, mIndexBegin);
 
-        return mVector[index + mIndexBegin];
+        return (*mVector)[index + mIndexBegin];
     }
 
     const T &operator [](SizeType index) const {
-        CHECK_ADD_OVERFLOW (index, mIndexBegin);
+        DEBUG_CHECK_ADD_OVERFLOW (index, mIndexBegin);
 
-        return mVector[index + mIndexBegin];
+        return (*mVector)[index + mIndexBegin];
     }
 
     SizeType size() {

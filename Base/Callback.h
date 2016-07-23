@@ -22,6 +22,7 @@
 
 #include "Memory.h"
 #include "Macros.h"
+#include "Checks.h"
 
 namespace Ziqe {
 
@@ -49,12 +50,29 @@ private:
         virtual ~ObjectManagerInterface() = 0;
     };
 
-    template<typename ClassType>
+    template<FunctionType *sFunction>
+    struct RegularFunctionObjectManager final : public ObjectManagerInterface
+    {
+        RegularFunctionObjectManager()
+        {
+        }
+
+        ALLOW_MOVE (RegularFunctionObjectManager)
+        DISALLOW_COPY (RegularFunctionObjectManager)
+
+        virtual ReturnType invoke(ArgsTypes&&... args) override
+        {
+            return sFunction (std::forward<ArgsTypes> (args)...);
+        }
+
+        virtual ~RegularFunctionObjectManager() override = default;
+    };
+
+    template<typename ClassType, ClassMemeberFunctionType<ClassType> sClassFunction>
     struct RegularObjectManager final : public ObjectManagerInterface
     {
-        RegularObjectManager(ClassMemeberFunctionType<ClassType> function,
-                            ClassType *classPointer)
-            : mClassFunction{function}, mClassPointer{classPointer}
+        RegularObjectManager(ClassType *classPointer)
+            : mClassPointer{classPointer}
         {
         }
 
@@ -63,28 +81,26 @@ private:
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
-            return (mClassPointer->*mClassFunction)(std::forward<ArgsTypes>(args)...);
+            return (mClassPointer->*sClassFunction)(std::forward<ArgsTypes>(args)...);
         }
 
         virtual bool isValid() const override
         {
-            return mClassFunction && mClassPointer;
+            return !!mClassPointer;
         }
 
         virtual ~RegularObjectManager() override = default;
 
     private:
        /// The object's pointer.
-       ClassMemeberFunctionType<ClassType> mClassFunction;
        ClassType *mClassPointer;
     };
 
-    template<typename ClassType>
+    template<typename ClassType, ClassMemeberFunctionType<ClassType> sClassFunction>
     struct UniqueObjectManager final : public ObjectManagerInterface
     {
-        UniqueObjectManager(ClassMemeberFunctionType<ClassType> function,
-                            UniquePointer<ClassType> &&uniquePointer)
-            : mClassFunction{function}, mClassPointer{std::move(uniquePointer)}
+        UniqueObjectManager(UniquePointer<ClassType> &&uniquePointer)
+            : mClassPointer{std::move(uniquePointer)}
         {
         }
 
@@ -93,59 +109,26 @@ private:
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
-            return (mClassPointer.get()->*mClassFunction)(std::forward<ArgsTypes>(args)...);
+            return (mClassPointer.get()->*sClassFunction)(std::forward<ArgsTypes>(args)...);
         }
 
         virtual bool isValid() const override
         {
-            return mClassFunction && !!mClassPointer;
+            return !!mClassPointer;
         }
 
         virtual ~UniqueObjectManager() override = default;
 
     private:
        /// The object's pointer.
-       ClassMemeberFunctionType<ClassType> mClassFunction;
        UniquePointer<ClassType> mClassPointer;
     };
 
-//    template<typename ClassType>
-//    struct WeakObjectManager final : public ObjectManagerInterface
-//    {
-//        WeakObjectManager(ClassMemeberFunctionType<ClassType> function,
-//                          const SharedPointer<ClassType> &sharedPointer)
-//            : mClassFunction{function}, mClassPointer{sharedPointer}
-//        {
-//        }
-
-//        ALLOW_MOVE (WeakObjectManager)
-//        DISALLOW_COPY (WeakObjectManager)
-
-//        virtual ReturnType invoke(ArgsTypes&&... args) override{
-//            auto sharedPointer = mClassPointer.lock();
-
-//            return (sharedPointer.get()->*mClassFunction)(std::forward<ArgsTypes>(args)...);
-//        }
-
-//        virtual bool isValid() const override
-//        {
-//            return mClassFunction && !mClassPointer.expired();
-//        }
-
-//        virtual ~WeakObjectManager() override = default;
-
-//    private:
-//       /// The object's pointer.
-//       ClassMemeberFunctionType<ClassType> mClassFunction;
-//       WeakPointer<ClassType> mClassPointer;
-//    };
-
-    template<typename ClassType>
+    template<typename ClassType, ClassMemeberFunctionType<ClassType> sClassFunction>
     struct SharedObjectManager final : public ObjectManagerInterface
     {
-        SharedObjectManager(ClassMemeberFunctionType<ClassType> function,
-                          const SharedPointer<ClassType> &sharedPointer)
-            : mClassFunction{function}, mClassPointer{sharedPointer}
+        SharedObjectManager(const SharedPointer<ClassType> &sharedPointer)
+            : mClassPointer{sharedPointer}
         {
         }
 
@@ -154,60 +137,57 @@ private:
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
-            return (mClassPointer.get()->*mClassFunction)(std::forward<ArgsTypes>(args)...);
+            return (mClassPointer.get()->*sClassFunction)(std::forward<ArgsTypes>(args)...);
         }
 
         virtual bool isValid() const override
         {
-            return mClassFunction && mClassPointer;
+            return !!mClassPointer;
         }
 
         virtual ~SharedObjectManager() override = default;
 
     private:
        /// The object's pointer.
-       ClassMemeberFunctionType<ClassType> mClassFunction;
        SharedPointer<ClassType> mClassPointer;
     };
 
     UniquePointer<ObjectManagerInterface> mObjectManager;
-    FunctionType *mFunction = nullptr;
 public:
 
     ALLOW_MOVE (Callback)
     DISALLOW_COPY (Callback)
 
-    /// @brief
+    /// @brief Default constructor.
     Callback() = default;
 
     /// Initilize from a regular function.
-    Callback(FunctionType *function)
-        : mObjectManager{},
-          mFunction{function}
+    template<FunctionType sFunction>
+    Callback(StaticVariable<FunctionType, sFunction>)
+        : mObjectManager{new RegularFunctionObjectManager <sFunction>}
     {
     }
 
     /// Initlize from a shared pointer.
-    template<class ClassType>
-    Callback(ClassMemeberFunctionType<ClassType> function,
+    template<class ClassType, ClassMemeberFunctionType<ClassType> sFunction>
+    Callback(StaticVariable<ClassMemeberFunctionType<ClassType>, sFunction>,
              const SharedPointer<ClassType> &sharedPointer)
-        : mObjectManager{makeUnique<SharedObjectManager<ClassType>>(function, sharedPointer)}
+        : mObjectManager{new SharedObjectManager<ClassType, sFunction>(sharedPointer)}
     {
     }
 
     /// Initlize from a unique pointer.
-    template<class ClassType>
-    Callback(ClassMemeberFunctionType<ClassType> function,
+    template<class ClassType, ClassMemeberFunctionType<ClassType> sFunction>
+    Callback(StaticVariable<ClassMemeberFunctionType<ClassType>, sFunction>,
              UniquePointer<ClassType> &&uniquePointer)
-        : mObjectManager{makeUnique<UniqueObjectManager<ClassType>>(function, std::move(uniquePointer))}
+        : mObjectManager{new UniqueObjectManager<ClassType, sFunction>(std::move(uniquePointer))}
     {
     }
 
     /// Initlize from a regular pointer.
-    template<class ClassType>
-    Callback(ClassMemeberFunctionType<ClassType> function,
-             ClassType *pointer)
-         : mObjectManager{makeUnique<RegularObjectManager<ClassType>>(function, pointer)}
+    template<class ClassType, ClassMemeberFunctionType<ClassType> sFunction>
+    Callback(StaticVariable<ClassMemeberFunctionType<ClassType>, sFunction>, ClassType *pointer)
+         : mObjectManager{new RegularObjectManager<ClassType, sFunction>(pointer)}
     {
     }
 
@@ -218,21 +198,14 @@ public:
     }
 
     ReturnType operator() (ArgsTypes&&... args) {
-        // if it has a interface.
-        if (mObjectManager) {
-            CHECK (mObjectManager->isValid());
+        DEBUG_CHECK (mObjectManager->isValid());
 
-            return mObjectManager->invoke (std::forward<ArgsTypes>(args)...);
-        } else {
-            CHECK(mFunction);
-
-            return mFunction (std::forward<ArgsTypes>(args)...);
-        }
+        return mObjectManager->invoke (std::forward<ArgsTypes>(args)...);
     }
 
-    operator bool () {
-        return ((mObjectManager == nullptr && mFunction != nullptr)
-                || mObjectManager->isValid());
+    operator bool ()
+    {
+        return (mObjectManager && mObjectManager->isValid());
     }
 };
 

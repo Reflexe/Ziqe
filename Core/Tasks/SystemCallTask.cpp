@@ -19,11 +19,20 @@
  */
 #include "SystemCallTask.h"
 
+#include "Base/ProcessManager.h"
+
 namespace Ziqe {
 
-SystemCallTask::SystemCallTask(const SharedPointer<Process> &process,
+SystemCallTask::SystemCallTask(SharedVector<ZqRegisterType> &&systemCallParameters,
+                               SystemCalls::SystemCallID systemCallID,
+                               const SharedPointer<Process> &process,
+                               const SharedPointer<Thread>  &thread,
                                const SharedPointer<ProcessMemory> &memoryMap)
-    : mProcess{process}, mMemoryMap{memoryMap}
+    : mSystemCallParameters{std::move (systemCallParameters)},
+      mSystemCallID{systemCallID},
+      mProcess{process},
+      mThread{thread},
+      mMemoryMap{memoryMap}
 {
 }
 
@@ -34,10 +43,21 @@ bool SystemCallTask::run() {
         return true;
     }
 
+    SystemCalls::runSystemCall (1,
+                                mSystemCallID,
+                                mSystemCallParameters,
+                                SystemCalls::RunSyscallCallbackType{MakeStaticVariable (&SystemCallTask::onSystemCallFinished),
+                                                          this});
+
     // run the system call, set a callback to
     // run when it done, and send a broadcast with the new memory map.
 
     return true;
+}
+
+void SystemCallTask::onSystemCallFinished(ZqRegisterType result)
+{
+
 }
 
 inline bool SystemCallTask::isValidMemoryMap(const Process &process,

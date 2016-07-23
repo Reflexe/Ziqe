@@ -28,6 +28,14 @@
 
 namespace Ziqe {
 
+// Page Types:
+/**
+ * Page Types:
+ *
+ * * Stack: not deleted by MemorySync.
+ * * Heap:  ".
+ * * Other: Get updated by memory sync.
+ */
 class ProcessMemory
 {
 public:

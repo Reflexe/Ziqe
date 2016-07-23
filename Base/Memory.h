@@ -25,8 +25,18 @@
 #include "Types.h"
 #include "Macros.h"
 
-void* operator new  (std::size_t count);
-void operator delete (void *pointer) noexcept;
+#include "ZiqeAPI/Memory.h"
+
+void* operator new  (std::size_t count) {
+    static_assert (sizeof (ZqRegisterType) >= sizeof (void *),
+                   "Invalid ZqRegisterType");
+    return reinterpret_cast<void*>(ZqAllocate (static_cast<ZqRegisterType>(count)));
+}
+
+void operator delete (void *pointer) noexcept
+{
+    ZqDeallocate (reinterpret_cast<ZqRegisterType>(pointer));
+}
 
 // Placement
 inline void *operator new(std::size_t, void *p) noexcept{ return p; }
@@ -293,9 +303,9 @@ public:
     }
 
     SharedPointer(SharedPointer &&other)
-        : mPointer{other.mPointer}, mReference{other.mReference}
-    {
-        other.mPointer = other.mReference = nullptr;
+        : mPointer{other.mPointer}, mReference{other.mReference} {
+        other.mPointer = nullptr;
+        other.mReference = nullptr;
     }
 
     SharedPointer(const SharedPointer &other)
