@@ -154,6 +154,24 @@ public:
             result.second->second = T{std::forward<Args>(args)...};
     }
 
+    void insertOrAssign(const KeyType &key,
+                        T& args)
+    {
+        auto result = insert (key, std::forward<T&>(args));
+
+        if (! result.first)
+            result.second->second = std::forward<T&>(args);
+    }
+
+    void insertOrAssign(const KeyType &key,
+                        T&& args)
+    {
+        auto result = insert (key, std::forward<T&&>(args));
+
+        if (! result.first)
+            result.second->second = std::forward<T&&>(args);
+    }
+
     Iterator erase (Iterator &iterator) {
         auto tableIterator = iterator->tableIterator;
         bool isFirstEntry = (*tableIterator == iterator);

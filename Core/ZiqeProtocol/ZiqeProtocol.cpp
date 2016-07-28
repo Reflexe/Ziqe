@@ -23,7 +23,12 @@
  */
 #include "ZiqeProtocol.h"
 
-ZiqeProtocol::ZiqeProtocol()
+namespace Ziqe {
+
+Ziqe::ZiqeProtocol::ZiqeProtocol(UniquePointer<Ziqe::InputStreamInterface> &globaInputStream, UniquePointer<Ziqe::OutputStreamInterface> &globalOutputStream)
 {
 
 }
+
+}
+

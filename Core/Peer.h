@@ -31,6 +31,8 @@
 #include "Core/GlobalProcess.h"
 #include "Core/GlobalThread.h"
 
+#include "ProcessMemory.h"
+
 namespace Ziqe {
 
 class Peer
@@ -50,7 +52,8 @@ public:
                     const LocalProcess &process);
 
     // Stop this thread until this peer give us an answer for this syscall.
-    void requestSystemCallForThread (const Thread &thread);
+    void requestSystemCallForThread (const GlobalThread &globalThread,
+                                     LocalThread &localThread);
 
     // make us the owner of this page.
     void takePage (const ProcessMemory::MemoryPage &memoryPage);

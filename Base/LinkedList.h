@@ -25,6 +25,8 @@
 #include "Macros.h"
 #include "Types.h"
 
+#include <utility>
+
 namespace Ziqe {
 
 template <class T>
@@ -195,7 +197,8 @@ public:
 
         NodeType *newNode;
 
-        newNode = new NodeType{where.mCurrent->previous, where.mCurrent, std::forward<Args>(args)...};
+        newNode = new NodeType{where.mCurrent->previous,
+                where.mCurrent, std::forward<Args>(args)...};
         where.mCurrent->previous = newNode;
 
         ++mSize;
@@ -252,7 +255,7 @@ public:
 
         --mSize;
 
-        return Iterator{(next != nullptr) ? next : end()};
+        return Iterator{next};
     }
 
     void swap(LinkedList &other) {

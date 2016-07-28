@@ -24,7 +24,7 @@
 #include "Base/HashTable.h"
 
 #include "Peer.h"
-#include "Process.h"
+#include "GlobalProcess.h"
 
 namespace Ziqe {
 
@@ -46,12 +46,6 @@ private:
     Peer mSelf;
 
     LinkedList<UniquePointer<Peer>> mPeers;
-
-    /**
-     * @brief mAddressToPeer An hash table that get used in order to detect which
-     *                       peer is holding an memory address.
-     */
-    HashTable<ProcessMemory::Address, typename LinkedList<UniquePointer<Peer>>::Iterator> mAddressToPeer;
 };
 
 } // namespace Ziqe

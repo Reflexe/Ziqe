@@ -1,0 +1,1 @@
+zq_add_library(Network NetworkProtocol NetworkPacket Udpv4Packet Udpv6Packet Udpv4Protocol Udpv6Protocol)

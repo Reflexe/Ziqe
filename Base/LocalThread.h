@@ -25,8 +25,6 @@
 
 #include "ZiqeAPI/Process.h"
 
-#include "Core/Thread.h"
-
 namespace Ziqe {
 
 class LocalThread

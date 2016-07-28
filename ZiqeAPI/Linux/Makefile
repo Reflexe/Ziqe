@@ -1,6 +1,6 @@
 obj-m += Linux.o
 Linux-y += SystemCalls.o
-Linux-objs := ../../../../Build/Base/libBase.a
+#Linux-objs := ../../../../Build/Base/libBase.a
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 #EXTRA_CFLAGS+=-DLINUX_DRIVER -mhard-float
 

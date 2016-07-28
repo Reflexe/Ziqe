@@ -1,5 +1,5 @@
 /**
- * @file Checks.h
+ * @file Udpv6Packet.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,24 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_CHECKS_H
-#define ZIQE_CHECKS_H
-
-#include <limits>
+#include "Udpv6Packet.h"
 
 namespace Ziqe {
 
-// CHECK things that shouldn't happend.
-#define DEBUG_CHECK(expr) (void)(expr)
-
-template<class X, class Y>
-bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
+Udpv6Packet::Udpv6Packet()
 {
-     return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
+
 }
 
-#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
-
 } // namespace Ziqe
-
-#endif // ZIQE_CHECKS_H

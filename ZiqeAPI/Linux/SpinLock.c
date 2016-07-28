@@ -1,5 +1,5 @@
 /**
- * @file Checks.h
+ * @file SpinLock.c
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,24 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_CHECKS_H
-#define ZIQE_CHECKS_H
 
-#include <limits>
+#include "SpinLock.h"
 
-namespace Ziqe {
+#include <linux/spinlock.h>
 
-// CHECK things that shouldn't happend.
-#define DEBUG_CHECK(expr) (void)(expr)
+void ZqSpinLockInit(ZqSpinLock *spinlock) {
+    *spinlock = (ZqSpinLock) ZqAllocate (sizeof (struct spinlock_t));
 
-template<class X, class Y>
-bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
-{
-     return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
+    spin_lock_init ((spinlock_t *) *spinlock);
 }
 
-#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
+void ZqSpinLockDeinit(ZqSpinLock *spinlock)
+{
+    ZqDeallocate ((ZqAddress) *spinlock);
+}
 
-} // namespace Ziqe
+void ZqSpinLockLock(ZqSpinLock *spinlock)
+{
+    spin_lock ((spinlock_t*)  spinlock);
+}
 
-#endif // ZIQE_CHECKS_H
+void ZqSpinLockUnlock(ZqSpinLock *spinlock)
+{
+    spin_unlock ((spinlock_t*)  spinlock);
+}
+
+ZqBool ZqSpinLockTryLock(ZqSpinLock *spinlock)
+{
+    return (spin_trylock ((spinlock_t *) spinlock) == 1) ? ZQ_TRUE : ZQ_FALSE;
+}

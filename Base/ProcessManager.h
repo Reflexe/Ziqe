@@ -43,7 +43,6 @@ public:
     static LocalThread getCurrentThread();
 
 private:
-    LinkedList<LocalThread>
 };
 
 } // namespace Ziqe

@@ -1,5 +1,5 @@
 /**
- * @file Checks.h
+ * @file Udpv4Protocol.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,24 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_CHECKS_H
-#define ZIQE_CHECKS_H
-
-#include <limits>
+#include "Udpv4Protocol.h"
 
 namespace Ziqe {
 
-// CHECK things that shouldn't happend.
-#define DEBUG_CHECK(expr) (void)(expr)
-
-template<class X, class Y>
-bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
+Udpv4Protocol::Udpv4Protocol()
 {
-     return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
+
 }
 
-#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
+bool Udpv4Protocol::sendPacket(UniquePointer<NetworkPacket> &&packet)
+{
+
+}
+
+UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
+{
+
+}
+
+UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
+{
+
+}
 
 } // namespace Ziqe
-
-#endif // ZIQE_CHECKS_H

@@ -24,10 +24,15 @@
 #ifndef ZIQEPROTOCOL_H
 #define ZIQEPROTOCOL_H
 
+#include "Base/InputStreamInterface.h"
+#include "Base/OutputStreamInterface.h"
+
+#include "Base/Memory.h"
+
 /**
  * @brief The ZiqeProtocol class
  *
- * Abstract: the Ziqe Protocol is used in order to create Ziqe::Task -s.
+ * Abstract: the Ziqe Protocol is used in order to create Ziqe::Task s.
  *
  * - Terms:
  *   "Page Owner"   : The owner of a memory page, responsible for notifing
@@ -46,9 +51,9 @@
  *   * Thread: New, Delete.
  *
  *   Messages can be sent as one block; that make sure that the reader
- *   will read them in the right order.
+ *   will read them at the right order.
  *
- *   Each message has two parts: Header and data (data is not required).
+ *   Each message has two parts: Header and data (data can be empty).
  *   The reader should be able to read all the messages' headers without
  *   parsing their data.
  *
@@ -58,9 +63,36 @@
  *   I thinks that it should be optional and get used only
  *   for a big chunks of data.
  *   In case of memory, a lot of bytes may be initilized to zero so
- *   it commpressing may be needed.
+ *   commpressing may be needed badly.
+ *
+ *  - Memory Ownership and Access:
+ *   Every memory Page(?) must be own by one process instance.
+ *   When a memory page is owned, the owner is allowed to write and read from
+ *   it freely. When one process instance want access to a memory page that
+ *   owned by someone else, it should request the current state of the memory
+ *   page from its owner.
+ *
+ *   It is possible also to move ownership between two process instances:
+ *   if for example A is the owner of a memory page and it see that B
+ *   requested the same page multiple times, it can give B the page's
+ *   ownership. Also, B can take the page and notify A about it.
+ *
+ *   Table 1: Memory Areas and Their Initial Owner
+ *    ------------------------------------------------------------------
+ *   | Area                  | Initial Owner       | Can be given/taken |
+ *    ----------------------- -------------------- ---------------------
+ *   | Stack                 | The stack's thread  | Yes?               |
+ *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+ *   | Dynamic allocations   | The allocator       | Yes                |
+ *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+ *   | Static variables      | The Process Owner   | Yes (Not always)   |
+ *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+ *   | Constant Areas (e.g.  | No One (always can  | No                 |
+ *   | .text)                | be read)            |                    |
+ *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
  *
  *  - Memory Sharing & Sync Events:
+ *
  *   Every process instance has an copy of the memory image.
  *   A few threads on the same computer have the same memory image.
  *
@@ -69,7 +101,8 @@
  *   the new memory map.
  *
  *   What happend when a someone sending a sync event and another
- *   sync event get processed before? Its memory map get invalidated.
+ *   sync event of the same process get processed before?
+ *   Its memory map get invalidated.
  *   Maybe a revision parameter for every memory map and when a
  *   computer sent an older rev, it'll request a new memory map
  *   from the caller.
@@ -81,12 +114,27 @@
  *    finishes the Sync event and waking up the caller.
  *
  *   Note: A Sync Event can be called locally and remotly.
+ *
+ * - Memory Map:
+ *  Only the changes between the previous sent revision and the current one.
+ *
+ * - Defects:
+ *   - Sync Events: A very big overhead when a new memory map is required.
+ *                  Maybe will do a double check to see if we should get an
+ *                  new one at all (if we can see what the requester may respond
+ *                  in response to our new map request)
  */
+
+namespace Ziqe {
 
 class ZiqeProtocol
 {
 public:
-  ZiqeProtocol();
+    ZiqeProtocol(UniquePointer<InputStreamInterface> &globaInputStream,
+                 UniquePointer<OutputStreamInterface> &globalOutputStream);
+   
 };
+
+}
 
 #endif // ZIQEPROTOCOL_H

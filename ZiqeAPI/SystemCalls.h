@@ -36,6 +36,7 @@ ZQ_BEGIN_C_DECL
  * @param hook
  */
 void ZqInitSystemCallsHook(ZqSystemCallHookType hook);
+void ZqUninitSystemCallsHook(void);
 
 void ZqDeinitSystemCallsHook(void);
 

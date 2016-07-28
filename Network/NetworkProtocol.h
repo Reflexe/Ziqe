@@ -1,5 +1,5 @@
 /**
- * @file Checks.h
+ * @file NetworkProtocol.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,24 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_CHECKS_H
-#define ZIQE_CHECKS_H
+#ifndef ZIQE_NETWORKPROTOCOL_H
+#define ZIQE_NETWORKPROTOCOL_H
 
-#include <limits>
+#include "Base/Memory.h"
+
+#include "NetworkPacket.h"
 
 namespace Ziqe {
 
-// CHECK things that shouldn't happend.
-#define DEBUG_CHECK(expr) (void)(expr)
-
-template<class X, class Y>
-bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
+class NetworkProtocol
 {
-     return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
-}
+public:
+    NetworkProtocol();
+    virtual ~NetworkProtocol() = 0;
 
-#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
+    virtual bool sendPacket (UniquePointer<NetworkPacket> &&packet) = 0;
+
+    // Might be null.
+    virtual UniquePointer<NetworkPacket> receivePacket () = 0;
+
+    virtual UniquePointer<NetworkProtocol> createFromPacket (const NetworkPacket &packet) = 0;
+};
 
 } // namespace Ziqe
 
-#endif // ZIQE_CHECKS_H
+#endif // ZIQE_NETWORKPROTOCOL_H

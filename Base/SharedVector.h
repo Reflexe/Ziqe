@@ -37,12 +37,12 @@ public:
 
     const static SizeType kNoIndex = static_cast<SizeType>(-1);
 
-    SharedVector(SharedPointer<VectorType> &vector)
+    SharedVector(const SharedPointer<VectorType> &vector)
         : mVector{vector}, mIndexBegin{0}, mIndexEnd{vector.size()}
     {
     }
 
-    SharedVector(SharedPointer<VectorType> &vector,
+    SharedVector(const SharedPointer<VectorType> &vector,
                  const SizeType             indexBegin,
                  const SizeType             indexEnd=kNoIndex)
         : mVector{vector},

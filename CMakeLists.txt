@@ -56,7 +56,7 @@ macro(zq_add_library library_name)
     add_library("${zq_target_prefix}${PROJECT_NAME}" ${zq_library_type} ${files_list})
 endmacro()
 
-set(zq_compiler_arguments "-Weverything -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-shadow -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -Wno-weak-vtables -Wno-packed -Wno-switch-enum -Wno-covered-switch-default")
+set(zq_compiler_arguments "-nostdlib -Weverything -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-shadow -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -Wno-weak-vtables -Wno-packed -Wno-switch-enum -Wno-covered-switch-default")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${zq_compiler_arguments} -Wno-global-constructors -Wno-exit-time-destructors")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${zq_compiler_arguments}")
 
@@ -66,6 +66,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(zq_platform Linux)
 
 add_subdirectory (Base)
+add_subdirectory (ZiqeAPI)
+add_subdirectory (Network)
 add_subdirectory (Core)
 add_subdirectory (Worker)
 add_subdirectory (Client)

@@ -20,17 +20,17 @@
 #ifndef ZIQE_INPUTSTREAMINTERFACE_H
 #define ZIQE_INPUTSTREAMINTERFACE_H
 
-#include <vector>
 #include <cstdint>
 
 #include "Signal.h"
+#include "Vector.h"
 
 namespace Ziqe {
 
 class InputStreamInterface
 {
 public:
-    typedef std::vector<uint8_t> DataType;
+    typedef Vector<uint8_t> DataType;
 
     DEFINE_SIGNAL (onDataReceived(DataType &data));
     DEFINE_SIGNAL (onStreamActive());

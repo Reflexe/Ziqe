@@ -25,8 +25,8 @@ namespace Ziqe {
 
 SystemCallTask::SystemCallTask(SharedVector<ZqRegisterType> &&systemCallParameters,
                                SystemCalls::SystemCallID systemCallID,
-                               const SharedPointer<Process> &process,
-                               const SharedPointer<Thread>  &thread,
+                               const SharedPointer<LocalProcess> &process,
+                               const SharedPointer<LocalThread> &thread,
                                const SharedPointer<ProcessMemory> &memoryMap)
     : mSystemCallParameters{std::move (systemCallParameters)},
       mSystemCallID{systemCallID},
@@ -43,9 +43,9 @@ bool SystemCallTask::run() {
         return true;
     }
 
-    SystemCalls::runSystemCall (1,
+    SystemCalls::runSystemCall (*mThread,
                                 mSystemCallID,
-                                mSystemCallParameters,
+                                &mSystemCallParameters[0],
                                 SystemCalls::RunSyscallCallbackType{MakeStaticVariable (&SystemCallTask::onSystemCallFinished),
                                                           this});
 
@@ -60,7 +60,7 @@ void SystemCallTask::onSystemCallFinished(ZqRegisterType result)
 
 }
 
-inline bool SystemCallTask::isValidMemoryMap(const Process &process,
+inline bool SystemCallTask::isValidMemoryMap(const LocalProcess &process,
                                              const ProcessMemory &memoryMap)
 {
     return memoryMap.getRevision () <= process.getProcessMemory ().getRevision ();

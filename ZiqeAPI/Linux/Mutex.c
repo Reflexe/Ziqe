@@ -1,5 +1,5 @@
 /**
- * @file Checks.h
+ * @file Mutex.c
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,24 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_CHECKS_H
-#define ZIQE_CHECKS_H
 
-#include <limits>
+#include "Mutex.h"
 
-namespace Ziqe {
+#include <linux/mutex.h>
 
-// CHECK things that shouldn't happend.
-#define DEBUG_CHECK(expr) (void)(expr)
+void ZqMutexInit(ZqMutex *mutex) {
+    *mutex = ZqAllocate (sizeof (struct mutex));
 
-template<class X, class Y>
-bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
-{
-     return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
+    mutex_init ((struct mutex *) *mutex);
 }
 
-#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
+void ZqMutexDeinit(ZqMutex *mutex)
+{
+    ZqDeallocate ((ZqAddress) *mutex);
+}
 
-} // namespace Ziqe
+void ZqMutexLock(ZqMutex *mutex)
+{
+    mutex_lock ((struct mutex *) *mutex);
+}
 
-#endif // ZIQE_CHECKS_H
+void ZqMutexUnlock(ZqMutex *mutex)
+{
+    mutex_unlock ((struct mutex *) *mutex);
+}
+
+ZqBool ZqMutexTryLock(ZqMutex *mutex)
+{
+    return mutex_trylock ((struct mutex *) *mutex) == 1 ? ZQ_TRUE : ZQ_FALSE;
+}

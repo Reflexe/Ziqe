@@ -1,5 +1,5 @@
 /**
- * @file Checks.h
+ * @file NetworkPacket.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,24 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_CHECKS_H
-#define ZIQE_CHECKS_H
+#ifndef ZIQE_NETWORKPACKET_H
+#define ZIQE_NETWORKPACKET_H
 
-#include <limits>
+#include "Base/SharedVector.h"
+#include "Base/Types.h"
 
 namespace Ziqe {
 
-// CHECK things that shouldn't happend.
-#define DEBUG_CHECK(expr) (void)(expr)
-
-template<class X, class Y>
-bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
+class NetworkPacket
 {
-     return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
-}
+public:
+    NetworkPacket();
+    virtual ~NetworkPacket() = 0;
 
-#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
+    virtual const SharedVector<Byte> getData () const = 0;
+};
 
 } // namespace Ziqe
 
-#endif // ZIQE_CHECKS_H
+#endif // ZIQE_NETWORKPACKET_H

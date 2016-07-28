@@ -26,8 +26,10 @@ Peer::Peer()
 
 }
 
-void Peer::runThread(const Thread &thread) {
-    // Send a message to this peer to
+void Peer::runThread(const LocalThread &thread, const LocalProcess &process) {
+    // Send the process info if this peer doesn't have it.
+    // Send the thread info.
+    // Register this thread as a GlobalThread.
 }
 
 } // namespace Ziqe

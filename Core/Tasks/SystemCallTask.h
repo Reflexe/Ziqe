@@ -24,7 +24,9 @@
 #include "Base/SystemCalls.h"
 #include "Base/SharedVector.h"
 
-#include "Core/Process.h"
+#include "Base/LocalProcess.h"
+#include "Base/LocalThread.h"
+
 #include "Core/ProcessMemory.h"
 #include "Core/Task.h"
 
@@ -37,8 +39,8 @@ class SystemCallTask final : public Task
 public:
     SystemCallTask(SharedVector<ZqRegisterType> &&systemCallParameters,
                    SystemCalls::SystemCallID systemCallID,
-                   const SharedPointer<Process> &process,
-                   const SharedPointer<Thread> &thread,
+                   const SharedPointer<LocalProcess> &process,
+                   const SharedPointer<LocalThread> &thread,
                    const SharedPointer<ProcessMemory> &memoryMap);
 
     virtual bool run () override;
@@ -46,14 +48,14 @@ public:
 private:
     void onSystemCallFinished (ZqRegisterType result);
 
-    bool isValidMemoryMap(const Process &process, const ProcessMemory &memoryMap);
+    bool isValidMemoryMap(const LocalProcess &process, const ProcessMemory &memoryMap);
 
     SharedVector<ZqRegisterType> mSystemCallParameters;
 
     SystemCalls::SystemCallID mSystemCallID;
 
-    SharedPointer<Process> mProcess;
-    SharedPointer<Thread> mThread;
+    SharedPointer<LocalProcess> mProcess;
+    SharedPointer<LocalThread> mThread;
 
     SharedPointer<ProcessMemory> mMemoryMap;
 };

@@ -20,12 +20,12 @@
 #ifndef ZIQE_MEMORY_H
 #define ZIQE_MEMORY_H
 
-#include <utility>
-
 #include "Types.h"
 #include "Macros.h"
 
 #include "ZiqeAPI/Memory.h"
+
+#include <utility>
 
 void* operator new  (std::size_t count) {
     static_assert (sizeof (ZqRegisterType) >= sizeof (void *),
@@ -41,8 +41,8 @@ void operator delete (void *pointer) noexcept
 // Placement
 inline void *operator new(std::size_t, void *p) noexcept{ return p; }
 inline void *operator new[](std::size_t, void *p)  noexcept{ return p; }
-inline void  operator delete  (void *, void *) noexcept { };
-inline void  operator delete[](void *, void *) noexcept { };
+inline void  operator delete  (void *, void *) noexcept { }
+inline void  operator delete[](void *, void *) noexcept { }
 
 namespace Ziqe {
 
@@ -113,7 +113,7 @@ struct NoDeleter {
     }
 };
 
-// TODO: implement this types.
+// TODO: weak pointer.
 template<class T, class Deleter=DefaultDeleter<T>>
 class UniquePointer
 {

@@ -62,7 +62,7 @@ public:
     }
 
     Vector(Vector &&other)
-        : mPointer{std::move (other.mPointer)}, mSize{other.mSize}
+        : mPointer{move (other.mPointer)}, mSize{other.mSize}
     {
         other.mSize = 0;
     }
@@ -70,7 +70,7 @@ public:
     Vector &operator = (Vector &&other) {
         deleteAll (mPointer, mSize);
 
-        mPointer = std::move (other.mPointer);
+        mPointer = move (other.mPointer);
         mSize    = other.mSize;
 
         other.mSize = 0;
@@ -110,6 +110,11 @@ public:
 
     template<class InputIterator>
     void assign(const InputIterator &begin, const InputIterator &end, SizeType beginToEnd) {
+        if (mSize == beginToEnd)
+        {
+            insertToExistBuffer (0, begin, end);
+        }
+
         deleteAll (mPointer, mSize);
         reset ();
 
@@ -181,6 +186,11 @@ private:
     void resizeBuffer (SizeType newSize) {
         PointerType pointer{std::move (mPointer)};
         auto pointerSize = mSize;
+
+        if (mSize == newSize)
+        {
+            // destruct without free ing.
+        }
 
         mPointer = mAllocator.allocate (newSize);
         mSize = newSize;

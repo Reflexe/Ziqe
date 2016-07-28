@@ -1,1 +1,0 @@
-cmd_/home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/SystemCalls.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/SystemCalls.ko /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/SystemCalls.o /home/shrek0/Projects/Ziqe/Core/ZiqeAPI/Arch/Linux/SystemCalls.mod.o
