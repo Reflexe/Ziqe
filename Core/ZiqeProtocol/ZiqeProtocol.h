@@ -91,6 +91,19 @@
  *   | .text)                | be read)            |                    |
  *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
  *
+ *  Problems:
+ *   * Allocated pages may have duplication (they get allocated by the local machine,
+ *     so two machines may allocate the same address).
+ *
+ *  - System Calls:
+ *  The basic problem about system calls is that the Process Owner may need
+ *  to read a private memory from the callee. It may also required to write
+ *  some data into the callee's memory.
+ *
+ *  There're two ways to solve this problem:
+ *   -- Send all of our memory with the request: a lot of overhead.
+ *   -- Parse every system call and send only the required pages.
+ *
  *  - Memory Sharing & Sync Events:
  *
  *   Every process instance has an copy of the memory image.
