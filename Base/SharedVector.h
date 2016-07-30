@@ -66,13 +66,21 @@ public:
         return (*mVector)[index + mIndexBegin];
     }
 
-    SizeType size() {
+    SizeType size()
+    {
         return mIndexEnd - mIndexBegin;
     }
 
     SizeType getSize()
     {
         return size();
+    }
+
+    void increaseBegin (SizeType howMuch = 1) {
+        DEBUG_CHECK_ADD_OVERFLOW (howMuch, mIndexBegin);
+        DEBUG_CHECK (size() + howMuch <= mVector.size ());
+
+        mIndexBegin += howMuch;
     }
 
 private:

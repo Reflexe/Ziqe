@@ -1,6 +1,7 @@
 #ifdef __x86_64__
 typedef unsigned long ZqRegisterType;
 typedef ZqRegisterType ZqSystemCallIDType;
+#define ZQ_MEMORY_PAGE_SIZE 1
 #else
 typedef int RegisterType;
 typedef RegisterType SystemCallIDType;

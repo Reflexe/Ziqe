@@ -23,28 +23,21 @@
 #include <cstdint>
 
 #include "Base/Types.h"
-#include "Base/HashTable.h"
 #include "Base/SharedVector.h"
+
+#include "ZiqeAPI/Types.h"
 
 namespace Ziqe {
 
-// Page Types:
-/**
- * Page Types:
- *
- * * Stack: not deleted by MemorySync.
- * * Heap:  ".
- * * Other: Get updated by memory sync.
- */
 class ProcessMemory
 {
 public:
-    typedef SharedVector<Byte> MemoryPage;
+    typedef Byte MemoryPage[ZQ_MEMORY_PAGE_SIZE];
     typedef QWord              Address;
     typedef uint64_t           Revision;
 
-    struct MemoryConfiguration{
-        enum class AddressSize{
+    struct MemoryConfiguration {
+        enum class AddressSize {
             _16 = 0,
             _32,
             _64,
@@ -57,17 +50,12 @@ public:
 
     ProcessMemory(const MemoryConfiguration &memoryConfiguration);
 
-
-    MemoryPage &lookupPage (Address address);
-
     Revision getRevision() const;
 
 private:
     static Address alignMemoryAddressTo(Address address, Address alignTo);
 
     MemoryConfiguration mMemoryConfiguration;
-
-    HashTable<Address, MemoryPage> mPagesTable;
 
     Revision mRevision;
 };

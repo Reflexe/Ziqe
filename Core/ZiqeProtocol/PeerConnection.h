@@ -1,5 +1,5 @@
 /**
- * @file Peer.cpp
+ * @file PeerConnection.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,27 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Peer.h"
+#ifndef ZIQE_PEERCONNECTION_H
+#define ZIQE_PEERCONNECTION_H
+
 
 namespace Ziqe {
 
-Peer::Peer()
+class PeerConnectionCallback
 {
+public:
+    virtual ~PeerConnectionCallback () = 0;
 
-}
+    virtual void onGivePage () = 0;
 
-void Peer::runThread(const LocalThread &thread, const LocalProcess &process) {
-    // Send the process info if this peer doesn't have it.
-    // Send the thread info.
-    // Register this thread as a GlobalThread.
+    virtual void onTakePage () = 0;
 
-    mSharedProcesses.emplace_back (process.getProcessID ());
-}
+    virtual void on () = 0;
 
-void Peer::requestSystemCallForThread(const GlobalThread &globalThread,
-                                      LocalThread &localThread)
+    virtual void onMemoryRequest () = 0;
+
+    virtual void onConnectionClosed () = 0;
+};
+
+class PeerConnection
 {
-
-}
+public:
+    PeerConnection();
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_PEERCONNECTION_H

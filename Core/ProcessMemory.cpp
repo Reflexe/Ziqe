@@ -26,20 +26,6 @@ ProcessMemory::ProcessMemory(const MemoryConfiguration &memoryConfiguration)
 {
 }
 
-ProcessMemory::MemoryPage &ProcessMemory::lookupPage(ProcessMemory::Address address) {
-    auto iterator = mPagesTable.find (alignMemoryAddressTo (address, mMemoryConfiguration.pageSize));
-    DEBUG_CHECK (iterator != mPagesTable.end ());
-
-    return iterator->second;
-}
-
-inline ProcessMemory::Address ProcessMemory::alignMemoryAddressTo(ProcessMemory::Address address,
-                                                                  ProcessMemory::Address alignTo) {
-    Address notAligned = address % alignTo;
-
-    return address - notAligned;
-}
-
 ProcessMemory::Revision ProcessMemory::getRevision() const
 {
     return mRevision;

@@ -1,5 +1,5 @@
 /**
- * @file Peer.cpp
+ * @file FieldsReader.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,27 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Peer.h"
+#ifndef ZIQE_FIELDSREADER_H
+#define ZIQE_FIELDSREADER_H
+
+#include "SharedVector.h"
 
 namespace Ziqe {
 
-Peer::Peer()
+class FieldsReader
 {
+public:
+    FieldsReader(SharedVector<Byte> &&vector);
 
-}
+    template <typename T, SizeType sByteLength=sizeof (T)>
+    T readT() {
+        DEBUG_CHECK (mVector.size() <= sByteLength);
 
-void Peer::runThread(const LocalThread &thread, const LocalProcess &process) {
-    // Send the process info if this peer doesn't have it.
-    // Send the thread info.
-    // Register this thread as a GlobalThread.
+        T value = *reinterpret_cast<T*> (&mVector[0]);
+        mVector.increaseBegin (sByteLength);
 
-    mSharedProcesses.emplace_back (process.getProcessID ());
-}
+        return value;
+    }
 
-void Peer::requestSystemCallForThread(const GlobalThread &globalThread,
-                                      LocalThread &localThread)
-{
-
-}
+private:
+    SharedVector<Byte> mVector;
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_FIELDSREADER_H

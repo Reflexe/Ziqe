@@ -33,6 +33,8 @@
 
 #include "ProcessMemory.h"
 
+#include "ZiqeProtocol/PeerConnection.h"
+
 namespace Ziqe {
 
 class Peer
@@ -75,12 +77,18 @@ private:
         enum class Cost{
             _1
         };
+
+        enum class OperatingSystem {
+            Windows_10 = 0,
+            Linux_4    = 0xff
+        };
+
+        OperatingSystem operationSystem;
     };
 
     LinkedList<GlobalProcess> mSharedProcesses;
 
-    /// @brief A stream that sent to this peer.
-    UniquePointer<OutputStreamInterface> mOutputStream;
+    PeerConnection mConnection;
 };
 
 } // namespace Ziqe

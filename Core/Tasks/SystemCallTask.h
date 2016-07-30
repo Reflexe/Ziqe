@@ -32,7 +32,7 @@
 
 namespace Ziqe {
 
-// System calls in Ziqe all sepical: there're also a sync point.
+// System calls in Ziqe all sepical: they're also a sync point.
 // In other words, after a syscall, s
 class SystemCallTask final : public Task
 {

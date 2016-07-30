@@ -119,6 +119,12 @@ public:
         }
 
         DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(DoubleLinkedListIterator, mCurrent)
+
+        bool isNull () const
+        {
+            return mCurrent == nullptr;
+        }
+
     private:
         friend class LinkedList;
 
@@ -183,7 +189,7 @@ public:
         // Insert one element before @where and then add all the
         // others after it.
         auto     inputIterator   = insertBegin;
-        emplace (where, *inputIterator);
+        emplace_before (where, *inputIterator);
         ++inputIterator;
 
         if (inputIterator != insertEnd)
@@ -192,7 +198,7 @@ public:
 
     // Emplace before.
     template<class ...Args>
-    Iterator emplace(ConstIterator &where, Args&&... args) {
+    Iterator emplace_before(ConstIterator &where, Args&&... args) {
         DEBUG_CHECK (where.mCurrent);
 
         NodeType *newNode;
@@ -209,6 +215,18 @@ public:
         } else {
             return DoubleLinkedListIterator{newNode};
         }
+    }
+
+    template<class ...Args>
+    Iterator emplace_back(Args&&... args) {
+        return emplace_before (mEnd,
+                        std::forward<Args>(args)...);
+    }
+
+    template<class ...Args>
+    Iterator emplace_front(Args&&... args) {
+        return emplace_before (mBegin,
+                        std::forward<Args>(args)...);
     }
 
     void erase(ConstIterator &begin, ConstIterator &end) {
@@ -256,6 +274,16 @@ public:
         --mSize;
 
         return Iterator{next};
+    }
+
+    void pop_back ()
+    {
+        return erase (mEnd);
+    }
+
+    void pop_front ()
+    {
+        return erase (mBegin);
     }
 
     void swap(LinkedList &other) {

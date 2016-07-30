@@ -28,6 +28,7 @@
 #include "Base/OutputStreamInterface.h"
 
 #include "Base/Memory.h"
+#include "Base/FieldsReader.h"
 
 /**
  * @brief The ZiqeProtocol class
@@ -143,9 +144,16 @@ namespace Ziqe {
 class ZiqeProtocol
 {
 public:
+    struct Message {
+        uint16_t messageType;
+
+        uint64_t processID;
+    };
+
     ZiqeProtocol(UniquePointer<InputStreamInterface> &globaInputStream,
                  UniquePointer<OutputStreamInterface> &globalOutputStream);
-   
+
+    Signal<void(UniquePointer<Peer>&&)> sNewPeers;
 };
 
 }
