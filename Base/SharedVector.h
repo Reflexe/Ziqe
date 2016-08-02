@@ -89,6 +89,7 @@ private:
     SizeType mIndexBegin;
     SizeType mIndexEnd;
 };
+
 } // namespace Ziqe
 
 #endif // ZIQE_SHAREDVECTOR_H

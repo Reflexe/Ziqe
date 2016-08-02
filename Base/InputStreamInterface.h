@@ -20,9 +20,7 @@
 #ifndef ZIQE_INPUTSTREAMINTERFACE_H
 #define ZIQE_INPUTSTREAMINTERFACE_H
 
-#include <cstdint>
-
-#include "Signal.h"
+#include "Base/Types.h"
 #include "Vector.h"
 
 namespace Ziqe {
@@ -30,16 +28,33 @@ namespace Ziqe {
 class InputStreamInterface
 {
 public:
-    typedef Vector<uint8_t> DataType;
+    typedef Vector<Byte> DataType;
 
-    DEFINE_SIGNAL (onDataReceived(DataType &data));
-    DEFINE_SIGNAL (onStreamActive());
+    // Any input stream should provide this callback.
+    class Callback {
+    public:
+        virtual ~Callback () = 0;
+        ALLOW_COPY_AND_MOVE (Callback)
+
+        virtual void onDataReceived (DataType &&data) = 0;
+
+
+
+        virtual void onStreamClosed () = 0;
+    };
+
+    /**
+     * @brief registerCallback
+     * @param callback
+     * @return
+     */
+    virtual bool registerCallback (SharedPointer<Callback> &&callback) = 0;
 
 protected:
     InputStreamInterface();
     virtual ~InputStreamInterface() = 0;
 
-
+    ALLOW_COPY_AND_MOVE (InputStreamInterface)
 };
 
 } // namespace Ziqe

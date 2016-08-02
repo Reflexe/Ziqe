@@ -21,9 +21,41 @@
 
 namespace Ziqe {
 
-PeerConnection::PeerConnection()
+PeerConnection::PeerConnection(SharedPointer<Callback> &&pointer,
+                               const SharedPointer<IOStreamInterface> &ioStream)
+    : mCallback{std::move(pointer)}, mInputStream{ioStream}
 {
 
+}
+
+PeerConnection::~PeerConnection()
+{
+    close ();
+}
+
+void PeerConnection::close() {
+    if (mIsConnected) {
+        mIsConnected = false;
+        mCallback->onConnectionClosed ();
+    }
+}
+
+bool PeerConnection::isConnected() const
+{
+    return mIsConnected;
+}
+
+void PeerConnection::onDataReceived(InputStreamInterface::DataType &&data) {
+    FieldReader reader{std::move (data)};
+    Message message{reader};
+
+    return mCallback->onMessageReceived (std::move (message),
+                                         std::move (reader));
+}
+
+void PeerConnection::onStreamClosed()
+{
+    close ();
 }
 
 } // namespace Ziqe

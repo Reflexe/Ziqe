@@ -55,11 +55,26 @@ ziqe_define_trivial_hash(int64_t)
 
 #undef ziqe_define_trivial_hash
 
+/// @brief An generic IsEqual.
+template<class T>
+struct IsEqual
+{
+    bool operator () (const T &one,
+                      const T &other)
+    {
+        return !(one != other);
+    }
+};
+
 /**
  * @brief HashTable  An hash table container with unique keys (similer to std::unordered_map).
  * @tparam KeyType   The hash table's key type.
  * @tparam T         The actual data type.
- * @tparam _Hash     The hash function to hash @tparam KeyType s.
+ * @tparam IsEqual   Used to compare @tparam KeyType. By default it uses the class' != operator.
+ *                   Must be a default constructable type that will be initilized once per
+ *                   HashTable.
+ * @tparam _Hash     The hash function to hash @tparam KeyType s: Must be a default constructable
+ *                   type that will be initilized once per HashTable.
  *
  * @todo Add @tparam not_equal_function.
  *
@@ -73,7 +88,10 @@ ziqe_define_trivial_hash(int64_t)
  * tableIterator: if it not equal to the previous key entry, this key entry's key has
  * different hash that the previous one and therefore, it is not a part of this "mini-list".
  */
-template<class KeyType, class T, class _Hash=Hash<KeyType>>
+template<class KeyType,
+         class T,
+         class _IsEqual=IsEqual<KeyType>,
+         class _Hash=Hash<KeyType>>
 class HashTable
 {
 public:
@@ -90,6 +108,7 @@ private:
     static const TableSizeType kVectorInitialSize = 1000;
 public:
     typedef _Hash Hash;
+    typedef _IsEqual IsEqual;
     typedef typename KeysListType::Iterator Iterator;
     typedef const Iterator ConstIterator;
 
@@ -325,7 +344,7 @@ private:
         // Walk through the keys list and look for @param key. Make sure
         // we stay in our hash ranges (by making sure listIterator->tableIterator
         // == tableIterator).
-        while (listIterator->first != key) {
+        while (! mIsEqual(listIterator->first, key)) {
             ++listIterator;
 
             // We didn't found our key and already reached another table entry or
@@ -345,9 +364,9 @@ private:
     }
 
     /// @brief Transform a key to an hash.
-    static SizeType hash(const KeyType &key)
+    SizeType hash(const KeyType &key)
     {
-        return Hash () (key);
+        return mHash (key);
     }
 
     Iterator &getTableEntry(TableSizeType index)
@@ -373,6 +392,9 @@ private:
     TableType mTable;
 
     KeysListType mKeysList;
+
+    Hash mHash;
+    IsEqual mIsEqual;
 };
 
 } // namespace Ziqe

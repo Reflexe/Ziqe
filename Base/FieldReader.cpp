@@ -1,5 +1,5 @@
 /**
- * @file FieldsReader.cpp
+ * @file FieldReader.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "FieldsReader.h"
+#include "FieldReader.h"
 
 namespace Ziqe {
 
-FieldsReader::FieldsReader(SharedVector<Byte> &&vector)
+FieldReader::FieldReader(SharedVector<Byte> &&vector)
     : mVector{std::move (vector)}
 {
 

@@ -1,5 +1,5 @@
 /**
- * @file FieldsReader.h
+ * @file FieldReader.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,17 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_FIELDSREADER_H
-#define ZIQE_FIELDSREADER_H
+#ifndef ZIQE_FIELDREADER_H
+#define ZIQE_FIELDREADER_H
 
-#include "SharedVector.h"
+#include "Base/SharedVector.h"
+#include "Base/Macros.h"
 
 namespace Ziqe {
 
-class FieldsReader
+class FieldReader
 {
 public:
-    FieldsReader(SharedVector<Byte> &&vector);
+    FieldReader(SharedVector<Byte> &&vector);
+
+    ALLOW_COPY_AND_MOVE (FieldReader)
 
     template <typename T, SizeType sByteLength=sizeof (T)>
     T readT() {
@@ -45,4 +48,4 @@ private:
 
 } // namespace Ziqe
 
-#endif // ZIQE_FIELDSREADER_H
+#endif // ZIQE_FIELDREADER_H

@@ -1,34 +1,31 @@
 /**
- * @file %{FILENAME}
+ * @file ZiqeProtocol.h
  * @author shrek0 (shrek0.tk@gmail.com)
- * @section LICENSE
  *
- * ProtocolLearn copyright (C) %YEAR% shrek0
+ * Ziqe: copyright (C) 2016 shrek0
  *
- * ProtocolLearn is free software: you can redistribute it and/or modify
+ * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * ProtocolLearn is distributed in the hope that it will be useful,
+ * Ziqe is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @section DESCRIPTION
- *
  */
 #ifndef ZIQEPROTOCOL_H
 #define ZIQEPROTOCOL_H
 
-#include "Base/InputStreamInterface.h"
-#include "Base/OutputStreamInterface.h"
+#include "Base/IOStreamInterface.h"
 
 #include "Base/Memory.h"
-#include "Base/FieldsReader.h"
+#include "Base/FieldReader.h"
+
+#include "Message.h"
 
 /**
  * @brief The ZiqeProtocol class
@@ -141,19 +138,16 @@
 
 namespace Ziqe {
 
-class ZiqeProtocol
+class ZiqeProtocol : private IOStreamInterface::Callback
 {
 public:
-    struct Message {
-        uint16_t messageType;
-
-        uint64_t processID;
-    };
-
     ZiqeProtocol(UniquePointer<InputStreamInterface> &globaInputStream,
                  UniquePointer<OutputStreamInterface> &globalOutputStream);
 
-    Signal<void(UniquePointer<Peer>&&)> sNewPeers;
+private:
+    virtual void onDataReceived (InputStreamInterface::DataType &&data);
+
+    void processGlobalMessage (Message &&message);
 };
 
 }

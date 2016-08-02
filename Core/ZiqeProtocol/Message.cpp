@@ -1,5 +1,5 @@
 /**
- * @file NetworkPacket.h
+ * @file Message.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,40 +17,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_NETWORKPACKET_H
-#define ZIQE_NETWORKPACKET_H
-
-#include "Base/SharedVector.h"
-#include "Base/Types.h"
+#include "Message.h"
 
 namespace Ziqe {
 
-class NetworkPacket
+Message::Message(MessageType type)
 {
-public:
-    struct PacketInfo {
-        virtual ~PacketInfo() = 0;
-        ALLOW_COPY_AND_MOVE (PacketInfo)
 
-        virtual bool operator != () = 0;
-        virtual SizeType hash() = 0;
-    };
+}
 
-    NetworkPacket();
-    virtual ~NetworkPacket() = 0;
-
-    virtual const SharedVector<Byte> getData () const = 0;
-};
-
-template<>
-struct Hash<NetworkPacket::PacketInfo>
+Message::Message(FieldReader &reader)
+    : Message{reader.readT<DWord>()}
 {
-    SizeType operator() (const NetworkPacket::PacketInfo &info)
-    {
-        return info.hash ();
+}
+
+bool Message::isP2PMessage() const{
+    switch (mMessageType) {
+    case MessageType::GetMemory:
+    case MessageType::WriteMemory:
+    case MessageType::GivePage:
+    case MessageType::RunThread:
+    case MessageType::StopThread:
+    case MessageType::DoSystemCall:
+    case MessageType::SystemCallResult:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool Message::isGlobalMessage() const{
+    switch (mMessageType) {
+    case MessageType::PeerHello:
+    case MessageType::PeerGoodbye:
+        return true;
+    default:
+        return false;
     }
 }
 
 } // namespace Ziqe
-
-#endif // ZIQE_NETWORKPACKET_H

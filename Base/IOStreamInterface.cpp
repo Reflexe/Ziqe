@@ -1,5 +1,5 @@
 /**
- * @file OutputStreamInterface.h
+ * @file IOStreamInterface.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,22 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_OUTPUTSTREAMINTERFACE_H
-#define ZIQE_OUTPUTSTREAMINTERFACE_H
-
-#include "Base/SharedVector.h"
-#include "Base/Types.h"
+#include "IOStreamInterface.h"
 
 namespace Ziqe {
 
-class OutputStreamInterface
+IOStreamInterface::IOStreamInterface()
 {
-public:
-    OutputStreamInterface();
 
-    virtual void sendData (SharedVector<Byte> &&data) = 0;
-};
+}
 
 } // namespace Ziqe
-
-#endif // ZIQE_OUTPUTSTREAMINTERFACE_H

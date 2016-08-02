@@ -1,1 +1,1 @@
-zq_add_library (ZiqeProtocol ZiqeProtocol PeerConnection)
+zq_add_library (ZiqeProtocol ZiqeProtocol PeerConnection Message)

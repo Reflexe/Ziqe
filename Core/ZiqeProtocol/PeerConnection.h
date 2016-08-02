@@ -20,29 +20,43 @@
 #ifndef ZIQE_PEERCONNECTION_H
 #define ZIQE_PEERCONNECTION_H
 
+#include "Message.h"
+
+#include "Base/Memory.h"
+#include "Base/IOStreamInterface.h"
 
 namespace Ziqe {
 
-class PeerConnectionCallback
+class PeerConnection : private IOStreamInterface::Callback
 {
 public:
-    virtual ~PeerConnectionCallback () = 0;
+    struct Callback {
+        virtual ~Callback () = 0;
 
-    virtual void onGivePage () = 0;
+        ALLOW_COPY_AND_MOVE (Callback)
 
-    virtual void onTakePage () = 0;
+        virtual void onMessageReceived (Message &&message, FieldReader &&fieldReader) = 0;
 
-    virtual void on () = 0;
+        virtual void onConnectionClosed () = 0;
+    };
 
-    virtual void onMemoryRequest () = 0;
+    PeerConnection(SharedPointer<Callback> &&pointer,
+                   const SharedPointer<IOStreamInterface> &ioStream);
+    ~PeerConnection();
 
-    virtual void onConnectionClosed () = 0;
-};
+    void close ();
 
-class PeerConnection
-{
-public:
-    PeerConnection();
+    bool isConnected() const;
+
+private:
+    virtual void onDataReceived (InputStreamInterface::DataType &&data) override;
+    virtual void onStreamClosed () override;
+
+    bool mIsConnected;
+
+    SharedPointer<Callback> mCallback;
+
+    SharedPointer<IOStreamInterface> mIOStream;
 };
 
 } // namespace Ziqe
