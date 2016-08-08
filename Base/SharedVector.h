@@ -27,22 +27,20 @@
 
 namespace Ziqe {
 
-template<class T>
+template<class T, class VectorType=Vector<T>, class PointerType=SharedPointer<Vector<T>>>
 class SharedVector
 {
 public:
-    typedef Vector<T> VectorType;
-    typedef SharedPointer<VectorType> SharedVectorType;
     typedef typename VectorType::SizeType SizeType;
 
     const static SizeType kNoIndex = static_cast<SizeType>(-1);
 
-    SharedVector(const SharedPointer<VectorType> &vector)
-        : mVector{vector}, mIndexBegin{0}, mIndexEnd{vector.size()}
+    SharedVector(const PointerType &vector)
+        : mVector{vector}, mIndexBegin{0}, mIndexEnd{vector->size()}
     {
     }
 
-    SharedVector(const SharedPointer<VectorType> &vector,
+    SharedVector(const PointerType &vector,
                  const SizeType             indexBegin,
                  const SizeType             indexEnd=kNoIndex)
         : mVector{vector},
@@ -66,25 +64,77 @@ public:
         return (*mVector)[index + mIndexBegin];
     }
 
-    SizeType size()
+    template<class _VectorType>
+    void insertVectorAtBegin (const _VectorType &vector) {
+        DEBUG_CHECK (vector.size () <= size ());
+
+        SizeType i = 0;
+
+        for (const auto &value : vector)
+        {
+            (*this)[i++] = value;
+        }
+
+        increaseBegin (i);
+    }
+
+    SizeType size() const
     {
         return mIndexEnd - mIndexBegin;
     }
 
-    SizeType getSize()
+    SizeType getSize() const
     {
         return size();
     }
 
     void increaseBegin (SizeType howMuch = 1) {
         DEBUG_CHECK_ADD_OVERFLOW (howMuch, mIndexBegin);
-        DEBUG_CHECK (size() + howMuch <= mVector.size ());
+        DEBUG_CHECK (size() + howMuch <= mVector->size ());
 
         mIndexBegin += howMuch;
     }
 
+    T &front ()
+    {
+        return (*this)[0];
+    }
+
+    T &back ()
+    {
+        return (*this)[mIndexEnd-1];
+    }
+
+    VectorType &getVector ()
+    {
+        return *mVector;
+    }
+
+    typedef typename VectorType::Iterator Iterator;
+    typedef typename VectorType::ConstIterator ConstIterator;
+    Iterator begin ()
+    {
+        return mVector->begin () + mIndexBegin;
+    }
+
+    Iterator end ()
+    {
+        return mVector->begin () + mIndexEnd;
+    }
+
+    ConstIterator begin () const
+    {
+        return mVector->begin () + mIndexBegin;
+    }
+
+    ConstIterator end () const
+    {
+        return mVector->begin () + mIndexEnd;
+    }
+
+
 private:
-    SharedPointer<VectorType> mVector;
+    PointerType mVector;
 
     SizeType mIndexBegin;
     SizeType mIndexEnd;

@@ -21,9 +21,60 @@
 
 namespace Ziqe {
 
-GlobalProcessManager::GlobalProcessManager()
+GlobalProcessManager::GlobalProcessManager(UniquePointer<GlobalPeersClient> &&globalPeersClient,
+                                           UglyPointer<GlobalThreadManager> threadManager)
+    : mGlobalPeersClient{std::move (globalPeersClient)},
+      mThreadManager{threadManager}
 {
+}
 
+void GlobalProcessManager::runThread(LocalThread &thread,
+                                     const LocalProcess &process,
+                                     bool forceNewPeer) {
+    DEBUG_CHECK (thread.isStopped ());
+    // Make sure this thread isn't already running.
+    DEBUG_CHECK (! mThreadManager->localToGlobalThread (thread));
+
+    auto iterator = mLocalToGlobal.find (process.getProcessID ());
+
+    // TODO: handle failures and timeouts.
+    // We can look for a new peer if the no shared process is responding after
+    // some time.
+    if (forceNewPeer || iterator == mProcesses.end ())  {
+        auto newGlobalThreadAndProcess = mGlobalPeersClient->runThread (thread);
+
+        mThreadManager->addThread (newGlobalThread.getThreadID (),
+                                   std::move (newGlobalThread));
+
+        addNewProcessConnection (iterator,
+                                 std::move (newGlobalThreadAndProcess.second));
+    } else {
+        // If the process is shared with someone already.
+
+        auto newGlobalThread = iterator->second.getClient().runThread (thread);
+        mThreadManager->addThread (thread.getThreadID (),
+                                   std::move (newGlobalThread));
+    }
+}
+
+UglyPointer<GlobalProcess> GlobalProcessManager::localToGlobalProcess(const LocalProcess &process) {
+    auto iterator = mLocalToGlobal.find (process.getProcessID ());
+
+    return (iterator == mLocalToGlobal.end ()) ?
+                &(*iterator)
+              : nullptr;
+}
+
+GlobalProcessManager::ProcessTable::Iterator
+GlobalProcessManager::addNewProcessConnection(const ProcessTable::Iterator &processIDLookupResult,
+                                              UniquePointer<NetworkProtocol> &&processConnection) {
+    if (processIDLookupResult == mLocalToGlobal.end ()) {
+        UniquePointer<GlobalProcess> globalProcess = new GlobalProcess{};
+
+        // Create a new GlobalProcess.
+    } else {
+        // Add a process connection to the previous GlobalProcess.
+    }
 }
 
 } // namespace Ziqe

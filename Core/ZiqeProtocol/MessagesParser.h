@@ -1,5 +1,5 @@
 /**
- * @file TaskManager.cpp
+ * @file MessagesParser.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,13 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "TaskManager.h"
+#ifndef ZIQE_MESSAGESPARSER_H
+#define ZIQE_MESSAGESPARSER_H
+
 
 namespace Ziqe {
 
-TaskManager::TaskManager()
+class MessagesParser
 {
-
-}
+public:
+    MessagesParser();
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_MESSAGESPARSER_H

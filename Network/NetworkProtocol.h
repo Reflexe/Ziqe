@@ -21,23 +21,38 @@
 #define ZIQE_NETWORKPROTOCOL_H
 
 #include "Base/Memory.h"
+#include "Base/IOStreamInterface.h"
 
 #include "NetworkPacket.h"
 
 namespace Ziqe {
 
-class NetworkProtocol
+class NetworkProtocol : public IOStreamInterface
 {
 public:
     NetworkProtocol();
     virtual ~NetworkProtocol() = 0;
 
-    virtual bool sendPacket (UniquePointer<NetworkPacket> &&packet) = 0;
+    struct Callback {
+        virtual ~Callback () = 0;
+        ALLOW_COPY_AND_MOVE (Callback)
 
-    // Might be null.
+        virtual void onPacketReceived (UniquePointer<NetworkPacket> &&packet) = 0;
+    };
+
     virtual UniquePointer<NetworkPacket> receivePacket () = 0;
 
     virtual UniquePointer<NetworkProtocol> createFromPacket (const NetworkPacket &packet) = 0;
+
+    void callbackReceivePacket (UglyPointer<Callback> callback)
+    {
+        callback->onPacketReceived (receivePacket ());
+    }
+
+    void callbackReceiveData (UniquePointer<IOStreamInterface::Callback> &callback)
+    {
+        callback->onDataReceived (receivePacket ()->getData ());
+    }
 };
 
 } // namespace Ziqe

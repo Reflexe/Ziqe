@@ -1,5 +1,5 @@
 /**
- * @file NetworkPacket.h
+ * @file GlobalThreadManager.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,45 +17,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_NETWORKPACKET_H
-#define ZIQE_NETWORKPACKET_H
+#ifndef ZIQE_GLOBALTHREADMANAGER_H
+#define ZIQE_GLOBALTHREADMANAGER_H
 
-#include "Base/SharedVector.h"
 #include "Base/HashTable.h"
-#include "Base/Types.h"
+
+#include "Core/GlobalThread.h"
+#include "Base/LocalThread.h"
 
 namespace Ziqe {
 
-class NetworkPacket
+class GlobalThreadManager
 {
 public:
-    typedef SharedVector<Byte> DataType;
+    GlobalThreadManager();
 
-    struct PacketInfo {
-        virtual ~PacketInfo() = 0;
-        ALLOW_COPY_AND_MOVE (PacketInfo)
+    GlobalThread &getGlobalThread ();
 
-        virtual bool operator != (const PacketInfo &info) = 0;
-        virtual SizeType hash() const = 0;
-    };
+    // Can return nullptr.
+    UglyPointer<GlobalThread> localToGlobalThread (const LocalThread &localThread);
 
-    NetworkPacket();
-    virtual ~NetworkPacket() = 0;
+    template<class ...Args>
+    UglyPointer<GlobalThread> addThread (LocalThread::ThreadID threadID, Args &&... args) {
+        auto pair = mThreads.insert (threadID, std::forward<Args> (args)...);
 
-    virtual const DataType getData () const = 0;
-
-//    virtual UniquePointer<PacketInfo>
-};
-
-template<>
-struct Hash<NetworkPacket::PacketInfo>
-{
-    SizeType operator() (const NetworkPacket::PacketInfo &info)
-    {
-        return info.hash ();
+        if (pair.first == true)
+            return &(pair.second->second);
+        else
+            return nullptr;
     }
+
+private:
+    HashTable<LocalThread::ThreadID, GlobalThread> mThreads;
+
 };
 
 } // namespace Ziqe
 
-#endif // ZIQE_NETWORKPACKET_H
+#endif // ZIQE_GLOBALTHREADMANAGER_H

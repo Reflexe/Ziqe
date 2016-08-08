@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.cpp
+ * @file GlobalPeersWorker.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#ifndef ZIQE_GLOBALPEERSWORKER_H
+#define ZIQE_GLOBALPEERSWORKER_H
+
+#include "Core/ZiqeProtocol/GlobalPeers.h"
+
+#include "Core/GlobalProcessManager.h"
+#include "Core/GlobalThreadManager.h"
 
 namespace Ziqe {
 
-Udpv4Protocol::Udpv4Protocol()
+class GlobalPeersWorker final : public GlobalPeers::Callback
 {
+public:
+    GlobalPeersWorker( );
 
-}
-
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
-{
-
-}
-
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
-{
-
-}
+private:
+    virtual void onRunThreadPeerLookup (UniquePointer<NetworkPacket> &&packet,
+                                        FieldReader &&fieldsReader,
+                                        Message &&message) override;
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_GLOBALPEERSWORKER_H

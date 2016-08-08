@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.cpp
+ * @file ThreadOwnerClient.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#ifndef ZIQE_THREADOWNERCLIENT_H
+#define ZIQE_THREADOWNERCLIENT_H
+
+#include "Base/IOStreamInterface.h"
 
 namespace Ziqe {
 
-Udpv4Protocol::Udpv4Protocol()
+class ThreadOwnerClient : private IOStreamInterface::Callback
 {
+public:
+    struct Callback {
+        Callback() = default;
+        virtual ~Callback() = 0;
+        ALLOW_COPY_AND_MOVE (Callback)
 
-}
+        virtual void onSystemCallResultReceived (ZqRegisterType result) = 0;
+    };
 
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
-{
+    ThreadOwnerClient(UniquePointer<Callback> &&callback);
 
-}
+    void doSystemCall (ZqSystemCallIDType id,
+                       const UglyPointer<ZqRegisterType> parameters,
+                       SizeType parametersLength);
 
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
-{
-
-}
+private:
+    UniquePointer<Callback> mCallback;
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_THREADOWNERCLIENT_H

@@ -22,19 +22,29 @@
 
 #include "Base/Types.h"
 
+#include "Core/ThreadOwnerClientWorker.h"
+#include "Core/GlobalThreadID.h"
+
 namespace Ziqe {
 
+/**
+ * @brief The GlobalThread class
+ *
+ * Every global thread have a connection to the thread owner.
+ * The thread owner have a "ThreadOwnerServer" that currently is only syscall server.
+ */
 class GlobalThread
 {
 public:
-    typedef uint64_t GlobalThreadID;
+    GlobalThread(UniquePointer<ThreadOwnerClientWorker> &&threadOwnerClient);
 
-    GlobalThread(GlobalThreadID threadID);
-
-    GlobalThreadID getThreadID() const;
+    ThreadOwnerClientWorker &getThreadOwnerClient ()
+    {
+        return *mThreadOwnerClient;
+    }
 
 private:
-    GlobalThreadID mThreadID;
+    UniquePointer<ThreadOwnerClientWorker> mThreadOwnerClient;
 };
 
 } // namespace Ziqe

@@ -1,5 +1,5 @@
 /**
- * @file RunThreadTask.h
+ * @file ThreadOwnerWorker.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,18 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_RUNTHREADTASK_H
-#define ZIQE_RUNTHREADTASK_H
+#ifndef ZIQE_THREADOWNERWORKER_H
+#define ZIQE_THREADOWNERWORKER_H
 
+#include "Core/ZiqeProtocol/ThreadOwnerServer.h"
 
 namespace Ziqe {
 
-class RunThreadTask
+class ThreadOwnerWorker final : private ThreadOwnerServer::Callback
 {
 public:
-    RunThreadTask();
+    ThreadOwnerWorker();
+
+private:
+    void onDoSystemCall (const ZqSystemCallIDType systemCallID,
+                         UglyPointer<const ZqRegisterType> parameters,
+                         const SizeType parametersLength) override;
 };
 
 } // namespace Ziqe
 
-#endif // ZIQE_RUNTHREADTASK_H
+#endif // ZIQE_THREADOWNERWORKER_H

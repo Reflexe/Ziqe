@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.cpp
+ * @file NetworkProtocolPool.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#include "NetworkProtocolPool.h"
 
 namespace Ziqe {
 
-Udpv4Protocol::Udpv4Protocol()
+NetworkProtocolPool::NetworkProtocolPool()
 {
 
 }
 
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
+void NetworkProtocolPool::run(NetworkProtocolPool::Callback &callback)
 {
-
-}
-
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
-{
-
+// use select or something to do it async-ly.
 }
 
 } // namespace Ziqe

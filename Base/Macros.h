@@ -20,6 +20,8 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+#include "Base/Types.h"
+
 #define ALLOW_COPY(name) name(const name &) = default; name &operator= (const name &) = default;
 #define ALLOW_MOVE(name) name(name &&)      = default; name &operator= (name &&)      = default;
 
@@ -38,25 +40,25 @@
 namespace Ziqe {
 
 template<class T>
-const T &max(const T &one, const T &two)
+constexpr const T &max(const T &one, const T &two)
 {
     return (one > two) ? one : two;
 }
 
 template<class T>
-const T &min(const T &one, const T &two)
+constexpr const T &min(const T &one, const T &two)
 {
     return (one < two) ? one : two;
 }
 
 template<class T>
-T &max(T &one, T &two)
+constexpr T &max(T &one, T &two)
 {
     return (one > two) ? one : two;
 }
 
 template<class T>
-T &min(T &one, T &two)
+constexpr T &min(T &one, T &two)
 {
     return (one < two) ? one : two;
 }
@@ -91,9 +93,45 @@ class StaticVariable
 #define MakeTemplateVariable(expr) decltype(expr), (expr)
 #define TemplateVariable(name) class _T##name, _T##name name
 
-
+/**
+ * @brief An sizeof for parameter pack (NOT sizeof...).
+ * \code
+ * SizeType argsSize = 0;
+ * for (arg in args)
+ *     argsSize += sizeof (arg);
+ * return argsSize;
+ * \code
+ */
+template<class T, class ...Args>
+constexpr SizeType sizeOfArgs (const T &,
+                               const Args &...args)
+{
+    return sizeof (T) + sizeOfArgs (args...);
 }
 
+constexpr SizeType sizeOfArgs ()
+{
+    return 0;
+}
 
+// Used to expand Args.
+template<class ...T>
+constexpr bool ExpandArgs(T...)
+{
+    return false;
+}
+
+template<bool value>
+struct EnableIf
+{
+};
+
+template<>
+struct EnableIf<true>
+{
+    typedef bool type;
+};
+
+}
 
 #endif // MACROS_H

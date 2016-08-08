@@ -42,6 +42,27 @@ public:
         return value;
     }
 
+    void skipBytes (SizeType length)
+    {
+        mVector.increaseBegin (length);
+    }
+
+    bool haveBytes (SizeType length)
+    {
+        return mVector.size () >= length;
+    }
+
+    UglyPointer<Byte> getCurrent()
+    {
+        return &(mVector[0]);
+    }
+
+    template<class T, SizeType sByteLength=sizeof (T)>
+    bool canReadT() const
+    {
+        return mVector.size() <= sByteLength;
+    }
+
 private:
     SharedVector<Byte> mVector;
 };

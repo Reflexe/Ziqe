@@ -1,5 +1,5 @@
 /**
- * @file PeerConnection.h
+ * @file ThreadOwnerServer.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,48 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_PEERCONNECTION_H
-#define ZIQE_PEERCONNECTION_H
+#ifndef ZIQE_THREADOWNERSERVER_H
+#define ZIQE_THREADOWNERSERVER_H
 
-#include "Message.h"
-
-#include "Base/Memory.h"
 #include "Base/IOStreamInterface.h"
+
+#include "Base/Types.h"
+#include "ZiqeAPI/Types.h"
 
 namespace Ziqe {
 
-class PeerConnection : private IOStreamInterface::Callback
+class ThreadOwnerServer final : private IOStreamInterface::Callback
 {
 public:
     struct Callback {
+        Callback() = default;
         virtual ~Callback () = 0;
-
         ALLOW_COPY_AND_MOVE (Callback)
 
-        virtual void onMessageReceived (Message &&message, FieldReader &&fieldReader) = 0;
-
-        virtual void onConnectionClosed () = 0;
+        virtual void onDoSystemCall (const ZqSystemCallIDType systemCallID,
+                                     UglyPointer<const ZqRegisterType> parameters,
+                                     const SizeType parametersLength) = 0;
     };
 
-    PeerConnection(SharedPointer<Callback> &&pointer,
-                   const SharedPointer<IOStreamInterface> &ioStream);
-    ~PeerConnection();
-
-    void close ();
-
-    bool isConnected() const;
+    ThreadOwnerServer(UniquePointer<Callback> &&callback);
 
 private:
-    virtual void onDataReceived (InputStreamInterface::DataType &&data) override;
-    virtual void onStreamClosed () override;
+    virtual void onDataReceived (const IOStreamInterface::DataType &data) override;
 
-    bool mIsConnected;
-
-    SharedPointer<Callback> mCallback;
-
-    SharedPointer<IOStreamInterface> mIOStream;
+    UniquePointer<Callback> mCallback;
 };
 
 } // namespace Ziqe
 
-#endif // ZIQE_PEERCONNECTION_H
+#endif // ZIQE_THREADOWNERSERVER_H

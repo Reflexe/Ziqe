@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.cpp
+ * @file MessagesStream.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#ifndef ZIQE_MESSAGESSTREAM_H
+#define ZIQE_MESSAGESSTREAM_H
+
+#include "Base/Memory.h"
+
+#include "Network/NetworkProtocol.h"
+
+#include "Core/ZiqeProtocol/Message.h"
 
 namespace Ziqe {
 
-Udpv4Protocol::Udpv4Protocol()
+class MessagesStream
 {
+public:
+    MessagesStream();
 
-}
+    void sendMessage (const Message &message,
+                      SharedVector<Byte> &&vector);
 
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
-{
+    void onMessageReceived ()
 
-}
-
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
-{
-
-}
+private:
+    UniquePointer<NetworkProtocol> mProtocol;
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_MESSAGESSTREAM_H

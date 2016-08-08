@@ -39,14 +39,20 @@ public:
 
     typedef Callback<void(ZqRegisterType)> RunSyscallCallbackType;
 
-    static ZqRegisterType runSystemCall(LocalThread &thread,
-                                        SystemCallID id,
-                                        const ZqRegisterType *parameters,
-                                        RunSyscallCallbackType &&callback);
+    static ZqRegisterType runSystemCall(SystemCallID id,
+                                        const ZqRegisterType *parameters)
+    {
+        return ZqCallSyscall (id, parameters);
+    }
     
-    static void setSystemCallHook (ZqSystemCallHookType hook);
-
-    static void init ();
+    static void setSystemCallHook (ZqSystemCallHookType hook)
+    {
+        ZqInitSystemCallsHook (hook);
+    }
+    static void unsetSystemCallHook ()
+    {
+        ZqUninitSystemCallsHook ();
+    }
 
 private:
     constexpr SystemCalls() = default;

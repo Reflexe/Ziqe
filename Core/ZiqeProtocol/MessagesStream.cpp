@@ -1,5 +1,5 @@
 /**
- * @file PeersManager.h
+ * @file MessagesStream.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,37 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_PEERSMANAGER_H
-#define ZIQE_PEERSMANAGER_H
-
-#include "Base/LinkedList.h"
-#include "Base/HashTable.h"
-
-#include "Peer.h"
-#include "GlobalProcess.h"
+#include "MessagesStream.h"
 
 namespace Ziqe {
 
-class PeersManager
+MessagesStream::MessagesStream()
 {
-public:
-    typedef SizeType PeerIDType;
 
-    PeersManager();
-
-    Peer &lookupByMemoryAddress();
-
-    const PeerIDType &addPeer (UniquePointer<Peer> &&peer);
-    void removePeer (const PeerIDType &peerID);
-
-    Peer &self();
-
-private:
-    Peer mSelf;
-
-    LinkedList<UniquePointer<Peer>> mPeers;
-};
+}
 
 } // namespace Ziqe
-
-#endif // ZIQE_PEERSMANAGER_H

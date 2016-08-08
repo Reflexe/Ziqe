@@ -36,7 +36,7 @@ bool Message::isP2PMessage() const{
     case MessageType::GetMemory:
     case MessageType::WriteMemory:
     case MessageType::GivePage:
-    case MessageType::RunThread:
+    case MessageType::RunSharedProcessThread:
     case MessageType::StopThread:
     case MessageType::DoSystemCall:
     case MessageType::SystemCallResult:
@@ -48,8 +48,7 @@ bool Message::isP2PMessage() const{
 
 bool Message::isGlobalMessage() const{
     switch (mMessageType) {
-    case MessageType::PeerHello:
-    case MessageType::PeerGoodbye:
+    case MessageType::RunThreadPeerLookup:
         return true;
     default:
         return false;

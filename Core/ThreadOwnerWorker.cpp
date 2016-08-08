@@ -1,5 +1,5 @@
 /**
- * @file Task.cpp
+ * @file ThreadOwnerWorker.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,13 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Task.h"
+#include "ThreadOwnerWorker.h"
+
+#include "Base/SystemCalls.h"
 
 namespace Ziqe {
 
-Task::Task()
+ThreadOwnerWorker::ThreadOwnerWorker()
 {
 
+}
+
+void ThreadOwnerWorker::onDoSystemCall(const ZqSystemCallIDType systemCallID,
+                                       UglyPointer<const ZqRegisterType> parameters,
+                                       const SizeType parametersLength) {
+
+    // FIXME: make sure parametersLength is valid.
+
+    auto result = SystemCalls::runSystemCall (systemCallID,
+                                              parameters);
 }
 
 } // namespace Ziqe

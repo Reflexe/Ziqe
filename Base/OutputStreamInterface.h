@@ -29,6 +29,8 @@ class OutputStreamInterface
 {
 public:
     OutputStreamInterface();
+    virtual ~OutputStreamInterface () = 0;
+    ALLOW_COPY_AND_MOVE (OutputStreamInterface)
 
     virtual void sendData (SharedVector<Byte> &&data) = 0;
 };

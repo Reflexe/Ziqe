@@ -20,46 +20,41 @@
 #ifndef ZIQE_GLOBALPROCESSMANAGER_H
 #define ZIQE_GLOBALPROCESSMANAGER_H
 
-#include "GlobalProcess.h"
-#include "GlobalThread.h"
-
-#include "Base/LocalThread.h"
-#include "Base/LocalProcess.h"
-
+#include "Base/LinkedList.h"
 #include "Base/HashTable.h"
+
+#include "Core/GlobalThreadManager.h"
+#include "Core/GlobalProcess.h"
 
 namespace Ziqe {
 
 class GlobalProcessManager
 {
 public:
-    GlobalProcessManager();
+    GlobalProcessManager(UniquePointer<GlobalPeersClient> &&globalPeersClient,
+                         UglyPointer<GlobalThreadManager> threadManager);
 
-    void addProcess (const GlobalProcess &process);
-    void addProcess (const GlobalProcess &globalProcess,
-                     const LocalProcess &localProcess);
+    /**
+     * @brief runThread  Run local thread by another peer.
+     * @param thread
+     * @param process
+     */
+    void runThread (LocalThread &thread, const LocalProcess &process, bool forceNewPeer);
 
-    void addThread (const GlobalProcess &process);
-
-    // On failure?
-    LocalProcess &getLocalProcessByGlobal (const GlobalProcess &globalProcess) {
-        auto iterator = mPIDToProcess.find (globalProcess.getProcessID ());
-        DEBUG_CHECK (iterator != mPIDToProcess.end ());
-
-        return iterator->second;
-    }
-
-    LocalThread &getLocalThreadByGlobal (const GlobalThread &globalThread) {
-        auto iterator = mTIDToThread.find (globalThread.getThreadID ());
-        DEBUG_CHECK (iterator != mTIDToThread.end ());
-
-        return iterator->second;
-    }
+    UglyPointer<GlobalProcess> localToGlobalProcess (const LocalProcess &process);
 
 private:
-    HashTable<LocalProcess::ProcessID, LocalProcess> mPIDToProcess;
+    typedef HashTable<LocalProcess::ProcessID, GlobalProcess> ProcessTable;
 
-    HashTable<LocalThread::ThreadID, LocalThread> mTIDToThread;
+    /// @return The global process's iterator.
+    ProcessTable::Iterator addNewProcessConnection (const ProcessTable::Iterator &processIDLookupResult,
+                                                    UniquePointer<NetworkProtocol> &&processConnection);
+
+    HashTable<LocalProcess::ProcessID, GlobalProcess> mLocalToGlobal;
+
+    UniquePointer<GlobalPeersClient> mGlobalPeersClient;
+
+    UglyPointer<GlobalThreadManager> mThreadManager;
 };
 
 } // namespace Ziqe

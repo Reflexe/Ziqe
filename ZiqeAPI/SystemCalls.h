@@ -25,8 +25,9 @@
 #include "Types.h"
 #include "Macros.h"
 
-typedef int (* ZqSystemCallHookType) (const ZqSystemCallIDType id,
-                                      const ZqRegisterType *params);
+typedef ZqBool (* ZqSystemCallHookType) (const ZqSystemCallIDType id,
+                                      const ZqRegisterType *params,
+                                      ZqRegisterType *result);
 
 ZQ_BEGIN_C_DECL
 
@@ -38,19 +39,13 @@ ZQ_BEGIN_C_DECL
 void ZqInitSystemCallsHook(ZqSystemCallHookType hook);
 void ZqUninitSystemCallsHook(void);
 
-void ZqDeinitSystemCallsHook(void);
-
-typedef struct {
-    ZqSystemCallIDType id;
-    const ZqRegisterType *params;
-} ZqSyscallParameter;
-
 /**
  * @brief ZiqeCallSyscall  Blocking!!
  * @param id
  * @return
  */
-ZqRegisterType ZqCallSyscall(const ZqSyscallParameter *parameter);
+ZqRegisterType ZqCallSyscall(ZqSystemCallIDType id,
+                             const ZqRegisterType *params);
 
 ZQ_END_C_DECL
 

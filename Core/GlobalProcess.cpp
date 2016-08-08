@@ -19,17 +19,29 @@
  */
 #include "GlobalProcess.h"
 
+#include "Base/ProcessManager.h"
+
 namespace Ziqe {
 
-GlobalProcess::GlobalProcess(GlobalProcessID processID)
-    : mProcessID{processID}
+GlobalProcess::GlobalProcess(UniquePointer<ProcessPeersServer> &&server,
+                             UniquePointer<ProcessPeersClient> &&client,
+                             UniquePointer<NetworkProtocolPool> &&networkPool)
+    : mServer{std::move (server)}, mClient{std::move (client)}
 {
-
+    mServerThread.runAnyFunction (&GlobalProcess::processServerMain,
+                                  new ProcessServerParameter{std::move (server),
+                                                             std::move(networkPool)});
 }
 
-GlobalProcess::GlobalProcessID GlobalProcess::getProcessID() const
-{
-    return mProcessID;
+void GlobalProcess::processServerMain(ProcessServerParameter *parameter) {
+    UniquePointer<ProcessServerParameter> local{parameter};
+
+    auto currentThread = ProcessManager::getCurrentThread ();
+
+    while (! currentThread.shouldExit ())
+    {
+        local->networkPool->run (*local->networkPool);
+    }
 }
 
 } // namespace Ziqe

@@ -52,8 +52,13 @@ ZqSystemCallHookType syscall_book  = NULL;
 static int kprobe_pre_handler (struct kprobe *kprobe, struct pt_regs *regs) {
     if (test_thread_flag (TIF_SYSCALL_TRACE)) {
         // Call our hook.
-        SYSCALL_RESULT_REGS(regs) = syscall_book (SYSCALL_ID_FROM_REGISTERS (regs),
-                                                  SYSCALL_FIRST_ARG (regs));
+        if (syscall_book (SYSCALL_ID_FROM_REGISTERS (regs),
+                          SYSCALL_FIRST_ARG (regs),
+                          &SYSCALL_RESULT_REGS(regs)) == ZQ_FALSE)
+        {
+            // The hook says that it don't want this thread.
+            return 0;
+        }
 
         // Skip the kernel's actual syscall.
         regs->ip = (ZqRegisterType) kprobe->addr + SYSCALL_END_OFFSET;
@@ -96,7 +101,7 @@ void ZqInitSystemCallsHook(ZqSystemCallHookType hook) {
         init_system_calls_hook ();
 }
 
-ZqRegisterType ZqCallSyscall(const ZqSyscallParameter *parameter)
+ZqRegisterType ZqCallSyscall(ZqSystemCallIDType id, const ZqRegisterType *params)
 {
 //    return SYSCALL_INVOKE (*id, params);
 }

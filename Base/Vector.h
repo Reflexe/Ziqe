@@ -141,7 +141,26 @@ public:
         if (newSize > oldSize)
             mConstrutor.constructN (mPointer+oldSize, newSize-oldSize, std::forward<Args>(args)...);
     }
-    
+
+    template<class ...Args>
+    void expand (SizeType size, Args&&...args)
+    {
+        resize (mSize + size, std::forward<Args>(args)...);
+    }
+
+    template<class InputIterator>
+    void expand (InputIterator begin, InputIterator end, SizeType beginToEnd)
+    {
+        resizeBuffer (mSize + beginToEnd);
+        insertToExistBuffer (mSize, begin, end);
+    }
+
+    template<class InputIterator>
+    void expand (InputIterator begin, InputIterator end)
+    {
+        expand (begin, end, countRange (begin, end));
+    }
+
     T *data()
     {
         return mPointer;
@@ -184,13 +203,14 @@ private:
     }
 
     void resizeBuffer (SizeType newSize) {
+        if (mSize == newSize) {
+            // destruct without free ing.
+            mConstrutor.destruct (mPointer, mSize);
+            return;
+        }
+
         PointerType pointer{std::move (mPointer)};
         auto pointerSize = mSize;
-
-        if (mSize == newSize)
-        {
-            // destruct without free ing.
-        }
 
         mPointer = mAllocator.allocate (newSize);
         mSize = newSize;
@@ -209,7 +229,7 @@ private:
     }
 
     void deleteAll (PointerType pointer, SizeType size) {
-        if (!size)
+        if (size == 0)
             return;
 
         mConstrutor.destruct (pointer, size);

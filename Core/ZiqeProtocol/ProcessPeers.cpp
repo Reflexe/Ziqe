@@ -1,5 +1,5 @@
 /**
- * @file RunThreadTask.cpp
+ * @file ProcessPeers.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,13 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "RunThreadTask.h"
+#include "ProcessPeers.h"
 
 namespace Ziqe {
-
-RunThreadTask::RunThreadTask()
-{
-
-}
 
 } // namespace Ziqe

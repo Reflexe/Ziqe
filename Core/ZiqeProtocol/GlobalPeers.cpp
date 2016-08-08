@@ -1,5 +1,5 @@
 /**
- * @file Task.h
+ * @file GlobalPeers.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,24 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_TASK_H
-#define ZIQE_TASK_H
-
-#include "Base/Macros.h"
+#include "GlobalPeers.h"
 
 namespace Ziqe {
 
-class Task
+GlobalPeers::GlobalPeers()
 {
-public:
-    Task();
-    virtual ~Task() = default;
 
-    ALLOW_COPY_AND_MOVE (Task)
-
-    virtual bool run() = 0;
-};
+}
 
 } // namespace Ziqe
-
-#endif // ZIQE_TASK_H

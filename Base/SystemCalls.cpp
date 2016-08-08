@@ -24,36 +24,6 @@
 
 namespace Ziqe {
 
-ZqRegisterType SystemCalls::runSystemCall(LocalThread &thread,
-                                          SystemCalls::SystemCallID id,
-                                          const ZqRegisterType *parameters,
-                                          RunSyscallCallbackType &&callback) {
 
-    auto parameter = new runAndCallParam<RunSyscallCallbackType, ZqSyscallParameter>{std::move(callback),
-                ZqSyscallParameter{id, parameters}};
-
-    thread.runAnyFunction(&runAndCallbackSingleParameter<MakeTemplateVariable (&ZqCallSyscall)>,
-                          parameter);
-
-    return 0;
-}
-
-void SystemCalls::setSystemCallHook(ZqSystemCallHookType hook)
-{
-    ZqInitSystemCallsHook (hook);
-}
-
-void SystemCalls::init() {
-    /*
-     * There two options: one is a custom kernel, and just change the tracehook_report_syscall_entry
-     * function.
-     *
-     * The other option is to patch the kernel when the module's loading.
-     * We can change all of the system call table to our function and trace them.
-     * We can also patch the code of tracehook_report_syscall_entry.
-     */
-
-
-}
 
 } // namespace Ziqe

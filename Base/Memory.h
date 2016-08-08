@@ -84,12 +84,6 @@ struct Constructor {
     }
 };
 
-//class Memory
-//{
-//public:
-//    Memory();
-//};
-
 template<class T>
 struct DefaultDeleter {
     void operator() (T *pointer)
@@ -113,23 +107,32 @@ struct NoDeleter {
     }
 };
 
-// TODO: weak pointer.
 template<class T, class Deleter=DefaultDeleter<T>>
 class UniquePointer
 {
 public:
-    UniquePointer()
-    {
-    }
+    template<class OtherT, class OtherDeleter>
+    friend class SharedPointer;
 
-    ~UniquePointer() {
-        if (*this)
-            Deleter{}(mPointer);
-    }
+    UniquePointer() = default;
 
-    UniquePointer(T *pointer)
+    template<class Tp>
+    UniquePointer(Tp *pointer)
         : mPointer{pointer}
     {
+    }
+
+    template<class OtherT, class OtherDeleter>
+    UniquePointer(UniquePointer<OtherT, OtherDeleter> &&other)
+        : mPointer{other.mPointer}
+    {
+        other.mPointer = nullptr;
+    }
+
+    template<class OtherT, class OtherDeleter>
+    UniquePointer &operator= (UniquePointer<OtherT, OtherDeleter> &&other) {
+        reset (other.mPointer);
+        other.mPointer = nullptr;
     }
 
     UniquePointer(UniquePointer &&other)
@@ -139,17 +142,31 @@ public:
     }
 
     UniquePointer &operator= (UniquePointer &&other) {
-        mPointer = other.mPointer;
+        reset (other.mPointer);
         other.mPointer = nullptr;
+    }
+
+    template<class Tp>
+    UniquePointer &operator= (Tp *pointer)
+    {
+        reset (pointer);
     }
 
     DISALLOW_COPY (UniquePointer)
 
-    void reset (T *pointer = nullptr) {
+    template<class Tp>
+    void reset (Tp *pointer = nullptr) {
         if (*this)
             Deleter{}(mPointer);
 
         mPointer = pointer;
+    }
+
+    T *release () {
+        auto pointer = mPointer;
+        mPointer = nullptr;
+
+        return mPointer;
     }
 
     operator bool ()
@@ -197,19 +214,35 @@ template<class T, class Deleter>
 class UniquePointer<T[], Deleter>
 {
 public:
-    UniquePointer()
-    {
-    }
+    template<class OtherT, class OtherDeleter>
+    friend class UniquePointer;
+
+    UniquePointer() = default;
 
     ~UniquePointer() {
         if (*this)
             Deleter{}(mPointer);
     }
 
-    UniquePointer(T *pointer)
+    template<class Tp>
+    UniquePointer(Tp *pointer)
         : mPointer{pointer}
     {
     }
+
+    template<class OtherT, class OtherDeleter>
+    UniquePointer(UniquePointer<OtherT, OtherDeleter> &&other)
+        : mPointer{other.mPointer}
+    {
+        other.mPointer = nullptr;
+    }
+
+    template<class OtherT, class OtherDeleter>
+    UniquePointer &operator= (UniquePointer<OtherT, OtherDeleter> &&other) {
+        reset (other.mPointer);
+        other.mPointer = nullptr;
+    }
+
 
     UniquePointer(UniquePointer &&other)
         : mPointer{other.mPointer}
@@ -222,18 +255,27 @@ public:
         other.mPointer = nullptr;
     }
 
-    UniquePointer &operator= (T *pointer)
+    template<class Tp>
+    UniquePointer &operator= (Tp *pointer)
     {
         reset (pointer);
     }
 
     DISALLOW_COPY (UniquePointer)
 
-    void reset (T *pointer = nullptr) {
+    template<class Tp>
+    void reset (Tp *pointer = nullptr) {
         if (*this)
             Deleter{}(mPointer);
 
         mPointer = pointer;
+    }
+
+    T *release () {
+        auto pointer = mPointer;
+        mPointer = nullptr;
+
+        return mPointer;
     }
 
     operator bool () const
@@ -287,19 +329,47 @@ private:
     T *mPointer = nullptr;
 };
 
+struct _ReferenceType
+{
+    typedef SizeType CountType;
+
+    _ReferenceType() = default;
+    _ReferenceType(CountType count)
+        : mReferenceCount{count}
+    {}
+
+    CountType mReferenceCount = 0;
+};
+
 template<class T, class Deleter=DefaultDeleter<T>>
 class SharedPointer
 {
 public:
-    typedef SizeType CountType;
+    template<class OtherT, class OtherDeleter>
+    friend class SharedPointer;
 
-    SharedPointer()
-    {
-    }
+    typedef _ReferenceType::CountType CountType;
+
+    SharedPointer() = default;
 
     SharedPointer(T *pointer)
     {
         setPointer (pointer);
+    }
+
+    template<class OtherT, class OtherDeleter>
+    SharedPointer(const SharedPointer<OtherT, OtherDeleter> &other)
+        : mPointer{other.mPointer}, mReference{other.mReference}
+    {
+        ++(mReference->mReferenceCount);
+    }
+
+    template<class OtherT, class OtherDeleter>
+    SharedPointer(SharedPointer<OtherT, OtherDeleter> &&other)
+        : mPointer{other.mPointer}, mReference{other.mReference}
+    {
+        other.mPointer = nullptr;
+        other.mReference = nullptr;
     }
 
     SharedPointer(SharedPointer &&other)
@@ -317,6 +387,31 @@ public:
     ~SharedPointer()
     {
         decreaseCount ();
+    }
+
+    template<class OtherT, class OtherDeleter>
+    SharedPointer &operator= (SharedPointer<OtherT, OtherDeleter> &&other) {
+        decreaseCount ();
+
+        mPointer = other.mPointer;
+        mReference = other.mReference;
+
+        other.mPointer = nullptr;
+        other.mReference = nullptr;
+
+        return *this;
+    }
+
+    template<class OtherT, class OtherDeleter>
+    SharedPointer &operator= (const SharedPointer<OtherT, OtherDeleter> &other) {
+        decreaseCount ();
+
+        mPointer = other.mPointer;
+        mReference = other.mReference;
+
+        ++(mReference->mReferenceCount);
+
+        return *this;
     }
 
     SharedPointer &operator= (SharedPointer &&other) {
@@ -401,7 +496,7 @@ public:
 private:
     void setPointer (T *pointer) {
         // Don't waste memory on reference this is a nullptr.
-        mReference = (pointer != nullptr) ? new ReferenceType{1} : nullptr;
+        mReference = (pointer != nullptr) ? new _ReferenceType{1} : nullptr;
         mPointer = pointer;
     }
 
@@ -419,31 +514,106 @@ private:
         mPointer = nullptr;
     }
 
-    struct ReferenceType
-    {
-        CountType mReferenceCount = 0;
-    };
-
     T *mPointer;
-    ReferenceType *mReference = nullptr;
+    _ReferenceType *mReference = nullptr;
 };
 
-template<class T>
-class WeakPointer
+//template<class T>
+//class WeakPointer
+//{
+//public:
+//    WeakPointer(const SharedPointer<T> &pointer)
+//    {
+//        (void) pointer;
+//    }
+
+//    void isExpired();
+
+//    void lock();
+    
+//private:
+    
+//};
+
+template<class T, class Deleter=DefaultDeleter<T>>
+class UglyPointer
 {
 public:
-    WeakPointer(const SharedPointer<T> &pointer)
+    UglyPointer()
     {
-        (void) pointer;
     }
 
-    void isExpired();
+    ~UglyPointer()
+    {
+    }
 
-    void lock();
-    
+    UglyPointer(T *pointer)
+        : mPointer{pointer}
+    {
+    }
+
+    operator T* ()
+    {
+        return mPointer;
+    }
+
+    ALLOW_COPY_AND_MOVE (UglyPointer)
+
+    void reset (T *pointer = nullptr)
+    {
+        mPointer = pointer;
+    }
+
+    operator bool ()
+    {
+        return mPointer != nullptr;
+    }
+
+    T *get()
+    {
+        return mPointer;
+    }
+
+    const T *get() const
+    {
+        return mPointer;
+    }
+
+    T &operator *()
+    {
+        return *mPointer;
+    }
+
+    const T &operator *() const
+    {
+        return *mPointer;
+    }
+
+    T *operator ->()
+    {
+        return mPointer;
+    }
+
+    const T *operator ->() const
+    {
+        return mPointer;
+    }
+
+    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UglyPointer, mPointer)
+
 private:
-    
+    T *mPointer = nullptr;
 };
+
+
+/**
+ * @brief A little helper to copy a lvalue and return the copy as a prvalue.
+ */
+template<class T>
+T copy (const T &value)
+{
+    return value;
+}
 
 template<class T, class ...Args>
 UniquePointer<T> makeUnique(Args&&... args)

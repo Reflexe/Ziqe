@@ -1,5 +1,5 @@
 /**
- * @file TaskManager.h
+ * @file ProcessPeersWorker.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,18 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_TASKMANAGER_H
-#define ZIQE_TASKMANAGER_H
-
+#include "ProcessPeersWorker.h"
 
 namespace Ziqe {
 
-class TaskManager
+ProcessPeersWorker::ProcessPeersWorker()
 {
-public:
-    TaskManager();
-};
+
+}
 
 } // namespace Ziqe
-
-#endif // ZIQE_TASKMANAGER_H

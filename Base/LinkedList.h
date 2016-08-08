@@ -33,13 +33,22 @@ template <class T>
 class LinkedList
 {
 public:
-    // TODO: use a XOR linked list.
     struct DoubleLinkedListNode {
         template<class ...Args>
         DoubleLinkedListNode(struct DoubleLinkedListNode *previous,
                              struct DoubleLinkedListNode *next,
                              Args&&... args)
             : data{new T{std::forward<Args>(args)...}},
+              previous{previous},
+              next{next}
+        {
+        }
+
+        template<class ...Args>
+        DoubleLinkedListNode(struct DoubleLinkedListNode *previous,
+                             struct DoubleLinkedListNode *next,
+                             UniquePointer<T> &&pointer)
+            : data{std::move (pointer)},
               previous{previous},
               next{next}
         {
@@ -204,7 +213,8 @@ public:
         NodeType *newNode;
 
         newNode = new NodeType{where.mCurrent->previous,
-                where.mCurrent, std::forward<Args>(args)...};
+                               where.mCurrent,
+                               std::forward<Args>(args)...};
         where.mCurrent->previous = newNode;
 
         ++mSize;
@@ -220,16 +230,16 @@ public:
     template<class ...Args>
     Iterator emplace_back(Args&&... args) {
         return emplace_before (mEnd,
-                        std::forward<Args>(args)...);
+                               std::forward<Args>(args)...);
     }
 
     template<class ...Args>
     Iterator emplace_front(Args&&... args) {
         return emplace_before (mBegin,
-                        std::forward<Args>(args)...);
+                               std::forward<Args>(args)...);
     }
 
-    void erase(ConstIterator &begin, ConstIterator &end) {
+    void erase(ConstIterator &&begin, ConstIterator &&end) {
         DEBUG_CHECK (begin.mCurrent);
 
         if (begin == end)
@@ -258,7 +268,7 @@ public:
             mBegin = end;
     }
 
-    Iterator erase(Iterator &iterator) {
+    Iterator erase(Iterator &&iterator) {
         auto next = iterator.mCurrent->next;
 
         if (iterator.mCurrent->next)

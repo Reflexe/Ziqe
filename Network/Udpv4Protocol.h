@@ -29,11 +29,11 @@ class Udpv4Protocol final : public NetworkProtocol
 public:
     Udpv4Protocol();
 
-    virtual bool sendPacket (UniquePointer<NetworkPacket> &&packet) override;
-
     virtual UniquePointer<NetworkPacket> receivePacket () override;
 
     virtual UniquePointer<NetworkProtocol> createFromPacket (const NetworkPacket &packet) override;
+
+
 };
 
 } // namespace Ziqe

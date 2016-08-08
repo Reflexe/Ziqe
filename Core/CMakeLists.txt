@@ -1,4 +1,6 @@
 add_subdirectory (ZiqeProtocol)
-add_subdirectory (Tasks)
 
-zq_add_library(Core PeersManager Peer ProcessMemory Task GlobalProcess GlobalThread)
+zq_add_library(Core ProcessMemory GlobalProcess GlobalThread
+                    ThreadOwnerWorker GlobalPeersWorker ProcessPeersWorker
+                    GlobalThreadManager GlobalProcessManager ThreadOwnerClientWorker
+                    GlobalThreadID GlobalProcessID)

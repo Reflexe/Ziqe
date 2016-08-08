@@ -21,34 +21,24 @@
 #define ZIQE_INPUTSTREAMINTERFACE_H
 
 #include "Base/Types.h"
-#include "Vector.h"
+#include "SharedVector.h"
 
 namespace Ziqe {
 
 class InputStreamInterface
 {
 public:
-    typedef Vector<Byte> DataType;
+    typedef SharedVector<Byte> DataType;
 
     // Any input stream should provide this callback.
     class Callback {
     public:
+        Callback() = default;
         virtual ~Callback () = 0;
         ALLOW_COPY_AND_MOVE (Callback)
 
-        virtual void onDataReceived (DataType &&data) = 0;
-
-
-
-        virtual void onStreamClosed () = 0;
+        virtual void onDataReceived (const DataType &data) = 0;
     };
-
-    /**
-     * @brief registerCallback
-     * @param callback
-     * @return
-     */
-    virtual bool registerCallback (SharedPointer<Callback> &&callback) = 0;
 
 protected:
     InputStreamInterface();

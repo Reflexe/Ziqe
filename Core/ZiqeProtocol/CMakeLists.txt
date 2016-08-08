@@ -1,1 +1,3 @@
-zq_add_library (ZiqeProtocol ZiqeProtocol PeerConnection Message)
+zq_add_library (ZiqeProtocol Message ThreadOwnerServer ThreadOwnerClient
+                MessagesGenerator MessagesParser MessagesStream MemoryMap
+                GlobalPeers ProcessPeers)

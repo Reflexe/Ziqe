@@ -21,21 +21,52 @@
 #define ZIQE_GLOBALPROCESS_H
 
 #include "Base/Types.h"
+#include "Base/LinkedList.h"
+
+#include "Core/GlobalProcessID.h"
+
+#include "Core/ZiqeProtocol/ProcessPeersClient.h"
+#include "Core/ProcessPeersWorker.h"
 
 namespace Ziqe {
 
+/**
+ * @brief The GlobalProcess class
+ *
+ * Every global process is a server and a client of all the other process peers' server.
+ */
 class GlobalProcess
 {
 public:
-    // A type that can hold all of the supported archs' processIDs.
-    typedef uint64_t GlobalProcessID;
+    GlobalProcess(UniquePointer<ProcessPeersServer> &&server,
+                  UniquePointer<ProcessPeersClient> &&client,
+                  UniquePointer<NetworkProtocolPool> &&networkPool);
 
-    GlobalProcess(GlobalProcessID processID);
-
-    GlobalProcessID getProcessID() const;
+    ProcessPeersClient &getClient()
+    {
+        return *mClient;
+    }
 
 private:
-    GlobalProcessID mProcessID;
+    struct ProcessServerParameter {
+        /**
+         * @brief mServer  Handles other process peer's requests (e.g. read memory request)
+         */
+        UniquePointer<ProcessPeersServer> mServer;
+
+        UniquePointer<NetworkProtocolPool> networkPool{pNetworkPool};
+
+    };
+
+    static void processServerMain (ProcessServerParameter *parameter);
+
+    LocalThread mServerThread;
+
+    /**
+     * @brief mClient  Handles local requests for other process peers.
+     */
+    UniquePointer<ProcessPeersClient> mClient;
+
 };
 
 } // namespace Ziqe

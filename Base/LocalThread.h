@@ -47,6 +47,9 @@ public:
 
     void run(Callback<void ()> &&toCall);
 
+    bool shouldExit () const;
+    bool isStopped () const;
+
     template<class ParameterType>
     void runAnyFunction (void (*function)(ParameterType), ParameterType parameter)
     {

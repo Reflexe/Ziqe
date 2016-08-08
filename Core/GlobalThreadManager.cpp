@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.cpp
+ * @file GlobalThreadManager.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,21 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#include "GlobalThreadManager.h"
 
 namespace Ziqe {
 
-Udpv4Protocol::Udpv4Protocol()
-{
-
-}
-
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
-{
-
-}
-
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
+GlobalThreadManager::GlobalThreadManager()
 {
 
 }

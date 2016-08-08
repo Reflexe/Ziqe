@@ -28,6 +28,9 @@ namespace Ziqe {
 #define DEBUG_CHECK(expr) (void)(expr)
 #define DEBUG_CHECK_NOT_REACHED() DEBUG_CHECK(false)
 
+#define DEBUG_CHECK_REPORT (expr)
+#define DEBUG_CHECK_REPORT_NOT_REACHED()
+
 template<class X, class Y>
 bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
 {

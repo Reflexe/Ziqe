@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.cpp
+ * @file MemoryMap.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#include "MemoryMap.h"
+
+#include "Base/SharedVector.h"
 
 namespace Ziqe {
 
-Udpv4Protocol::Udpv4Protocol()
+MemoryMap::MemoryMap()
 {
 
 }
 
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
-{
+// TODO: we're creating a vector from other vector in order to copy it to
+// another vector. We can just copy it to the vector from the start.
+Vector<Byte> MemoryMap::toVector() const{
+    SizeType memorySize = 0;
 
-}
+    for (const auto &addressAndVector : mAddressBaseToMemory)
+    {
+        memorySize += addressAndVector.second;
+    }
 
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
-{
+    SharedVector<Byte, Vector<Byte>, UniquePointer<Byte>> vector;
+    vector.getVector ().resize (memorySize);
 
+    for (const auto &addressAndVector : mAddressBaseToMemory)
+    {
+        vector.insertVectorAtBegin (addressAndVector.second);
+    }
+
+    return std::move (vector.getVector ());
 }
 
 } // namespace Ziqe

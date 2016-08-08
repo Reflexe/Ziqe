@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.cpp
+ * @file MemoryMap.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#ifndef ZIQE_MEMORYMAP_H
+#define ZIQE_MEMORYMAP_H
+
+#include "Base/Vector.h"
+#include "Base/HashTable.h"
 
 namespace Ziqe {
 
-Udpv4Protocol::Udpv4Protocol()
+/// A collection of memory areas.
+class MemoryMap
 {
+public:
+    MemoryMap();
 
-}
+    Vector<Byte> toVector () const;
 
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
-{
-
-}
-
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
-{
-
-}
+private:
+    HashTable<ZqAddress, Vector<Byte> mAddressBaseToMemory;
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_MEMORYMAP_H

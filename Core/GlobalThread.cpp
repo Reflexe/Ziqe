@@ -21,15 +21,11 @@
 
 namespace Ziqe {
 
-GlobalThread::GlobalThread(GlobalThread::GlobalThreadID threadID)
-    : mThreadID{threadID}
+GlobalThread::GlobalThread(UniquePointer<ThreadOwnerClientWorker> &&threadOwnerClient)
+    : mThreadOwnerClient{std::move (threadOwnerClient)}
 {
 
 }
 
-GlobalThread::GlobalThreadID GlobalThread::getThreadID() const
-{
-    return mThreadID;
-}
 
 } // namespace Ziqe
