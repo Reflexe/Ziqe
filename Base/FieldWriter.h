@@ -87,6 +87,14 @@ private:
         mVector.insertVectorAtBegin (vector);
     }
 
+    template<class T>
+    void writeOneT (const UglyArray<T> &array) {
+        for (SizeType i = 0; i < array.size (); ++i)
+        {
+            writeOneT (array[i]);
+        }
+    }
+
     SharedVector<Byte> mVector;
 };
 

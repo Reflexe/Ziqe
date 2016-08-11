@@ -1,5 +1,5 @@
 /**
- * @file ThreadOwnerClient.h
+ * @file ProcessPeersServerWorker.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,34 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_THREADOWNERCLIENT_H
-#define ZIQE_THREADOWNERCLIENT_H
+#ifndef ZIQE_PROCESSPEERSSERVERWORKER_H
+#define ZIQE_PROCESSPEERSSERVERWORKER_H
 
-#include "Base/IOStreamInterface.h"
 
 namespace Ziqe {
 
-class ThreadOwnerClient : private IOStreamInterface::Callback
+class ProcessPeersServerWorker
 {
 public:
-    struct Callback {
-        Callback() = default;
-        virtual ~Callback() = 0;
-        ALLOW_COPY_AND_MOVE (Callback)
-
-         = 0;
-    };
-
-    ThreadOwnerClient(UniquePointer<Callback> &&callback);
-
-    void doSystemCall (ZqSystemCallIDType id,
-                       const UglyPointer<ZqRegisterType> parameters,
-                       SizeType parametersLength);
-
-private:
-    UniquePointer<Callback> mCallback;
+    ProcessPeersServerWorker();
 };
 
 } // namespace Ziqe
 
-#endif // ZIQE_THREADOWNERCLIENT_H
+#endif // ZIQE_PROCESSPEERSSERVERWORKER_H

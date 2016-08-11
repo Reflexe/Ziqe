@@ -37,7 +37,7 @@ public:
         virtual ~Callback () = 0;
         ALLOW_COPY_AND_MOVE (Callback)
 
-        virtual void onPacketReceived (UniquePointer<NetworkPacket> &&packet) = 0;
+        virtual void onPacketReceived (NetworkProtocol &protocol, UniquePointer<NetworkPacket> &&packet) = 0;
     };
 
     virtual UniquePointer<NetworkPacket> receivePacket () = 0;

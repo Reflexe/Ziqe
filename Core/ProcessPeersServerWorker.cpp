@@ -1,5 +1,5 @@
 /**
- * @file MultiThreadEvent.h
+ * @file ProcessPeersServerWorker.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_MULTITHREADEVENT_H
-#define ZIQE_MULTITHREADEVENT_H
-
+#include "ProcessPeersServerWorker.h"
 
 namespace Ziqe {
 
-class MultiThreadEvent
+ProcessPeersServerWorker::ProcessPeersServerWorker()
 {
-public:
-    MultiThreadEvent();
 
-    // Wait for the next event.
-    void wait();
-
-
-};
+}
 
 } // namespace Ziqe
-
-#endif // ZIQE_MULTITHREADEVENT_H

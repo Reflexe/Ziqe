@@ -593,6 +593,7 @@ public:
 template<class T, class Deleter>
 class UglyArray : public UglyPointer<T[], Deleter>
 {
+public:
     typedef UglyPointer<T, Deleter> _PointerType;
 
     UglyArray () = default;
@@ -616,6 +617,11 @@ class UglyArray : public UglyPointer<T[], Deleter>
     const T &operator [](SizeType index) const
     {
         return this->mPointer[index];
+    }
+
+    SizeType size() const
+    {
+        return mSize;
     }
 
 private:

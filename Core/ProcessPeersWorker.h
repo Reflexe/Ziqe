@@ -105,6 +105,7 @@ private:
             return mIdentiferToTask.find (taskID).takePointer ();
         }
 // TODO: split the process peer server and client.
+//       The client
     private:
         /// Called only when this class is locked.
         TaskID generateNewID ()

@@ -48,54 +48,45 @@ public:
         return writer.getVector().getVector ();
     }
 
-    MessageContainer makeGetMemory (IdentiferType identifer,
-                                    ZqAddress address,
+    MessageContainer makeGetMemory (ZqAddress address,
                                     SizeType length) {
         return makeVector(Message::Type::GetMemory,
-                          static_cast<QWord>(identifer),
                           static_cast<QWord>(address),
                           static_cast<QWord>(length));
     }
 
-    MessageContainer makeGetMemoryResult (IdentiferType identifer,
-                                          const SharedVector<Byte> &data,
+    MessageContainer makeGetMemoryResult (const SharedVector<Byte> &data,
                                           ZqAddress address)
     {
         return makeVector(Message::Type::GetMemoryResult,
-                          static_cast<QWord>(identifer),
                           static_cast<QWord>(address),
                           static_cast<QWord>(data.size ()),
                           data);
     }
 
-    MessageContainer makeGetMemoryResult (IdentiferType identifer,
-                                          Word data,
+    MessageContainer makeGetMemoryResult (Word data,
                                           ZqAddress address)
     {
         return makeVector(Message::Type::GetMemoryResult,
-                          static_cast<QWord>(identifer),
                           static_cast<QWord>(address),
                           static_cast<QWord>(sizeof (data)),
                           data);
     }
 
-    MessageContainer makeGetMemoryResult (IdentiferType identifer,
-                                          DWord data,
+    MessageContainer makeGetMemoryResult (DWord data,
                                           ZqAddress address)
     {
         return makeVector(Message::Type::GetMemoryResult,
-                          static_cast<QWord>(identifer),
                           static_cast<QWord>(address),
                           static_cast<QWord>(sizeof (data)),
                           data);
     }
 
-    MessageContainer makeGetMemoryResult (IdentiferType identifer,
-                                          QWord data,
+    MessageContainer makeGetMemoryResult (QWord data,
                                           ZqAddress address)
     {
         return makeVector(Message::Type::GetMemoryResult,
-                          static_cast<QWord>(identifer),
+
                           static_cast<QWord>(address),
                           static_cast<QWord>(sizeof (data)),
                           data);
@@ -167,25 +158,26 @@ public:
     }
 
     /// Hello
-    MessageContainer makeProcessPeerHello ()
+    MessageContainer makeProcessPeerHello (GlobalThreadID threadID)
     {
-        return makeVector(Message::Type::ProcessPeerHello);
+        return makeVector(Message::Type::ProcessPeerHello,
+                          threadID);
     }
 
     /// Goodbye
-    MessageContainer makeProcessPeerGoodbye ()
+    MessageContainer makeProcessPeerGoodbye (GlobalThreadID threadID)
     {
-        return makeVector(Message::Type::ProcessPeerGoodbye);
+        return makeVector(Message::Type::ProcessPeerGoodbye,
+                          threadID);
     }
 
     MessageContainer makeDoSystemCall (uint64_t systemCallID,
-                                       UglyPointer<ZqRegisterType> arguments,
-                                       SizeType registersLength,
+                                       UglyArray<ZqRegisterType> arguments,
                                        const MemoryMap &memoryMap)
     {
         return makeVector(Message::Type::DoSystemCall,
-                          static_cast<uint8_t>(registersLength),
-                          arguments[0],
+                          static_cast<uint8_t>(arguments.size ()),
+                          arguments,
                           memoryMap.toVector ());
     }
 
@@ -195,6 +187,12 @@ public:
         return makeVector(Message::Type::SystemCallResult,
                           result,
                           memoryMap.toVector ());
+    }
+
+    MessageContainer makeGetAndReserveMemory (uint16_t count)
+    {
+        return makeVector(Message::Type::GetAndReserveMemory,
+                          count);
     }
 
     MessageContainer makeRunThreadPeerLookup (IdentiferType identifer)

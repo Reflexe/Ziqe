@@ -161,6 +161,7 @@ public:
         ProcessPeerRunThread              = 0x8055,
         /// @brief "Ok, I'm running your dammn thread! "
         ProcessPeerRunThreadOK,
+        GetAndReserveMemory,
 
         /// Thread Owner P2P: The 2**14 bit is on.
         /// @brief Tell a Process Owner Peer to run a system call
