@@ -1,5 +1,5 @@
 /**
- * @file NetworkProtocolPool.cpp
+ * @file MachineInfo.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,18 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "NetworkProtocolPool.h"
+#ifndef ZIQE_MACHINEINFO_H
+#define ZIQE_MACHINEINFO_H
+
 
 namespace Ziqe {
 
-NetworkProtocolPool::NetworkProtocolPool()
+class MachineInfo
 {
-
-}
-
-void NetworkProtocolPool::run(NetworkProtocolPool::Callback &callback)
-{
-    // use select or something to do it async-ly.
-}
+public:
+    MachineInfo();
+};
 
 } // namespace Ziqe
+
+#endif // ZIQE_MACHINEINFO_H

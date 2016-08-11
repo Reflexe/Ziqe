@@ -44,6 +44,7 @@ public:
     void stop ();
 
     void cont();
+    void kill ();
 
     void run(Callback<void ()> &&toCall);
 

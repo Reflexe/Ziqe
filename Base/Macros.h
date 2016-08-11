@@ -132,6 +132,15 @@ struct EnableIf<true>
     typedef bool type;
 };
 
+/**
+ * @brief A little helper to copy a lvalue and return the copy as a prvalue.
+ */
+template<class T>
+T copy (const T &value)
+{
+    return value;
+}
+
 }
 
 #endif // MACROS_H

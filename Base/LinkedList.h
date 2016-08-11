@@ -134,6 +134,11 @@ public:
             return mCurrent == nullptr;
         }
 
+        UniquePointer<T> takePointer()
+        {
+            return std::move(mCurrent->data);
+        }
+
     private:
         friend class LinkedList;
 

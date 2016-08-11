@@ -55,9 +55,20 @@ public:
 
     void run (Callback &callback);
 
+    void sendData (SharedVector<Byte> &&data) {
+        auto iterator = mProtocols.begin ();
+        auto end = --mProtocols.end ();
+
+        for (; iterator != end; ++iterator)
+        {
+            iterator->sendData (copy (data));
+        }
+
+        end->sendData (std::move (data));
+    }
+
 private:
     ProtocolsType mProtocols;
-
 };
 
 } // namespace Ziqe

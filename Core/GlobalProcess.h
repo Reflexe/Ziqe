@@ -23,11 +23,6 @@
 #include "Base/Types.h"
 #include "Base/LinkedList.h"
 
-#include "Core/GlobalProcessID.h"
-
-#include "Core/ZiqeProtocol/ProcessPeersClient.h"
-#include "Core/ProcessPeersWorker.h"
-
 namespace Ziqe {
 
 /**
@@ -66,7 +61,6 @@ private:
      * @brief mClient  Handles local requests for other process peers.
      */
     UniquePointer<ProcessPeersClient> mClient;
-
 };
 
 } // namespace Ziqe

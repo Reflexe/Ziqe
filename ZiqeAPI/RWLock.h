@@ -1,5 +1,5 @@
 /**
- * @file NetworkProtocolPool.cpp
+ * @file RWLock
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,18 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "NetworkProtocolPool.h"
+#ifndef ZIQEAPI_RWLOCK_H
+#define ZIQEAPI_RWLOCK_H
 
-namespace Ziqe {
+#include "ZiqeAPI/Macros.h"
+#include "ZiqeAPI/Memory.h"
 
-NetworkProtocolPool::NetworkProtocolPool()
-{
+ZQ_BEGIN_C_DECL
 
-}
+#define ZQ_UNDEFINED_RWLOCK (0)
 
-void NetworkProtocolPool::run(NetworkProtocolPool::Callback &callback)
-{
-    // use select or something to do it async-ly.
-}
+typedef ZqAddress ZqRWLock;
 
-} // namespace Ziqe
+void ZqRWLockInit(ZqRWLock *rw_lock);
+void ZqRWLockDeinit(ZqRWLock *rw_lock);
+
+ZqBool ZqRWLockTryLockWrite(ZqRWLock *rw_lock);
+void ZqRWLockLockWrite(ZqRWLock *rw_lock);
+void ZqRWLockUnlockWrite(ZqRWLock *rw_lock);
+
+ZqBool ZqRWLockTryLockRead(ZqRWLock *rw_lock);
+void ZqRWLockLockRead(ZqRWLock *rw_lock);
+void ZqRWLockUnlockRead(ZqRWLock *rw_lock);
+
+ZQ_END_C_DECL
+
+#endif // ZIQEAPI_RWLOCK_H

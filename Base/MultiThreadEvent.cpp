@@ -1,5 +1,5 @@
 /**
- * @file NetworkProtocolPool.cpp
+ * @file MultiThreadEvent.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,18 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "NetworkProtocolPool.h"
+#include "MultiThreadEvent.h"
 
 namespace Ziqe {
 
-NetworkProtocolPool::NetworkProtocolPool()
+MultiThreadEvent::MultiThreadEvent()
 {
 
-}
-
-void NetworkProtocolPool::run(NetworkProtocolPool::Callback &callback)
-{
-    // use select or something to do it async-ly.
 }
 
 } // namespace Ziqe

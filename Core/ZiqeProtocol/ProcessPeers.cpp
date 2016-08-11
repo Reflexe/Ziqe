@@ -21,4 +21,12 @@
 
 namespace Ziqe {
 
+ProcessPeers::ProcessPeers(UniquePointer<Ziqe::ProcessPeers::Callback> &&callback,
+                           UniquePointer<NetworkProtocol> &&serverProtocol,
+                           NetworkProtocolPool &protocolPool)
+    : mCallback{std::move (callback)}
+{
+    protocolPool.addProtocol (std::move (serverProtocol));
+}
+
 } // namespace Ziqe

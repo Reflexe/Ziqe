@@ -107,52 +107,51 @@ struct NoDeleter {
     }
 };
 
-template<class T, class Deleter=DefaultDeleter<T>>
-class UniquePointer
+template <class T, class Deleter>
+class UniquePointerBase
 {
-public:
     template<class OtherT, class OtherDeleter>
-    friend class SharedPointer;
+    friend class UniquePointer;
 
-    UniquePointer() = default;
+    UniquePointerBase() = default;
 
     template<class Tp>
-    UniquePointer(Tp *pointer)
+    UniquePointerBase(Tp *pointer)
         : mPointer{pointer}
     {
     }
 
     template<class OtherT, class OtherDeleter>
-    UniquePointer(UniquePointer<OtherT, OtherDeleter> &&other)
+    UniquePointerBase(UniquePointerBase<OtherT, OtherDeleter> &&other)
         : mPointer{other.mPointer}
     {
         other.mPointer = nullptr;
     }
 
     template<class OtherT, class OtherDeleter>
-    UniquePointer &operator= (UniquePointer<OtherT, OtherDeleter> &&other) {
+    UniquePointerBase &operator= (UniquePointerBase<OtherT, OtherDeleter> &&other) {
         reset (other.mPointer);
         other.mPointer = nullptr;
     }
 
-    UniquePointer(UniquePointer &&other)
+    UniquePointerBase(UniquePointerBase &&other)
         : mPointer{other.mPointer}
     {
         other.mPointer = nullptr;
     }
 
-    UniquePointer &operator= (UniquePointer &&other) {
+    UniquePointerBase &operator= (UniquePointerBase &&other) {
         reset (other.mPointer);
         other.mPointer = nullptr;
     }
 
     template<class Tp>
-    UniquePointer &operator= (Tp *pointer)
+    UniquePointerBase &operator= (Tp *pointer)
     {
         reset (pointer);
     }
 
-    DISALLOW_COPY (UniquePointer)
+    DISALLOW_COPY (UniquePointerBase)
 
     template<class Tp>
     void reset (Tp *pointer = nullptr) {
@@ -204,129 +203,54 @@ public:
         return mPointer;
     }
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UniquePointer, mPointer)
+    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UniquePointerBase, mPointer)
 
-private:
+protected:
     T *mPointer = nullptr;
 };
 
-template<class T, class Deleter>
-class UniquePointer<T[], Deleter>
+template<class T, class Deleter=DefaultDeleter<T>>
+class UniquePointer : public UniquePointerBase<T, Deleter>
 {
 public:
-    template<class OtherT, class OtherDeleter>
-    friend class UniquePointer;
+    typedef UniquePointerBase<T, Deleter> _UniquePointerBase;
 
+    using _UniquePointerBase::operator =;
+    using _UniquePointerBase::operator ==;
+    using _UniquePointerBase::operator *;
+    using _UniquePointerBase::operator ->;
+
+    using _UniquePointerBase::UniquePointerBase;
+};
+
+template<class T, class Deleter>
+class UniquePointer<T[], Deleter> : public UniquePointerBase<T, Deleter>
+{
+public:
+    typedef UniquePointerBase<T, Deleter> _UniquePointerBase;
+
+    using _UniquePointerBase::operator ==;
+    using _UniquePointerBase::operator *;
+    using _UniquePointerBase::operator ->;
+
+    // Don't allow converting of array.
     UniquePointer() = default;
-
-    ~UniquePointer() {
-        if (*this)
-            Deleter{}(mPointer);
-    }
-
-    template<class Tp>
-    UniquePointer(Tp *pointer)
-        : mPointer{pointer}
+    UniquePointer(T *ptr)
+        : _UniquePointerBase{ptr}
     {
     }
 
-    template<class OtherT, class OtherDeleter>
-    UniquePointer(UniquePointer<OtherT, OtherDeleter> &&other)
-        : mPointer{other.mPointer}
-    {
-        other.mPointer = nullptr;
-    }
-
-    template<class OtherT, class OtherDeleter>
-    UniquePointer &operator= (UniquePointer<OtherT, OtherDeleter> &&other) {
-        reset (other.mPointer);
-        other.mPointer = nullptr;
-    }
-
-
-    UniquePointer(UniquePointer &&other)
-        : mPointer{other.mPointer}
-    {
-        other.mPointer = nullptr;
-    }
-
-    UniquePointer &operator= (UniquePointer &&other) {
-        reset (other.mPointer);
-        other.mPointer = nullptr;
-    }
-
-    template<class Tp>
-    UniquePointer &operator= (Tp *pointer)
-    {
-        reset (pointer);
-    }
-
-    DISALLOW_COPY (UniquePointer)
-
-    template<class Tp>
-    void reset (Tp *pointer = nullptr) {
-        if (*this)
-            Deleter{}(mPointer);
-
-        mPointer = pointer;
-    }
-
-    T *release () {
-        auto pointer = mPointer;
-        mPointer = nullptr;
-
-        return mPointer;
-    }
-
-    operator bool () const
-    {
-        return mPointer != nullptr;
-    }
-
-    T *get()
-    {
-        return mPointer;
-    }
-
-    const T *get() const
-    {
-        return mPointer;
-    }
+    ALLOW_COPY_AND_MOVE (UniquePointer)
 
     T &operator [](SizeType index)
     {
-        return mPointer[index];
+        return this->mPointer[index];
     }
 
     const T &operator [](SizeType index) const
     {
-        return mPointer[index];
+        return this->mPointer[index];
     }
-
-    T &operator *()
-    {
-        return *mPointer;
-    }
-
-    const T &operator *() const
-    {
-        return *mPointer;
-    }
-
-    T *operator ->()
-    {
-        return mPointer;
-    }
-
-    const T *operator ->() const
-    {
-        return mPointer;
-    }
-
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UniquePointer, mPointer)
-
-private:
-    T *mPointer = nullptr;
 };
 
 struct _ReferenceType
@@ -341,56 +265,56 @@ struct _ReferenceType
     CountType mReferenceCount = 0;
 };
 
-template<class T, class Deleter=DefaultDeleter<T>>
-class SharedPointer
+template<class T, class Deleter>
+class SharedPointerBase
 {
 public:
     template<class OtherT, class OtherDeleter>
-    friend class SharedPointer;
+    friend class SharedPointerBase;
 
     typedef _ReferenceType::CountType CountType;
 
-    SharedPointer() = default;
+    SharedPointerBase() = default;
 
-    SharedPointer(T *pointer)
+    SharedPointerBase(T *pointer)
     {
         setPointer (pointer);
     }
 
     template<class OtherT, class OtherDeleter>
-    SharedPointer(const SharedPointer<OtherT, OtherDeleter> &other)
+    SharedPointerBase(const SharedPointerBase<OtherT, OtherDeleter> &other)
         : mPointer{other.mPointer}, mReference{other.mReference}
     {
         ++(mReference->mReferenceCount);
     }
 
     template<class OtherT, class OtherDeleter>
-    SharedPointer(SharedPointer<OtherT, OtherDeleter> &&other)
+    SharedPointerBase(SharedPointerBase<OtherT, OtherDeleter> &&other)
         : mPointer{other.mPointer}, mReference{other.mReference}
     {
         other.mPointer = nullptr;
         other.mReference = nullptr;
     }
 
-    SharedPointer(SharedPointer &&other)
+    SharedPointerBase(SharedPointerBase &&other)
         : mPointer{other.mPointer}, mReference{other.mReference} {
         other.mPointer = nullptr;
         other.mReference = nullptr;
     }
 
-    SharedPointer(const SharedPointer &other)
+    SharedPointerBase(const SharedPointerBase &other)
         : mPointer{other.mPointer}, mReference{other.mReference}
     {
         ++(mReference->mReferenceCount);
     }
 
-    ~SharedPointer()
+    ~SharedPointerBase()
     {
         decreaseCount ();
     }
 
     template<class OtherT, class OtherDeleter>
-    SharedPointer &operator= (SharedPointer<OtherT, OtherDeleter> &&other) {
+    SharedPointerBase &operator= (SharedPointerBase<OtherT, OtherDeleter> &&other) {
         decreaseCount ();
 
         mPointer = other.mPointer;
@@ -403,7 +327,7 @@ public:
     }
 
     template<class OtherT, class OtherDeleter>
-    SharedPointer &operator= (const SharedPointer<OtherT, OtherDeleter> &other) {
+    SharedPointerBase &operator= (const SharedPointerBase<OtherT, OtherDeleter> &other) {
         decreaseCount ();
 
         mPointer = other.mPointer;
@@ -414,7 +338,7 @@ public:
         return *this;
     }
 
-    SharedPointer &operator= (SharedPointer &&other) {
+    SharedPointerBase &operator= (SharedPointerBase &&other) {
         decreaseCount ();
 
         mPointer = other.mPointer;
@@ -426,7 +350,7 @@ public:
         return *this;
     }
 
-    SharedPointer &operator= (const SharedPointer &other) {
+    SharedPointerBase &operator= (const SharedPointerBase &other) {
         decreaseCount ();
 
         mPointer = other.mPointer;
@@ -453,16 +377,6 @@ public:
         return mPointer;
     }
 
-    T &operator [](SizeType index)
-    {
-        return mPointer[index];
-    }
-
-    const T &operator [](SizeType index) const
-    {
-        return mPointer[index];
-    }
-
     T &operator *()
     {
         return *mPointer;
@@ -483,6 +397,8 @@ public:
         return mPointer;
     }
 
+    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (SharedPointerBase, mPointer)
+
     CountType getReferenceCount () const
     {
         return (! mReference) ? 0 : mReference->mReferenceCount;
@@ -493,7 +409,7 @@ public:
         return mPointer != nullptr;
     }
 
-private:
+protected:
     void setPointer (T *pointer) {
         // Don't waste memory on reference this is a nullptr.
         mReference = (pointer != nullptr) ? new _ReferenceType{1} : nullptr;
@@ -518,36 +434,60 @@ private:
     _ReferenceType *mReference = nullptr;
 };
 
-//template<class T>
-//class WeakPointer
-//{
-//public:
-//    WeakPointer(const SharedPointer<T> &pointer)
-//    {
-//        (void) pointer;
-//    }
-
-//    void isExpired();
-
-//    void lock();
-    
-//private:
-    
-//};
-
 template<class T, class Deleter=DefaultDeleter<T>>
-class UglyPointer
+class SharedPointer : public SharedPointerBase<T, Deleter>
 {
 public:
-    UglyPointer()
+    typedef SharedPointerBase<T, Deleter> _SharedPointerBase;
+
+    using _SharedPointerBase::operator =;
+    using _SharedPointerBase::operator ==;
+    using _SharedPointerBase::operator *;
+    using _SharedPointerBase::operator ->;
+
+    using _SharedPointerBase::SharedPointerBase;
+};
+
+template<class T, class Deleter>
+class SharedPointer<T[], Deleter> : public SharedPointerBase<T, Deleter>
+{
+public:
+    typedef SharedPointerBase<T, Deleter> _SharedPointerBase;
+
+    using _SharedPointerBase::operator ==;
+    using _SharedPointerBase::operator *;
+    using _SharedPointerBase::operator ->;
+
+    // Don't allow converting of array.
+    SharedPointer() = default;
+    SharedPointer(T *ptr)
+        : _SharedPointerBase{ptr}
     {
     }
 
-    ~UglyPointer()
+    ALLOW_COPY_AND_MOVE (SharedPointer)
+
+    T &operator [](SizeType index)
     {
+        return this->mPointer[index];
     }
 
-    UglyPointer(T *pointer)
+    const T &operator [](SizeType index) const
+    {
+        return this->mPointer[index];
+    }
+};
+
+template<class T, class Deleter>
+class UglyPointerBase
+{
+public:
+    template<class OtherT, class OtherDeleter>
+    friend class UglyPointerBase;
+
+    UglyPointerBase() = default;
+
+    UglyPointerBase(T *pointer)
         : mPointer{pointer}
     {
     }
@@ -557,7 +497,7 @@ public:
         return mPointer;
     }
 
-    ALLOW_COPY_AND_MOVE (UglyPointer)
+    ALLOW_COPY_AND_MOVE (UglyPointerBase)
 
     void reset (T *pointer = nullptr)
     {
@@ -599,21 +539,88 @@ public:
         return mPointer;
     }
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UglyPointer, mPointer)
+    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UglyPointerBase, mPointer)
 
-private:
+protected:
     T *mPointer = nullptr;
 };
 
-
-/**
- * @brief A little helper to copy a lvalue and return the copy as a prvalue.
- */
-template<class T>
-T copy (const T &value)
+template<class T, class Deleter=DefaultDeleter<T>>
+class UglyPointer : public UglyPointerBase<T, Deleter>
 {
-    return value;
-}
+public:
+    typedef UglyPointerBase<T, Deleter> _UglyPointerBase;
+
+    using _UglyPointerBase::operator =;
+    using _UglyPointerBase::operator ==;
+    using _UglyPointerBase::operator *;
+    using _UglyPointerBase::operator ->;
+
+    using _UglyPointerBase::UglyPointerBase;
+};
+
+
+template<class T, class Deleter>
+class UglyPointer<T[], Deleter> : public UglyPointerBase<T, Deleter>
+{
+public:
+    typedef UglyPointerBase<T, Deleter> _UglyPointerBase;
+
+    using _UglyPointerBase::operator ==;
+    using _UglyPointerBase::operator *;
+    using _UglyPointerBase::operator ->;
+
+    // Don't allow converting of array.
+    UglyPointer() = default;
+    UglyPointer(T *ptr)
+        : _UglyPointerBase{ptr}
+    {
+    }
+
+    ALLOW_COPY_AND_MOVE (UglyPointer)
+
+    T &operator [](SizeType index)
+    {
+        return this->mPointer[index];
+    }
+
+    const T &operator [](SizeType index) const
+    {
+        return this->mPointer[index];
+    }
+};
+
+template<class T, class Deleter>
+class UglyArray : public UglyPointer<T[], Deleter>
+{
+    typedef UglyPointer<T, Deleter> _PointerType;
+
+    UglyArray () = default;
+    UglyArray(T *ptr, SizeType size)
+        : _PointerType{ptr}, mSize{size}
+    {
+    }
+
+    ALLOW_COPY_AND_MOVE (UglyArray)
+
+    bool operator ==(const UglyArray &other)
+    {
+        return mSize == other.mSize && this->_PointerType == other._PointerType;
+    }
+
+    T &operator [](SizeType index)
+    {
+        return this->mPointer[index];
+    }
+
+    const T &operator [](SizeType index) const
+    {
+        return this->mPointer[index];
+    }
+
+private:
+    SizeType mSize;
+};
 
 template<class T, class ...Args>
 UniquePointer<T> makeUnique(Args&&... args)

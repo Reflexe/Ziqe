@@ -284,6 +284,21 @@ public:
           mKeysList.erase (std::move (begin), std::move (end));
       }
 
+      SizeType size() const
+      {
+          return mKeysList.size ();
+      }
+
+      SizeType getSize () const
+      {
+          return size ();
+      }
+
+      bool isEmpty () const
+      {
+          return size () == 0;
+      }
+
 protected:
       /**
         * @brief Update an erased first hash entry's table entry.

@@ -28,12 +28,17 @@
 
 #include "Core/GlobalThread.h"
 
+#include "Core/ZiqeProtocol/MessagesGenerator.h"
+#include "Core/ZiqeProtocol/ThreadState.h"
+
 namespace Ziqe {
 
-class ProcessPeers final : public NetworkProtocolPool::Callback
+class ProcessPeers final : private NetworkProtocolPool::Callback
 {
 public:
-    ProcessPeers();
+    ProcessPeers(UniquePointer<Callback> callback,
+                 UniquePointer<NetworkProtocol> &&serverProtocol,
+                 NetworkProtocolPool &protocolPool);
 
     struct Callback {
         Callback() = default;
@@ -51,33 +56,25 @@ public:
         virtual void onStopThreadReceived (GlobalThreadID threadID) = 0;
         virtual void onContiniueThread    (GlobalThreadID threadID) = 0;
 
-        virtual void onRunThreadReceived () = 0;
+        virtual void onRunThreadReceived (GlobalThreadID newThreadID, MemoryMap &currentMemoryMap,
+                                          ThreadState &state) = 0;
         virtual void onKillThreadReceived (GlobalThreadID threadID) = 0;
 
         /// Client callbacks.
-        virtual void onGetMemoryResultReceived ();
-        virtual void onRunThreadProposeReceived ();
-        virtual void onGoodbyeReceived ();
+        virtual void onGetMemoryResultReceived (MessagesGenerator::IdentiferType id,
+                                                const SharedVector<Byte> &memory) = 0;
+        virtual void onRunThreadOKReceived () = 0;
+        virtual void onHelloReceived (GlobalThreadID newThread) = 0;
+        virtual void onGoodbyeReceived (UglyArray<GlobalThreadID> threads) = 0;
     };
 
     ProcessPeers(UniquePointer<Callback> &&callback);
-
-    SharedVector<Byte> getMemory (ZqAddress address,
-                                  SizeType size);
-
-    void writeMemory (const SharedVector<Byte> &data);
-
-    void stopThread (GlobalThread &thread);
-    void continueThread (GlobalThread &thread);
-
-    void killThread (GlobalThread &thread);
-    UniquePointer<GlobalThread> runThread (LocalThread &localThread);
 
     void addProcessConnection (UniquePointer<NetworkProtocol> &&processConnection);
 
 private:
     virtual void onPacketReceived (const SharedPointer<NetworkProtocol> &protocol,
-                                   UniquePointer<NetworkPacket> &&packet) override;
+                                   UniquePointer<NetworkPacket> &&packet) override;    
 
     UniquePointer<Callback> mCallback;
 

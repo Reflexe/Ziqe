@@ -62,7 +62,7 @@ int main (int argc, char *argv[]) {
     SharedPointer<NetworkProtocol> mNetworkProtocol;
 
     gThreadManager = new GlobalThreadManager{};
-    gProcessManager = new GlobalProcessManager{makeUnique<GlobalPeersClient>(mNetworkProtocol),
+    gProcessManager = new GlobalProcessManager{makeUnique<GlobalPeers>(mNetworkProtocol),
                                                gThreadManager};
 
     SystemCalls::setSystemCallHook (&systemCallHook);

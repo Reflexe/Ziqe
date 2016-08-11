@@ -64,25 +64,30 @@ public:
         return *this;
     }
 
-    class Lock
+    bool isLocked () const
+    {
+
+    }
+
+    class ScopedLock
     {
     public:
-        Lock (Mutex &mutex)
+        ScopedLock (Mutex &mutex)
             : mLockedMutex{&mutex}
         {
             ZqMutexLock (&mLockedMutex->mMutex);
         }
 
-        ~Lock() {
+        ~ScopedLock() {
             if (mLockedMutex)
                 ZqMutexUnlock (&mLockedMutex->mMutex);
         }
 
         DISALLOW_COPY (Lock)
 
-        Lock &operator =(Lock &&) = delete;
+        ScopedLock &operator =(ScopedLock &&) = delete;
 
-        Lock(Lock &&other)
+        ScopedLock(ScopedLock &&other)
             : mLockedMutex{other.mLockedMutex}
         {
             other.mLockedMutex = nullptr;

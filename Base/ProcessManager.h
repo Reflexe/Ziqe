@@ -42,6 +42,8 @@ public:
 
     static LocalThread getCurrentThread();
 
+    static LocalThread getLocalThreadByID (LocalThread::ThreadID id);
+
 private:
 };
 
