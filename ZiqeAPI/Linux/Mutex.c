@@ -23,14 +23,14 @@
 #include <linux/mutex.h>
 
 void ZqMutexInit(ZqMutex *mutex) {
-    *mutex = ZqAllocate (sizeof (struct mutex));
+    *mutex = ZqAllocateVirtual (sizeof (struct mutex));
 
     mutex_init ((struct mutex *) *mutex);
 }
 
 void ZqMutexDeinit(ZqMutex *mutex)
 {
-    ZqDeallocate ((ZqAddress) *mutex);
+    ZqDeallocateVirtual ((ZqAddress) *mutex);
 }
 
 void ZqMutexLock(ZqMutex *mutex)

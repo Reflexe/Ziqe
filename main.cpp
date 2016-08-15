@@ -21,7 +21,7 @@
 #include "Base/SystemCalls.h"
 #include "Base/ProcessManager.h"
 
-#include "Core/GlobalPeersWorker.h"
+#include "Core/ZiqeProtocol/GlobalPeers.h"
 
 #include "Core/GlobalThreadManager.h"
 #include "Core/GlobalProcessManager.h"

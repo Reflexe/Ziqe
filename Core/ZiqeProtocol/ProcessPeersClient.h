@@ -26,8 +26,6 @@
 
 #include "Network/NetworkProtocol.h"
 
-#include "Core/GlobalThread.h"
-
 #include "Core/ZiqeProtocol/ProcessPeersServer.h"
 
 namespace Ziqe {
@@ -49,7 +47,9 @@ public:
     ProcessPeersClient();
     ~ProcessPeersClient();
 
-    UniquePointer<GlobalThread> runThread (LocalThread &localThread);
+    ALLOW_COPY_AND_MOVE (ProcessPeersClient)
+
+    UniquePointer<ProcessPeersClient> runThread (LocalThread &localThread);
 
     SharedVector<Byte> getMemory (ZqAddress address,
                                   SizeType size);
@@ -77,27 +77,32 @@ private:
             GetAndReserveMemory
         };
 
+        Task(Type type)
+            : mTaskType{type}
+        {
+        }
+
         const Type mTaskType;
         bool isComplete = false;
     };
 
     struct RunThreadTask : Task {
         RunThreadTask()
-            : mTaskType{Type::RunThread}
+            : Task{Type::RunThread}
         {}
     };
 
     struct GetMemoryTask : Task {
         GetMemoryTask()
-            : mTaskType{Type::GetMemory}
+            : Task{Type::GetMemory}
         {}
 
-        SharedVector<Byte> mMemory;
+        SharedVector<Byte> *mMemory;
     };
 
     struct DoSystemCallTask : Task {
         DoSystemCallTask()
-            : mTaskType{Type::DoSystemCall}
+            : Task{Type::DoSystemCall}
         {}
 
         ZqRegisterType result;
@@ -106,7 +111,7 @@ private:
 
     struct GetAndReserveMemoryTask : Task {
         GetAndReserveMemoryTask()
-            : mTaskType{Type::GetAndReserveMemory}
+            : Task{Type::GetAndReserveMemory}
         {}
 
         ZqAddress address;
@@ -123,29 +128,28 @@ private:
 
         for (; iterator != end; ++iterator)
         {
-            iterator->sendData (vector);
+            iterator->second->sendData (*vector);
         }
     }
 
-    void sendThreadMessage (GlobalThreadID threadID, UniquePointer<Vector<Byte>> &vector)
-    {
+    void sendThreadMessage (GlobalThreadID threadID, UniquePointer<Vector<Byte>> &vector) {
         RWLock::ScopedReadLock lock{mConnections->first};
 
         auto iterator = mConnections->second.find (threadID);
-        if (iterator == mConnections.end ())
+        if (iterator == mConnections->second.end ())
             return;
 
-        iterator->sendData (vector);
+        iterator->second->sendData (*vector);
     }
 
     void sendThreadOwnerMessage (UniquePointer<Vector<Byte>> &vector)
     {
-        mThreadOwnerServerStream->sendData (vector);
+        mThreadOwnerServerStream->sendData (*vector);
     }
 
     void waitUntilTaskComplete () {
         do {
-            mOurPort->callbackReceiveData (*this);
+            mOurPort->callbackReceivePacket (*this);
         } while (mCurrentTask->isComplete == false);
     }
 
@@ -157,8 +161,6 @@ private:
 
     UniquePointer<Task> mCurrentTask;
     GlobalThreadID mMyGlobalThreadID;
-
-    SharedPointer<Pair<HashTable<NetworkProtocol>, RWLock>> mPeers;
 
     UniquePointer<OutputStreamInterface> mThreadOwnerServerStream;
 

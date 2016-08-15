@@ -22,13 +22,11 @@
 
 #include "Base/LocalThread.h"
 
-#include "Network/NetworkProtocolPool.h"
-
 #include "Core/GlobalThread.h"
 
 namespace Ziqe {
 
-class GlobalPeers : private NetworkProtocolPool::Callback
+class GlobalPeers
 {
 public:
     struct Callback {
@@ -47,7 +45,7 @@ public:
 
     void run ()
     {
-        mNetworkProtocol->callbackReceivePacket (this);
+        mNetworkProtocol->callbackReceivePacket (*this);
     }
 
     // first=the new thread. second=the new process connection.

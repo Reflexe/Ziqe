@@ -66,6 +66,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(zq_platform Linux)
 
 add_subdirectory (Base)
+add_subdirectory (ThirdParty)
 add_subdirectory (ZiqeAPI)
 add_subdirectory (Network)
 add_subdirectory (Core)

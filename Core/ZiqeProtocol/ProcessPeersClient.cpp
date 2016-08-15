@@ -33,7 +33,7 @@ ProcessPeersClient::~ProcessPeersClient()
     sayGoodbye ();
 }
 
-UniquePointer<GlobalThread> ProcessPeersClient::runThread(LocalThread &localThread)
+UniquePointer<ProcessPeersClient> ProcessPeersClient::runThread(LocalThread &localThread)
 {
 
 }

@@ -103,8 +103,8 @@ public:
 
         ScopedWriteLock &operator =(ScopedWriteLock &&) = delete;
 
-        ScopedReadLock(ScopedReadLock &&other)
-            : ScopedReadLock{other.mLockedLock}
+        ScopedWriteLock(ScopedWriteLock &&other)
+            : mLockedLock{other.mLockedLock}
         {
             other.mLockedLock = nullptr;
         }

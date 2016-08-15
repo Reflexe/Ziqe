@@ -35,8 +35,26 @@ typedef struct {
 
 ZQ_BEGIN_C_DECL
 
-void ZqDeallocate (ZqAddress address);
-ZqAddress ZqAllocate (ZqRegisterType size);
+void ZqDeallocateVirtual (ZqAddress address);
+ZqAddress ZqAllocateVirtual (ZqRegisterType size);
+
+// For current task.
+//ZqAddress ZqRegisterFakePages (ZqSizeType pageCount);
+//void ZqUnregisterFakePages (ZqSizeType pageCount, ZqAddress address);
+
+ZqAddress ZqAllocateUserMemory (ZqSizeType len);
+void ZqDeallocateUserMemory (ZqAddress address, ZqSizeType length);
+
+ZqBool ZqCopyToUser (ZqAddress destination,
+                     ZqAddress source,
+                     ZqSizeType length);
+
+ZqBool ZqMapUserAddressToKernel (ZqAddress virtualAddress, ZqSizeType size, ZqAddress *result);
+void ZqUnmapUserAddressToKernel (ZqAddress kernelAddress);
+
+typedef ZqBool(* ZqPageFaultHandler) (ZqAddress address);
+void ZqRegisterLatePageFaultHandler (ZqPageFaultHandler handler);
+void ZqUnregisterLatePageFaultHandler ();
 
 ZQ_END_C_DECL
 

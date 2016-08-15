@@ -28,13 +28,15 @@
 #include "Network/NetworkProtocol.h"
 
 #include "Core/GlobalThread.h"
+#include "Core/ZiqeProtocol/MemoryMap.h"
+#include "Core/ZiqeProtocol/ThreadState.h"
 
 namespace Ziqe {
 
 class ProcessPeersServer : public NetworkProtocol::Callback
 {
 public:
-    typedef SharedPointer<Pair<RWLock, HashTable<GlobalThreadID, NetworkProtocol>>> ConnectionsType;
+    typedef SharedPointer<Pair<RWLock, HashTable<GlobalThreadID, UniquePointer<NetworkProtocol>>>> ConnectionsType;
 
     ProcessPeersServer();
 
@@ -59,7 +61,7 @@ private:
         if (iterator == mProcessLocalThreads.end ())
             return nullptr;
         else
-            return &(*iterator);
+            return &(iterator)->second;
     }
 
     void onGetMemoryReceived (ZqAddress address, SizeType length);

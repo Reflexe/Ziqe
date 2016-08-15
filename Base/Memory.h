@@ -30,12 +30,12 @@
 void* operator new  (std::size_t count) {
     static_assert (sizeof (ZqRegisterType) >= sizeof (void *),
                    "Invalid ZqRegisterType");
-    return reinterpret_cast<void*>(ZqAllocate (static_cast<ZqRegisterType>(count)));
+    return reinterpret_cast<void*>(ZqAllocateVirtual (static_cast<ZqRegisterType>(count)));
 }
 
 void operator delete (void *pointer) noexcept
 {
-    ZqDeallocate (reinterpret_cast<ZqRegisterType>(pointer));
+    ZqDeallocateVirtual (reinterpret_cast<ZqRegisterType>(pointer));
 }
 
 // Placement
@@ -590,11 +590,11 @@ public:
     }
 };
 
-template<class T, class Deleter>
-class UglyArray : public UglyPointer<T[], Deleter>
+template<class T>
+class UglyArray : public UglyPointer<T[]>
 {
 public:
-    typedef UglyPointer<T, Deleter> _PointerType;
+    typedef UglyPointer<T> _PointerType;
 
     UglyArray () = default;
     UglyArray(T *ptr, SizeType size)

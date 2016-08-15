@@ -44,14 +44,14 @@ public:
 
     virtual UniquePointer<NetworkProtocol> createFromPacket (const NetworkPacket &packet) = 0;
 
-    void callbackReceivePacket (UglyPointer<Callback> callback)
+    void callbackReceivePacket (Callback &callback)
     {
-        callback->onPacketReceived (receivePacket ());
+        callback.onPacketReceived (*this, receivePacket ());
     }
 
-    void callbackReceiveData (UniquePointer<IOStreamInterface::Callback> &callback)
+    void callbackReceiveData (IOStreamInterface::Callback &callback)
     {
-        callback->onDataReceived (receivePacket ()->getData ());
+        callback.onDataReceived (receivePacket ()->getData ());
     }
 };
 

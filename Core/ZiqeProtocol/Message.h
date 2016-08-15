@@ -39,100 +39,48 @@ namespace Ziqe {
  *                    System Calls and the default owner of all of the
  *                    program's memory pages.
  *
- *   "Sync Event"   : An event when all of the instance of a process should update
- *                    their memory image (System Call).
+ *   "Sync Event"   : An event which the process owner should update its
+ *                    memory to a new map.
  *
  * - Messages:
- *   * Memory: Update, take, give.
- *   * System Call.
- *   * Thread: New, Delete.
- *
- *   Messages can be sent as one block; that make sure that the reader
- *   will read them at the right order.
- *
- *   Each message has two parts: Header and data (data can be empty).
- *   The reader should be able to read all the messages' headers without
- *   parsing their data.
- *
- * - Data Commpressing:
- *   ?, zip?, maybe something faster? optional?
- *
- *   I thinks that it should be optional and get used only
- *   for a big chunks of data.
- *   In case of memory, a lot of bytes may be initilized to zero so
- *   commpressing may be needed badly.
- *
- *  - Memory Ownership and Access:
- *   Every memory Page(?) must be own by one process instance.
- *   When a memory page is owned, the owner is allowed to write and read from
- *   it freely. When one process instance want access to a memory page that
- *   owned by someone else, it should request the current state of the memory
- *   page from its owner.
- *
- *   It is possible also to move ownership between two process instances:
- *   if for example A is the owner of a memory page and it see that B
- *   requested the same page multiple times, it can give B the page's
- *   ownership. Also, B can take the page and notify A about it.
- *
- *   Table 1: Memory Areas and Their Initial Owner
- *    ------------------------------------------------------------------
- *   | Area                  | Initial Owner       | Can be given/taken |
- *    ----------------------- -------------------- ---------------------
- *   | Stack                 | The stack's thread  | Yes?               |
- *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
- *   | Dynamic allocations   | The allocator       | Yes                |
- *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
- *   | Static variables      | The Process Owner   | Yes (Not always)   |
- *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
- *   | Constant Areas (e.g.  | No One (always can  | No                 |
- *   | .text)                | be read)            |                    |
- *    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
- *
- *  Problems:
- *   * Allocated pages may have duplication (they get allocated by the local machine,
- *     so two machines may allocate the same address).
+ *   TODO. Sill not stable.
  *
  *  - System Calls:
- *  The basic problem about system calls is that the Process Owner may need
- *  to read a private memory from the callee. It may also required to write
- *  some data into the callee's memory.
+ *  System call sent as an request message that block the caler
+ *  until there's an answer. The system call itself runs by the
+ *  real thread in the process owner machine.
  *
- *  There're two ways to solve this problem:
- *   -- Send all of our memory with the request: a lot of overhead.
- *   -- Parse every system call and send only the required pages.
+ *  System call is a sync event. See below for more info.
  *
- *  - Memory Sharing & Sync Events:
+ *  - Memory Map & Dynamic Allocation:
+ *  Every process instance starts with the constant part of the
+ *  memory map. Then, when it want to allocate memory, it asks
+ *  the thread owner server for an allocation. The server will
+ *  reply with a address and the caler can now map a new memory
+ *  to this address (This progress made to avoid address duplication
+ *  between two or more process instances).
  *
- *   Every process instance has an copy of the memory image.
- *   A few threads on the same computer have the same memory image.
+ *  - Memory Revisions
+ *  A memory revision is a state of the memory map. It represented by
+ *  the differences between itself and an older revision (similar to
+ *  a git commit patch).
+ *  We're using Memory Revisions when we want to merge two remote process
+ *  instance's memories together. If we'll copy it all and always
+ *  use the newest memory map we know, we'll end up losing changes if two
+ *  instances changed two differet values in the memory: we'll get only the
+ *  lastest one's changes and lose the previous one's changes (Although the
+ *  last's changes are completly unrelated to the previous one's changes).
  *
- *   On a Sync Event, an updated memory map sent by the caller. If
- *   there's a change, the callee should notify everyone and send them
- *   the new memory map.
+ *  - Sync Events:
+ *  Sync event is Process Instance event that creates a new Memory
+ *  Revision that get recorded by the Process Owner. In other words,
+ *  Sync Event is an event that synchronizing between two Process Instances.
  *
- *   What happend when a someone sending a sync event and another
- *   sync event of the same process get processed before?
- *   Its memory map get invalidated.
- *   Maybe a revision parameter for every memory map and when a
- *   computer sent an older rev, it'll request a new memory map
- *   from the caller.
+ *  On a sync event, the caler should provide its current memory revision
+ *  and its previous revision. Then, the calee should add this revision to
+ *  its revision tree, merge this revision with its previous revision,
+ *  creating a new revision and then send it back to the caler.
  *
- *   Summery: When a Process Owner processes a Sync Event, it validates its
- *    memory map. Then, it applys it to itself and run the Sync Event.
- *    After the sync event, it send a broadcast to all of the users
- *    and notify them about the new data (memory map). And then it
- *    finishes the Sync event and waking up the caller.
- *
- *   Note: A Sync Event can be called locally and remotly.
- *
- * - Memory Map:
- *  Only the changes between the previous sent revision and the current one.
- *
- * - Defects:
- *   - Sync Events: A very big overhead when a new memory map is required.
- *                  Maybe will do a double check to see if we should get an
- *                  new one at all (if we can see what the requester may respond
- *                  in response to our new map request)
  */
 class Message
 {

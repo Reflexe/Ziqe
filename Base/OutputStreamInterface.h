@@ -32,7 +32,7 @@ public:
     virtual ~OutputStreamInterface () = 0;
     ALLOW_COPY_AND_MOVE (OutputStreamInterface)
 
-    virtual void sendData (SharedVector<Byte> &&data) = 0;
+    virtual void sendData (const Vector<Byte> &data) = 0;
 };
 
 } // namespace Ziqe

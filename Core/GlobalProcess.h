@@ -33,30 +33,8 @@ namespace Ziqe {
 class GlobalProcess
 {
 public:
-    GlobalProcess(UniquePointer<ProcessPeersServer> &&server,
-                  UniquePointer<ProcessPeersClient> &&client,
-                  UniquePointer<NetworkProtocolPool> &&networkPool);
-
-    ProcessPeersClient &getClient()
-    {
-        return *mClient;
-    }
-
+    GlobalProcess();
 private:
-    struct ProcessServerParameter {
-        /**
-         * @brief mServer  Handles other process peer's requests (e.g. read memory request)
-         */
-        UniquePointer<ProcessPeersServer> mServer;
-
-        UniquePointer<NetworkProtocolPool> networkPool{pNetworkPool};
-
-    };
-
-    static void processServerMain (ProcessServerParameter *parameter);
-
-    LocalThread mServerThread;
-
     /**
      * @brief mClient  Handles local requests for other process peers.
      */

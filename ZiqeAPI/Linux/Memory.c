@@ -20,15 +20,82 @@
 
 #include <linux/kernel.h>
 #include <linux/slab.h>
+#include <linux/memory.h>
+#include <linux/vmalloc.h>
+#include <linux/mm.h>
+
+#include "asm/uaccess.h"
 
 #include "Memory.h"
 
-inline void ZqDeallocate (ZqAddress address)
+inline void ZqDeallocateVirtual (ZqAddress address)
 {
-    kfree ((void *) address);
+    vfree ((void *) address);
 }
 
-inline ZqAddress ZqAllocate (ZqRegisterType size)
+inline ZqAddress ZqAllocateVirtual (ZqRegisterType size)
 {
-    return (ZqAddress) kmalloc (size, GFP_KERNEL);
+    return (ZqAddress) vmalloc (size);
+}
+
+void ZqRegisterLatePageFaultHandler(ZqPageFaultHandler handler)
+{
+ // change all the vma in this task to call this handler instead of the default.
+
+    // Create a simple diassembler that detect what size of data required, and what the dst
+    // of this instruction. Then, send a (get|write)Memory and write the result to dst
+    // and skip the fault instruction.
+
+    // That way we keep write and read atomic, but with a lot of overhead.
+
+    // We can also just request the complete page and create it on the requested computer.
+    // but then read/write aren't not atomic.
+}
+
+void ZqUnregisterLatePageFaultHandler()
+{
+
+}
+
+ZqBool ZqMapUserAddressToKernel(ZqAddress virtualAddress, ZqSizeType size, ZqAddress *result)
+{
+    void *memory = vmalloc (size);
+    unsigned long result = copy_from_user (memory, virtualAddress, result);
+
+    if (result != size)
+        return ZQ_FALSE;
+    else
+        return ZQ_TRUE;
+
+
+    // copy from user?
+    // or just get_user_pages?
+}
+
+void ZqUnmapUserAddressToKernel(ZqAddress kernelAddress)
+{
+    vfree ((void *) kernelAddress);
+}
+
+ZqAddress ZqAllocateUserMemory(ZqSizeType len) {
+    ZqAddress addr;
+    struct mm_struct *mm;
+
+    mm = current->mm;
+
+    down_write(&mm->mmap_sem);
+    addr = (ZqAddress)do_mmap (NULL, 0, len, PROT_NONE, 0, 0);
+    up_write(&mm->mmap_sem);
+
+    return addr;
+}
+
+void ZqDeallocateUserMemory(ZqAddress address, ZqSizeType length) {
+    struct mm_struct *mm;
+
+    mm = current->mm;
+
+    down_write(&mm->mmap_sem);
+    do_munmap (mm, address, length);
+    up_write(&mm->mmap_sem);
 }

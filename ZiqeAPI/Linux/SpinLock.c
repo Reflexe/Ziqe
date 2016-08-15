@@ -23,14 +23,14 @@
 #include <linux/spinlock.h>
 
 void ZqSpinLockInit(ZqSpinLock *spinlock) {
-    *spinlock = (ZqSpinLock) ZqAllocate (sizeof (struct spinlock_t));
+    *spinlock = (ZqSpinLock) ZqAllocateVirtual (sizeof (struct spinlock_t));
 
     spin_lock_init ((spinlock_t *) *spinlock);
 }
 
 void ZqSpinLockDeinit(ZqSpinLock *spinlock)
 {
-    ZqDeallocate ((ZqAddress) *spinlock);
+    ZqDeallocateVirtual ((ZqAddress) *spinlock);
 }
 
 void ZqSpinLockLock(ZqSpinLock *spinlock)

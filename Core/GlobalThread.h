@@ -21,9 +21,11 @@
 #define ZIQE_GLOBALTHREAD_H
 
 #include "Base/Types.h"
+#include "Base/LocalThread.h"
 
-#include "Core/ThreadOwnerClientWorker.h"
 #include "Core/GlobalThreadID.h"
+
+#include "Core/ZiqeProtocol/ProcessPeersClient.h"
 
 namespace Ziqe {
 
@@ -36,15 +38,12 @@ namespace Ziqe {
 class GlobalThread
 {
 public:
-    GlobalThread(UniquePointer<ThreadOwnerClientWorker> &&threadOwnerClient);
-
-    ThreadOwnerClientWorker &getThreadOwnerClient ()
-    {
-        return *mThreadOwnerClient;
-    }
+    GlobalThread();
 
 private:
-    UniquePointer<ThreadOwnerClientWorker> mThreadOwnerClient;
+    UniquePointer<ProcessPeersClient> mClient;
+
+    void onPageFault (ZqAddress address, bool isWriteError);
 };
 
 } // namespace Ziqe

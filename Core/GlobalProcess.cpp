@@ -23,25 +23,9 @@
 
 namespace Ziqe {
 
-GlobalProcess::GlobalProcess(UniquePointer<ProcessPeersServer> &&server,
-                             UniquePointer<ProcessPeersClient> &&client,
-                             UniquePointer<NetworkProtocolPool> &&networkPool)
-    : mServer{std::move (server)}, mClient{std::move (client)}
+GlobalProcess::GlobalProcess()
 {
-    mServerThread.runAnyFunction (&GlobalProcess::processServerMain,
-                                  new ProcessServerParameter{std::move (server),
-                                                             std::move(networkPool)});
 }
 
-void GlobalProcess::processServerMain(ProcessServerParameter *parameter) {
-    UniquePointer<ProcessServerParameter> local{parameter};
-
-    auto currentThread = ProcessManager::getCurrentThread ();
-
-    while (! currentThread.shouldExit ())
-    {
-        local->networkPool->run (*local->networkPool);
-    }
-}
 
 } // namespace Ziqe
