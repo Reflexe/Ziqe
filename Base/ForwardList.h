@@ -23,9 +23,11 @@
 #include "Types.h"
 #include "Memory.h"
 #include "Macros.h"
+#include "Base/Checks.h"
 
 namespace Ziqe {
 
+/// not complete. SHOULD NOT BE USED!
 template <class T>
 class ForwardList
 {
@@ -181,10 +183,9 @@ public:
         mSize += objectsInserted;
     }
 
-    // Emplace before.
     template<class ...Args>
     Iterator emplaceAfter(Iterator &where, Args&&... args) {
-        CHECK (where.mCurrent);
+        DEBUG_CHECK (where.mCurrent);
 
         NodeType *newNode = new NodeType{where.mCurrent->next, std::forward<Args>(args)...};
         where.mCurrent->next = newNode;

@@ -1,5 +1,5 @@
 /**
- * @file ThreadOwnerWorker.h
+ * @file MemoryRevisionTree.h
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,31 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_THREADOWNERWORKER_H
-#define ZIQE_THREADOWNERWORKER_H
+#ifndef ZIQE_MEMORYREVISIONTREE_H
+#define ZIQE_MEMORYREVISIONTREE_H
 
-#include "Core/ZiqeProtocol/ThreadOwnerServer.h"
-#include "Core/GlobalProcess.h"
+#include "Base/HashTable.h"
 
-#include "Base/RWLock.h"
+#include "Core/ZiqeProtocol/MemoryRevision.h"
 
 namespace Ziqe {
 
-class ThreadOwnerWorker final : private ThreadOwnerServer::Callback
+class MemoryRevisionTree
 {
 public:
-    ThreadOwnerWorker();
+    MemoryRevisionTree();
+
+    /**
+     * @brief Create a memory revision that represents one or more memory
+     *        revisions.
+     * @param first  An older memory revision to start diff-ing from.
+     * @return
+     */
+    MemoryRevision diff (const MemoryRevision::ID &first) const;
 
 private:
-    void onDoSystemCall (const ZqSystemCallIDType systemCallID,
-                         UglyPointer<const ZqRegisterType> parameters,
-                         const SizeType parametersLength,
-                         MemoryRevision &remoteRevision,
-                         MemoryRevision::ID previousRemoteRevision) override;
-
-    RWLocked<MemoryRevisionTree> mRevisionTree;
+    HashTable<MemoryRevision::ID, MemoryRevision> mIDtoRevision;
 };
 
 } // namespace Ziqe
 
-#endif // ZIQE_THREADOWNERWORKER_H
+#endif // ZIQE_MEMORYREVISIONTREE_H

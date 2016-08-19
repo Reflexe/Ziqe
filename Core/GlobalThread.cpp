@@ -21,8 +21,6 @@
 
 #include "ZiqeAPI/Memory.h"
 
-#include "ThirdParty/Zydis/Zydis/Zydis.hpp"
-
 namespace Ziqe {
 
 GlobalThread::GlobalThread()
@@ -32,19 +30,9 @@ GlobalThread::GlobalThread()
 }
 
 void GlobalThread::onPageFault(ZqAddress address, bool isWriteError) {
-    /**
-      * Two options:
-      *  1. Write an hook after the fault instruction that will cleanup
-      *     the readed / writen page.
-      *  2. Process the instruction in kernel mode (here), and do what it
-      *     doing in here.
-      *  3.
-      */
+    // lock this page's memory for write.
+    // TODO.
 
-    /**
-      * Final: Every page fault we'll get the page and reload it once in some time (if it updated).
-      * On a system call, we'll send an memory map.
-      */
 
     auto memory = mClient->getMemory (ZQ_PAGE_ALIGN (address),
                                       ZQ_PAGE_SIZE);

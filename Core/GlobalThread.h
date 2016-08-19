@@ -22,6 +22,7 @@
 
 #include "Base/Types.h"
 #include "Base/LocalThread.h"
+#include "Base/LocalProcess.h"
 
 #include "Core/GlobalThreadID.h"
 
@@ -42,6 +43,7 @@ public:
 
 private:
     UniquePointer<ProcessPeersClient> mClient;
+    LocalProcess mLocalProcess;
 
     void onPageFault (ZqAddress address, bool isWriteError);
 };

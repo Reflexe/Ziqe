@@ -34,7 +34,7 @@ public:
     Vector<Byte> toVector () const;
 
 private:
-    HashTable<ZqAddress, Vector<Byte>> mAddressBaseToMemory;
+    HashTable<ZqAddress, Vector<Byte> mAddressBaseToMemory;
 };
 
 } // namespace Ziqe

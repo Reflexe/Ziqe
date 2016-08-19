@@ -27,7 +27,7 @@
 namespace Ziqe {
 
 /**
- * @brief The ZiqeProtocol class
+ * @brief The ZiqeProtocol
  *
  * Abstract: the Ziqe Protocol is used in order to create Ziqe::Task s.
  *
@@ -77,10 +77,19 @@ namespace Ziqe {
  *  Sync Event is an event that synchronizing between two Process Instances.
  *
  *  On a sync event, the caler should provide its current memory revision
- *  and its previous revision. Then, the calee should add this revision to
- *  its revision tree, merge this revision with its previous revision,
- *  creating a new revision and then send it back to the caler.
+ *  and its previous revision. Then, the calee should merge this revision
+ *  with its previous revision, creating a new revision and then send the
+ *  difference between the caller's revision and the new revision back to
+ *  the caler.
  *
+ * - Defects:
+ *  1. Process Instance's Memory not updates on other process's instance
+ *     memory changes. That's prevent us from performing atomic operations
+ *     as they should operate. We still can not use those operations and
+ *     use system call atomic operations that should work. (TODO: make sure
+ *     that right; semaphore I think don't have an unlock function and we might
+ *     end up still using an unupdated memory - [it has been updated since the
+ *     previous sync event]).
  */
 class Message
 {

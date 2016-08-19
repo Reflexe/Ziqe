@@ -30,12 +30,21 @@ ThreadOwnerWorker::ThreadOwnerWorker()
 
 void ThreadOwnerWorker::onDoSystemCall(const ZqSystemCallIDType systemCallID,
                                        UglyPointer<const ZqRegisterType> parameters,
-                                       const SizeType parametersLength) {
+                                       const SizeType parametersLength,
+                                       MemoryRevision &remoteRevision,
+                                       MemoryRevision::ID previousRemoteRevision)
+{
+    if (therads.size() != 0)
+        updateCurrentRevisionFromLocalMemory ();
 
-    // FIXME: make sure parametersLength is valid.
+    auto newRevision = mRevisionTree.merge (remoteRevision);
+    memory.applyRevision (newRevision);
 
-    auto result = SystemCalls::runSystemCall (systemCallID,
-                                              parameters);
+    SystemCalls::runSystemCall (systemCallID,
+                                parameters.get ());
+
+    updateCurrentRevisionFromLocalMemory ();
+    newRevision = mRevisionTree.getRead ().first.diff (previousRemoteRevision);
 }
 
 } // namespace Ziqe

@@ -1,5 +1,5 @@
 /**
- * @file GlobalProcess.h
+ * @file MemoryRevisionTree.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,33 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_GLOBALPROCESS_H
-#define ZIQE_GLOBALPROCESS_H
+#include "MemoryRevisionTree.h"
 
-#include "Base/Types.h"
-#include "Base/LinkedList.h"
-#include "Base/RWLock.h"
-
-#include "Core/ZiqeProtocol/MemoryRevisionTree.h"
+#include "Base/RedBlackTree.h"
 
 namespace Ziqe {
 
-/**
- * @brief The GlobalProcess class
- *
- * Every global process is a server and a client of all the other process peers' server.
- */
-class GlobalProcess
+MemoryRevisionTree::MemoryRevisionTree()
 {
-public:
-    GlobalProcess();
-private:
-    RWLock mRevisionTreeLock;
-    MemoryRevisionTree mRevisionTree;
 
-    RWLocked<MemoryRevisionTree> mLockedRevisionTree;
-};
+}
+
+MemoryRevision MemoryRevisionTree::diff(const MemoryRevision::ID &first) const{
+    // First phase: check which data should we have in the new revision.
+    // Second phase: actually prepare the new revision.
+
+    RedBlackTree<ZqUserAddress, UglyPointer<Vector<Byte>>> memoryMap;
+
+    for (auto &revision : revisions) {
+        for (auto &revisionChange : revision) {
+            memoryMap[revisionChange.address] = ref(revisionChange);
+        }
+    }
+
+    for (auto &change : memoryMap)
+    {
+
+    }
+}
 
 } // namespace Ziqe
-
-#endif // ZIQE_GLOBALPROCESS_H

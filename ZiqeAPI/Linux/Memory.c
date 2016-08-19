@@ -28,14 +28,14 @@
 
 #include "Memory.h"
 
-inline void ZqDeallocateVirtual (ZqAddress address)
+inline void ZqDeallocateVirtual (ZqKernelAddress address)
 {
     vfree ((void *) address);
 }
 
-inline ZqAddress ZqAllocateVirtual (ZqRegisterType size)
+inline ZqKernelAddress ZqAllocateVirtual (ZqKernelAddress size)
 {
-    return (ZqAddress) vmalloc (size);
+    return (ZqKernelAddress) vmalloc (size);
 }
 
 void ZqRegisterLatePageFaultHandler(ZqPageFaultHandler handler)
@@ -57,7 +57,7 @@ void ZqUnregisterLatePageFaultHandler()
 
 }
 
-ZqBool ZqMapUserAddressToKernel(ZqAddress virtualAddress, ZqSizeType size, ZqAddress *result)
+ZqBool ZqMapUserAddressToKernel(ZqUserAddress virtualAddress, ZqSizeType size, ZqAddress *result)
 {
     void *memory = vmalloc (size);
     unsigned long result = copy_from_user (memory, virtualAddress, result);
@@ -77,20 +77,20 @@ void ZqUnmapUserAddressToKernel(ZqAddress kernelAddress)
     vfree ((void *) kernelAddress);
 }
 
-ZqAddress ZqAllocateUserMemory(ZqSizeType len) {
+ZqUserAddress ZqAllocateUserMemory(ZqSizeType length) {
     ZqAddress addr;
     struct mm_struct *mm;
 
     mm = current->mm;
 
     down_write(&mm->mmap_sem);
-    addr = (ZqAddress)do_mmap (NULL, 0, len, PROT_NONE, 0, 0);
+    addr = (ZqAddress)do_mmap (NULL, 0, length, PROT_NONE, 0, 0);
     up_write(&mm->mmap_sem);
 
     return addr;
 }
 
-void ZqDeallocateUserMemory(ZqAddress address, ZqSizeType length) {
+void ZqDeallocateUserMemory(ZqKernelAddress address, ZqSizeType length) {
     struct mm_struct *mm;
 
     mm = current->mm;

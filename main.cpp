@@ -47,10 +47,8 @@ ZqBool systemCallHook (const ZqSystemCallIDType id,
     if (! globalThread)
         return ZQ_FALSE;
 
-    // TODO: per os parameter length and required memory ranges detection.
-    *result = globalThread->getThreadOwnerClient ().doSystemCall (id,
-                                                                  params,
-                                                                  2);
+    // Compare the current memory map with the previous, and send it to the owner.
+    // We can use the "changed pages" as an hint.
 
     return ZQ_TRUE;
 }

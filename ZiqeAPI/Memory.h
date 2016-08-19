@@ -26,6 +26,8 @@
 #include "Macros.h"
 
 typedef ZqRegisterType ZqAddress;
+typedef void*          ZqKernelAddress;
+typedef ZqRegisterType ZqUserAddress;
 
 typedef struct {
     ZqRegisterType address;
@@ -35,22 +37,18 @@ typedef struct {
 
 ZQ_BEGIN_C_DECL
 
-void ZqDeallocateVirtual (ZqAddress address);
-ZqAddress ZqAllocateVirtual (ZqRegisterType size);
+void ZqDeallocateVirtual (ZqKernelAddress address);
+ZqAddress ZqAllocateVirtual (ZqKernelAddress size);
 
-// For current task.
-//ZqAddress ZqRegisterFakePages (ZqSizeType pageCount);
-//void ZqUnregisterFakePages (ZqSizeType pageCount, ZqAddress address);
+ZqUserAddress ZqAllocateUserMemory (ZqSizeType length);
+void ZqDeallocateUserMemory (ZqKernelAddress address, ZqSizeType length);
 
-ZqAddress ZqAllocateUserMemory (ZqSizeType len);
-void ZqDeallocateUserMemory (ZqAddress address, ZqSizeType length);
-
-ZqBool ZqCopyToUser (ZqAddress destination,
-                     ZqAddress source,
+ZqBool ZqCopyToUser (ZqUserAddress destination,
+                     ZqKernelAddress source,
                      ZqSizeType length);
 
-ZqBool ZqMapUserAddressToKernel (ZqAddress virtualAddress, ZqSizeType size, ZqAddress *result);
-void ZqUnmapUserAddressToKernel (ZqAddress kernelAddress);
+ZqBool ZqMapUserAddressToKernel (ZqUserAddress virtualAddress, ZqSizeType size, ZqKernelAddress *result);
+void ZqUnmapUserAddressToKernel (ZqKernelAddress kernelAddress);
 
 typedef ZqBool(* ZqPageFaultHandler) (ZqAddress address);
 void ZqRegisterLatePageFaultHandler (ZqPageFaultHandler handler);

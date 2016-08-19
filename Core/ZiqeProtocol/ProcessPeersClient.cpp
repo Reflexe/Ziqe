@@ -74,7 +74,7 @@ void ProcessPeersClient::continiueRemoteThread(GlobalThreadID threadID)
     sendThreadMessage (threadID, MessagesGenerator::makeContinueThread (threadID));
 }
 
-ZqRegisterType ProcessPeersClient::doSystemCall(ZqSystemCallIDType id, const UglyArray<ZqRegisterType> parameters)
+ZqRegisterType ProcessPeersClient::doSystemCall(ZqSystemCallIDType id, const UglyArray<ZqRegisterType> parameters, MemoryRevision &revision)
 {
     sendThreadOwnerMessage (MessagesGenerator::makeDoSystemCall (id,
                                                                  parameters,

@@ -23,6 +23,7 @@
 #include "Types.h"
 #include "Vector.h"
 #include "Checks.h"
+#include "Base/Macros.h"
 
 #include "LinkedList.h"
 
@@ -70,17 +71,6 @@ struct Hash<SharedPointer<T>>
     SizeType operator () (const SharedPointer<T> &value)
     {
         return Hash<T>{} (*value);
-    }
-};
-
-/// @brief An generic IsEqual.
-template<class T>
-struct IsEqual
-{
-    bool operator () (const T &one,
-                      const T &other)
-    {
-        return !(one != other);
     }
 };
 
@@ -171,6 +161,11 @@ public:
         mTable.resize (getVectorInitialSize (), mKeysList.end ());
     }
 
+    _HashTableBase(TableSizeType tableSize)
+    {
+        mTable.resize (tableSize, mKeysList.end ());
+    }
+
     ALLOW_COPY_AND_MOVE (_HashTableBase)
 
     /**
@@ -234,10 +229,10 @@ public:
        * @param iterator
        * @return (++ @param iterator)
        */
-      Iterator erase (Iterator &&iterator) {
+      Iterator erase (const Iterator &iterator) {
           auto tableIterator = iterator->tableIterator;
           bool isFirstEntry = (*tableIterator == iterator);
-          auto nextEntry = mKeysList.erase (std::move (iterator));
+          auto nextEntry = mKeysList.erase (iterator);
 
           // If this is the first entry with this hash.
           if (isFirstEntry)
@@ -246,7 +241,7 @@ public:
           return nextEntry;
       }
 
-      void erase (Iterator &&begin, Iterator &&end) {
+      void erase (const Iterator &begin, const Iterator &end) {
           TableIterator firstEntryTableIterator;
           bool isAFirstEntryRemoved = false;
 
@@ -258,7 +253,7 @@ public:
               auto tableIterator = iterator->tableIterator;
 
               if (! isAFirstEntryRemoved) {
-                  // is @iterator is the first entry the its hash?
+                  // is @iterator its hash's first entry?
                   if (*tableIterator == iterator) {
                       isAFirstEntryRemoved = true;
                       firstEntryTableIterator = tableIterator;
@@ -281,7 +276,7 @@ public:
               updateEraseFirstHashEntryTableEntry (firstEntryTableIterator,
                                                    end);
 
-          mKeysList.erase (std::move (begin), std::move (end));
+          mKeysList.erase (begin, end);
       }
 
       SizeType size() const
@@ -400,15 +395,14 @@ template<class KeyType,
 class HashTable : public _HashTableBase<KeyType, T, _IsEqual, _Hash>
 {
 public:
-    HashTable() = default;
-
     typedef _HashTableBase<KeyType, T, _IsEqual, _Hash> HashTableType;
     typedef typename HashTableType::Iterator Iterator;
     typedef typename HashTableType::ConstIterator ConstIterator;
     typedef typename HashTableType::TableType TableType;
     typedef typename HashTableType::KeysListType KeysListType;
 
-    ALLOW_COPY_AND_MOVE (HashTable)
+    using HashTableType::HashTableType;
+    using HashTableType::operator =;
 
     T &operator[] (const KeyType &key)
     {
@@ -520,7 +514,7 @@ public:
         if (iterator == this->end ())
             return;
 
-        this->erase (std::move (iterator));
+        this->erase (iterator);
     }
 };
 
@@ -531,16 +525,15 @@ template<class KeyType,
          class _Hash>
 class HashTable<KeyType, T, _IsEqual, _Hash, true> : public _HashTableBase<KeyType, T, _IsEqual, _Hash>
 {
-
-    HashTable() = default;
-
+public:
     typedef _HashTableBase<KeyType, T, _IsEqual, _Hash> HashTableType;
     typedef typename HashTableType::Iterator Iterator;
     typedef typename HashTableType::ConstIterator ConstIterator;
     typedef typename HashTableType::TableType TableType;
     typedef typename HashTableType::KeysListType KeysListType;
 
-    ALLOW_COPY_AND_MOVE (HashTable)
+    using HashTableType::HashTableType;
+    using HashTableType::operator =;
 
    /**
      * @brief count  Count the times @param key is exist in this hash table.
@@ -611,22 +604,19 @@ class HashTable<KeyType, T, _IsEqual, _Hash, true> : public _HashTableBase<KeyTy
      * @param key
      */
     void erase (const KeyType &key) {
-        auto iterator = find (key);
-        if (iterator == this->end ())
+        auto firstIterator = find (key);
+        if (firstIterator == this->end ())
             return;
 
-        auto lastIteator = iterator;
+        auto lastIteator = firstIterator;
 
         // find the last iterator with this key.
         do {
             ++lastIteator;
         } while (lastIteator != this->end() && mIsEqual (key, lastIteator->first));
 
-        erase (std::move (lastIteator), std::move (lastIteator));
+        erase (firstIterator, lastIteator);
     }
-
-private:
-
 };
 
 template<class KeyType,

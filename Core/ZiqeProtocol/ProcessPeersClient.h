@@ -27,6 +27,7 @@
 #include "Network/NetworkProtocol.h"
 
 #include "Core/ZiqeProtocol/ProcessPeersServer.h"
+#include "Core/ZiqeProtocol/MemoryRevision.h"
 
 namespace Ziqe {
 
@@ -64,7 +65,8 @@ public:
 
     // Sent to the thread owner.
     ZqRegisterType doSystemCall(ZqSystemCallIDType id,
-                       const UglyArray<ZqRegisterType> parameters);
+                                const UglyArray<ZqRegisterType> parameters,
+                                MemoryRevision &revision);
 
     ZqAddress getAndReserveMemory (SizeType pagesCount);
 

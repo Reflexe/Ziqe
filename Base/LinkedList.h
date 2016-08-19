@@ -66,54 +66,90 @@ public:
 
     typedef DoubleLinkedListNode NodeType;
 
-    struct DoubleLinkedListIterator {
-        DoubleLinkedListIterator ()
+    template<class IteratorNodeType>
+    struct _IteratorBase {
+        _IteratorBase ()
             : mCurrent{nullptr}
         {
         }
 
-        DoubleLinkedListIterator (NodeType *current)
+        _IteratorBase (IteratorNodeType *current)
             : mCurrent{current}
         {
         }
 
         ALLOW_COPY_AND_MOVE (DoubleLinkedListIterator)
 
-        DoubleLinkedListIterator &operator++ () {
+        _IteratorBase &operator++ () {
             DEBUG_CHECK (mCurrent->next != nullptr);
             mCurrent = mCurrent->next;
 
             return *this;
         }
 
-        DoubleLinkedListIterator &operator-- () {
+        _IteratorBase &operator-- () {
             DEBUG_CHECK (mCurrent->previous != nullptr);
             mCurrent = mCurrent->previous;
 
             return *this;
         }
 
-        DoubleLinkedListIterator next() const
+        _IteratorBase next() const
         {
             return {mCurrent->next};
         }
 
-        DoubleLinkedListIterator previous() const
+        _IteratorBase previous() const
         {
             return {mCurrent->previous};
         }
 
-        T &operator* () {
+        DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(_IteratorBase, mCurrent)
+
+        bool isNull () const
+        {
+            return mCurrent == nullptr;
+        }
+
+        UniquePointer<T> takePointer()
+        {
+            return std::move(mCurrent->data);
+        }
+
+    protected:
+        friend class LinkedList;
+
+        IteratorNodeType *mCurrent;
+    };
+
+    struct Iterator : _IteratorBase<NodeType>
+    {
+        using _IteratorBase::_IteratorBase;
+        using _IteratorBase::operator ++;
+        using _IteratorBase::operator --;
+        using _IteratorBase::operator =;
+        using _IteratorBase::operator ==;
+
+        T &operator* () const{
             DEBUG_CHECK (mCurrent != nullptr && mCurrent->data);
 
             return *mCurrent->data;
         }
 
-        T *operator-> () {
+        T *operator-> () const{
             DEBUG_CHECK (mCurrent != nullptr && mCurrent->data);
 
             return mCurrent->data.get();
         }
+    };
+
+    struct ConstIterator : _IteratorBase<const NodeType>
+    {
+        using _IteratorBase::_IteratorBase;
+        using _IteratorBase::operator ++;
+        using _IteratorBase::operator --;
+        using _IteratorBase::operator =;
+        using _IteratorBase::operator ==;
 
         const T &operator* () const{
             DEBUG_CHECK (mCurrent != nullptr && mCurrent->data);
@@ -126,29 +162,11 @@ public:
 
             return mCurrent->data.get();
         }
-
-        DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(DoubleLinkedListIterator, mCurrent)
-
-        bool isNull () const
-        {
-            return mCurrent == nullptr;
-        }
-
-        UniquePointer<T> takePointer()
-        {
-            return std::move(mCurrent->data);
-        }
-
-    private:
-        friend class LinkedList;
-
-        NodeType *mCurrent;
     };
 
     typedef SizeType SizeType;
-    typedef const DoubleLinkedListIterator ConstIterator;
-    typedef DoubleLinkedListIterator Iterator;
 
+    // TODO: make .end() a null constant and add a before_end that return the last element.
     LinkedList()
         : mBegin{new NodeType{}}, mEnd{mBegin}, mSize{0}
     {
@@ -225,10 +243,10 @@ public:
         ++mSize;
 
         if (mBegin == where) {
-            mBegin = DoubleLinkedListIterator{newNode};
+            mBegin = _IteratorBase{newNode};
             return mBegin;
         } else {
-            return DoubleLinkedListIterator{newNode};
+            return _IteratorBase{newNode};
         }
     }
 
@@ -244,13 +262,13 @@ public:
                                std::forward<Args>(args)...);
     }
 
-    void erase(ConstIterator &&begin, ConstIterator &&end) {
+    void erase(const Iterator &begin, const Iterator &end) {
         DEBUG_CHECK (begin.mCurrent);
 
         if (begin == end)
             return;
 
-        DoubleLinkedListIterator self = mBegin;
+        Iterator self = mBegin;
         NodeType *savedCurrentPrevious = begin.mCurrent->previous;
 
         do {
@@ -273,7 +291,7 @@ public:
             mBegin = end;
     }
 
-    Iterator erase(Iterator &&iterator) {
+    Iterator erase(const Iterator &iterator) {
         auto next = iterator.mCurrent->next;
 
         if (iterator.mCurrent->next)
@@ -383,7 +401,7 @@ private:
         static_assert(std::is_same<decltype (*insertBegin), T>::value,
                       "Invalid InputIterator");
 
-        DoubleLinkedListIterator self = where;
+        _IteratorBase self = where;
         auto previousNext = where.mCurrent->next;
 
         for (auto iterator = insertBegin;

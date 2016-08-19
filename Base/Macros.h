@@ -141,6 +141,29 @@ T copy (const T &value)
     return value;
 }
 
+
+/// @brief An generic IsEqual.
+template<class T>
+struct IsEqual
+{
+    bool operator () (const T &one,
+                      const T &other)
+    {
+        return !(one != other);
+    }
+};
+
+/// @brief An generic IsEqual.
+template<class T>
+struct IsLessThan
+{
+    bool operator () (const T &one,
+                      const T &other)
+    {
+        return (one < other);
+    }
+};
+
 }
 
 #endif // MACROS_H

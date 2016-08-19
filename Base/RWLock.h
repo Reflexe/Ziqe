@@ -22,6 +22,7 @@
 
 #include "ZiqeAPI/RWLock.h"
 #include "Base/Macros.h"
+#include "Base/Memory.h"
 
 namespace Ziqe {
 
@@ -117,7 +118,35 @@ private:
     friend ScopedReadLock;
 
     ZqRWLock mLock;
+};
 
+template<class T>
+class RWLocked
+{
+public:
+    template<class... Args>
+    Locked(const UglyPointer<RWLock> &lock, Args&&... values)
+        : mLock{lock}, mValue{std::forward<Args> (values)}
+    {
+    }
+
+    ALLOW_MOVE (Locked)
+    DISALLOW_COPY (Locked)
+    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (RWLocked, mValue)
+
+    const Pair<T&, RWLock::ScopedReadLock> &getRead () {
+        return Pair<T&, RWLock::ScopedReadLock>{RWLock::ScopedReadLock{mLock},
+                                                mValue};
+    }
+
+    Pair<T&, RWLock::ScopedWriteLock> &getWrite () {
+        return Pair<T&, RWLock::ScopedWriteLock>{RWLock::ScopedWriteLock{mLock},
+                                                 mValue};
+    }
+
+private:
+    UglyPointer<RWLock> mLock;
+    T mValue;
 };
 
 } // namespace Ziqe
