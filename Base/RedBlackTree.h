@@ -369,20 +369,20 @@ private:
     };
 
     typedef BinaryTree<KeyType, T, Node, CompareType, IsEqualType> BinaryTreeType;
-
-    using Iterator=typename BinaryTreeType::Iterator;
-    using ConstIterator=typename BinaryTreeType::Iterator;
     using Node=typename BinaryTreeNode::Node;
 
 public:
-    RedBlackTree()
+    using Iterator=typename BinaryTreeType::Iterator;
+    using ConstIterator=typename BinaryTreeType::Iterator;
+
+    RedBlackTree() = default;
+    ALLOW_COPY_AND_MOVE (RedBlackTree)
+
+    bool isExist (const KeyType &key) const
     {
     }
 
-
-
 private:
-
     BinaryTreeType mBinaryTree;
 };
 

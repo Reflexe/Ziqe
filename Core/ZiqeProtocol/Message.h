@@ -43,7 +43,7 @@ namespace Ziqe {
  *                    memory to a new map.
  *
  * - Messages:
- *   TODO. Sill not stable.
+ *   TODO . Sill not stable.
  *
  *  - System Calls:
  *  System call sent as an request message that block the caler
@@ -86,10 +86,7 @@ namespace Ziqe {
  *  1. Process Instance's Memory not updates on other process's instance
  *     memory changes. That's prevent us from performing atomic operations
  *     as they should operate. We still can not use those operations and
- *     use system call atomic operations that should work. (TODO: make sure
- *     that right; semaphore I think don't have an unlock function and we might
- *     end up still using an unupdated memory - [it has been updated since the
- *     previous sync event]).
+ *     use system call atomic operations that should work.
  */
 class Message
 {

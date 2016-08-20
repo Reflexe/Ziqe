@@ -604,6 +604,12 @@ public:
      * @param key
      */
     void erase (const KeyType &key) {
+        auto equalIterators = getEqualRange (key);
+
+        erase (equalIterators.first, equalIterators.second);
+    }
+
+    Pair<Iterator, Iterator> getEqualRange (const KeyType &key) {
         auto firstIterator = find (key);
         if (firstIterator == this->end ())
             return;
@@ -615,7 +621,23 @@ public:
             ++lastIteator;
         } while (lastIteator != this->end() && mIsEqual (key, lastIteator->first));
 
-        erase (firstIterator, lastIteator);
+
+        return Pair<Iterator, Iterator>{firstIterator, lastIteator};
+    }
+
+    Pair<ConstIterator, ConstIterator> getEqualRange (const KeyType &key) const{
+        auto firstIterator = find (key);
+        if (firstIterator == this->end ())
+            return;
+
+        auto lastIteator = firstIterator;
+
+        // find the last iterator with this key.
+        do {
+            ++lastIteator;
+        } while (lastIteator != this->end() && mIsEqual (key, lastIteator->first));
+
+        return Pair<Iterator, Iterator>{firstIterator, lastIteator};
     }
 };
 

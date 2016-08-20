@@ -416,7 +416,6 @@ void IntelInstructionFormatter::formatOperand(const InstructionInfo& info,
         outputAppend("[");
         if (operand.base == Register::RIP)
         {
-            // TODO: Add option
             outputAppendAddress(info, CalcAbsoluteTarget(info, operand), true);   
         } else
         {
@@ -441,7 +440,6 @@ void IntelInstructionFormatter::formatOperand(const InstructionInfo& info,
         outputAppend("]");
         break;
     case OperandType::POINTER:
-        // TODO: resolve symbols
         switch (operand.size)
         {
         case 32:

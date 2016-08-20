@@ -57,7 +57,7 @@ bool InstructionDecoder::decodeRegisterOperand(InstructionInfo& info,
                 static_cast<uint16_t>(Register::AX) + registerId);
             break;
         case 8:
-            // TODO: Only REX? Or VEX too?
+            // ZyTODO: Only REX? Or VEX too?
             if (m_disassemblerMode == DisassemblerMode::M64BIT && (info.flags & IF_PREFIX_REX)) 
             {
                 if (registerId >= 4)
@@ -76,7 +76,6 @@ bool InstructionDecoder::decodeRegisterOperand(InstructionInfo& info,
             }
             break;
         case 0:
-            // TODO: Error?
             reg = Register::NONE;
             break;
         default:
@@ -341,7 +340,6 @@ bool InstructionDecoder::decodeDisplacement(InstructionInfo& info,
         operand.lval.uqword = inputNext<uint64_t>(info);
         break;
     default:
-        // TODO: Maybe return false instead of assert
         DEBUG_CHECK_NOT_REACHED ();
     }
     if (!operand.lval.uqword && (info.flags & IF_ERROR_MASK))
@@ -441,7 +439,7 @@ bool InstructionDecoder::decodeVex(InstructionInfo& info) {
         }
         if (info.vex_m_mmmm > 3)
         {
-            // TODO: Add proper error flag
+            // TODOZy: Add proper error flag
             info.flags |= IF_ERROR_MASK;
             return false;
         }
@@ -559,7 +557,7 @@ bool InstructionDecoder::decodeOperand(InstructionInfo& info, OperandInfo& opera
         return decodeRegisterOperand(info, operand, RegisterClass::DEBUG, info.modrm_reg_ext, 
             operandSize);
     case DefinedOperandType::F: 
-        // TODO: FAR flag
+        // ZyTODO: FAR flag
     case DefinedOperandType::M: 
         // ModR/M byte may refer only to memory
         if (info.modrm_mod == 3)
@@ -873,7 +871,7 @@ bool InstructionDecoder::decodePrefixes(InstructionInfo& info)
         }
     } while (!done);
 
-    // TODO: Check for multiple prefixes of the same group
+    // ZyTODO: Check for multiple prefixes of the same group
     // Parse REX Prefix
     if (info.flags & IF_PREFIX_REX)
     {

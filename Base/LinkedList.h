@@ -166,9 +166,8 @@ public:
 
     typedef SizeType SizeType;
 
-    // TODO: make .end() a null constant and add a before_end that return the last element.
     LinkedList()
-        : mBegin{new NodeType{}}, mEnd{mBegin}, mSize{0}
+        : mBegin{nullptr}, mBeforeEnd{mBegin}, mSize{0}
     {
     }
 
@@ -185,7 +184,7 @@ public:
     }
 
     LinkedList (const LinkedList &other)
-        : LinkedList (other.mBegin, other.mEnd)
+        : LinkedList (other.mBegin, other.end ())
     {
     }
 
@@ -197,13 +196,12 @@ public:
     LinkedList &operator= (const LinkedList &other) {
         clear ();
 
-        insert (mBegin, other.mBegin, mEnd);
+        insert (mBegin, other.mBegin, other.end ());
     }
 
     ~LinkedList()
     {
         deleteAll ();
-        delete mEnd.mCurrent;
     }
 
     // Insert before.
@@ -228,10 +226,10 @@ public:
             insertAfter (where, inputIterator, insertEnd);
     }
 
-    // Emplace before.
     template<class ...Args>
-    Iterator emplace_before(ConstIterator &where, Args&&... args) {
-        DEBUG_CHECK (where.mCurrent);
+    Iterator emplace_before(const ConstIterator &where, Args&&... args) {
+        if (where == end ())
+            return emplace_after (beforeEnd (), std::forward<Args>(args)...);
 
         NodeType *newNode;
 
@@ -243,16 +241,42 @@ public:
         ++mSize;
 
         if (mBegin == where) {
-            mBegin = _IteratorBase{newNode};
+            mBegin = Iterator{newNode};
             return mBegin;
         } else {
-            return _IteratorBase{newNode};
+            return Iterator{newNode};
+        }
+    }
+
+    template<class ...Args>
+    Iterator emplace_after(const ConstIterator &where, Args&&... args) {
+        NodeType *newNode;
+
+        if (where != end ()) {
+            newNode = new NodeType{where.mCurrent,
+                                   where.mCurrent->next,
+                                   std::forward<Args>(args)...};
+        } else {
+            newNode = new NodeType{nullptr,
+                                   nullptr,
+                                   std::forward<Args>(args)...};
+        }
+
+        where.mCurrent->next = newNode;
+
+        ++mSize;
+
+        if (mBeforeEnd == where) {
+            mBeforeEnd = Iterator{newNode};
+            return mBeforeEnd;
+        } else {
+            return Iterator{newNode};
         }
     }
 
     template<class ...Args>
     Iterator emplace_back(Args&&... args) {
-        return emplace_before (mEnd,
+        return emplace_after (mBeforeEnd,
                                std::forward<Args>(args)...);
     }
 
@@ -263,18 +287,22 @@ public:
     }
 
     void erase(const Iterator &begin, const Iterator &end) {
-        DEBUG_CHECK (begin.mCurrent);
-
         if (begin == end)
             return;
 
+        DEBUG_CHECK (begin.mCurrent);
+
         Iterator self = mBegin;
         NodeType *savedCurrentPrevious = begin.mCurrent->previous;
+        bool isBeginInvalidated = false;
+        bool isBeforeEndInvalided = false;
 
         do {
             auto currentCopy = self.mCurrent;
             if (self == mBegin)
-                mBegin = mEnd;
+                isBeginInvalidated = true;
+            if (self == mBeforeEnd)
+                isBeforeEndInvalided = true;
 
             ++self;
             --mSize;
@@ -287,12 +315,14 @@ public:
             self.mCurrent->previous    = savedCurrentPrevious;
         }
 
-        if (begin == mBegin)
+        if (isBeginInvalidated)
             mBegin = end;
+        if (isBeforeEndInvalided)
+            mBeforeEnd = end;
     }
 
     Iterator erase(const Iterator &iterator) {
-        auto next = iterator.mCurrent->next;
+        auto next = Iterator{iterator.mCurrent->next};
 
         if (iterator.mCurrent->next)
             iterator.mCurrent->next->previous = iterator.mCurrent->previous;
@@ -300,18 +330,20 @@ public:
             iterator.mCurrent->previous->next = iterator.mCurrent->next;
 
         if (iterator == mBegin)
-            mBegin = mEnd;
+            mBegin = next;
+        if (iterator == beforeEnd ())
+            mBeforeEnd = next;
 
         delete iterator.mCurrent;
 
         --mSize;
 
-        return Iterator{next};
+        return next;
     }
 
     void pop_back ()
     {
-        return erase (mEnd);
+        return erase (beforeEnd ());
     }
 
     void pop_front ()
@@ -320,15 +352,15 @@ public:
     }
 
     void swap(LinkedList &other) {
-        Iterator begin = other.mBegin, end = other.mEnd;
+        Iterator begin = other.mBegin, beforeEnd = other.mBeforeEnd;
         SizeType size = other.mSize;
 
-        other.mBegin = mBegin;
-        other.End    = mEnd;
-        other.size   = mSize;
+        other.mBegin     = mBegin;
+        other.mBeforeEnd = mBeforeEnd;
+        other.size       = mSize;
 
         mBegin       = begin;
-        mEnd         = end;
+        mBeforeEnd   = beforeEnd;
         mSize        = size;
     }
 
@@ -344,7 +376,7 @@ public:
 
     ConstIterator end() const
     {
-        return mEnd;
+        return Iterator{nullptr};
     }
 
     Iterator begin()
@@ -354,7 +386,17 @@ public:
 
     Iterator end()
     {
-        return mEnd;
+        return Iterator{nullptr};
+    }
+
+    Iterator beforeEnd()
+    {
+        return mBeforeEnd;
+    }
+
+    ConstIterator beforeEnd() const
+    {
+        return ConstIterator{mBeforeEnd.mCurrent};
     }
 
     T &front()
@@ -369,12 +411,12 @@ public:
 
     T &back()
     {
-        return *(--mEnd);
+        return *(mBeforeEnd);
     }
 
     const T &back() const
     {
-        return *(--mEnd);
+        return *(mBeforeEnd);
     }
 
     void clear()
@@ -382,9 +424,9 @@ public:
         deleteAll();
     }
 
-    bool isEmpty()
+    bool isEmpty() const
     {
-        return mBegin == mEnd;
+        return begin () == end ();
     }
 
     bool empty()
@@ -393,15 +435,16 @@ public:
     }
 
 private:
+    /// @note This function doesn't know to insert to end ().
     template<class InputIterator>
-    void insertAfter(ConstIterator &where,
+    void insertAfter(const ConstIterator &where,
                      const InputIterator &insertBegin,
                      const InputIterator &insertEnd)
     {
         static_assert(std::is_same<decltype (*insertBegin), T>::value,
                       "Invalid InputIterator");
 
-        _IteratorBase self = where;
+        Iterator self = where;
         auto previousNext = where.mCurrent->next;
 
         for (auto iterator = insertBegin;
@@ -417,19 +460,19 @@ private:
     }
 
     /**
-     * @brief deleteAll Delete all of the entries in this list except mEnd.
+     * @brief deleteAll Delete all of the entries in this list.
      */
     void deleteAll() {
         if (isEmpty ())
             return;
 
-        erase (mBegin, mEnd);
+        erase (mBegin, end ());
 
         mSize = 0;
     }
 
     Iterator mBegin;
-    Iterator mEnd;
+    Iterator mBeforeEnd;
 
     SizeType mSize;
 };

@@ -1338,7 +1338,7 @@ enum class DefinedOperandSize : uint8_t
      */
     T,
     /**
-     * @brief   TODO:
+     * @brief
      */
     O,
     /**
