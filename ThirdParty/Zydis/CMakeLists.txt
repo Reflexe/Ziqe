@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-include(GenerateExportHeader)
+#include(GenerateExportHeader)
 
 project(Zydis)
 
@@ -10,37 +10,36 @@ option(FORCE_SHARED_CRT
 option(BUILD_EXAMPLES "Build examples" TRUE)
 option(BUILD_C_BINDINGS "Build C bindings" TRUE)
 
-if (NOT CONFIGURED_ONCE)
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
-            "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        set(compiler_specific "-Werror")
-        set(compiler_specific_cxx "-std=c++14")
-    elseif (MSVC)
-        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /GR-")
-    endif ()
+#if (NOT CONFIGURED_ONCE)
+#    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
+#            "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+#        set(compiler_specific_cxx "-std=c++14")
+#    elseif (MSVC)
+#        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /GR-")
+#    endif ()
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific} ${compiler_specific_cxx}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
-endif ()
+##    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific} ${compiler_specific_cxx}"
+##        CACHE STRING "Flags used by the compiler during all build types." FORCE)
+##    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
+##        CACHE STRING "Flags used by the compiler during all build types." FORCE)
+#endif ()
 
 # CMake always orders MSVC to build with a shared CRT. Hack CMake variables in order
 # to generate with a statically linked CRT when we build as a static library.
-if (MSVC AND NOT FORCE_SHARED_CRT)
-    set(manipulated_vars
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_MINSIZEREL
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_CXX_FLAGS_RELWITHDEBINFO
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_MINSIZEREL
-        CMAKE_C_FLAGS_RELEASE
-        CMAKE_C_FLAGS_RELWITHDEBINFO)
-    foreach (cur_var ${manipulated_vars})
-        string(REPLACE "/MD" "/MT" ${cur_var} "${${cur_var}}")
-    endforeach ()
-endif ()
+#if (MSVC AND NOT FORCE_SHARED_CRT)
+#    set(manipulated_vars
+#        CMAKE_CXX_FLAGS_DEBUG
+#        CMAKE_CXX_FLAGS_MINSIZEREL
+#        CMAKE_CXX_FLAGS_RELEASE
+#        CMAKE_CXX_FLAGS_RELWITHDEBINFO
+#        CMAKE_C_FLAGS_DEBUG
+#        CMAKE_C_FLAGS_MINSIZEREL
+#        CMAKE_C_FLAGS_RELEASE
+#        CMAKE_C_FLAGS_RELWITHDEBINFO)
+#    foreach (cur_var ${manipulated_vars})
+#        string(REPLACE "/MD" "/MT" ${cur_var} "${${cur_var}}")
+#    endforeach ()
+#endif ()
 
 # Library
 set(headers
@@ -72,11 +71,11 @@ endif ()
 
 add_library("Zydis" ${headers} ${sources})
 set_target_properties("Zydis" PROPERTIES COMPILE_DEFINITIONS "Zydis_EXPORTS")
-generate_export_header(
-    "Zydis" 
-    BASE_NAME "ZYDIS"
-    EXPORT_FILE_NAME "ZydisExportConfig.h")
-include_directories(${PROJECT_BINARY_DIR})
+#generate_export_header(
+#    "Zydis"
+#    BASE_NAME "ZYDIS"
+#    EXPORT_FILE_NAME "ZydisExportConfig.h")
+#include_directories(${PROJECT_BINARY_DIR})
 
 # Examples
 if (BUILD_EXAMPLES)

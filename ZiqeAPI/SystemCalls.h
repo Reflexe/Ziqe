@@ -25,9 +25,8 @@
 #include "Types.h"
 #include "Macros.h"
 
-typedef ZqBool (* ZqSystemCallHookType) (const ZqSystemCallIDType id,
-                                      const ZqRegisterType *params,
-                                      ZqRegisterType *result);
+typedef ZqBool (* ZqSystemCallHookType) (ZqThreadRegisters *regs,
+                                         ZqRegisterType *result);
 
 ZQ_BEGIN_C_DECL
 
@@ -44,8 +43,7 @@ void ZqUninitSystemCallsHook(void);
  * @param id
  * @return
  */
-ZqRegisterType ZqCallSyscall(ZqSystemCallIDType id,
-                             const ZqRegisterType *params);
+ZqRegisterType ZqCallSyscall(ZqThreadRegisters *regs);
 
 ZQ_END_C_DECL
 

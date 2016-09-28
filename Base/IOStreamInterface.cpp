@@ -17,13 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "IOStreamInterface.h"
+#include "IOStreamInterface.hpp"
 
 namespace Ziqe {
+namespace Base {
 
 IOStreamInterface::IOStreamInterface()
 {
 
 }
 
+} // namespace Base
 } // namespace Ziqe

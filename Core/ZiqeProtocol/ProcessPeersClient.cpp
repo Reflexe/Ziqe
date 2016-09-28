@@ -17,120 +17,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "ProcessPeersClient.h"
+#include "ProcessPeersClient.hpp"
 
-#include "MessagesGenerator.h"
+#include "MessagesGenerator.hpp"
 
 namespace Ziqe {
 
-ProcessPeersClient::ProcessPeersClient()
+ProcessPeersClient::ProcessPeersClient(ProcessPeersServer &localServer)
+    : mConnections{localServer.getConnections ()}
 {
-    sayHello ();
 }
 
 ProcessPeersClient::~ProcessPeersClient()
 {
-    sayGoodbye ();
 }
 
-UniquePointer<ProcessPeersClient> ProcessPeersClient::runThread(LocalThread &localThread)
-{
+void ProcessPeersClient::continueRemoteThread(GlobalThreadID threadID) {
+    if (! sendThreadMessage (threadID, MessagesGenerator::makeContinueThread (threadID)))
+        return;
 
+    mCurrentTask = Task{Task::Type::ContinueRemoteThread};
+    waitUntilCurrentTaskComplete ();
 }
 
-SharedVector<Byte> ProcessPeersClient::getMemory(ZqAddress address, SizeType size) {
-    DEBUG_CHECK (mCurrentTask == nullptr);
-
-    sendMessageToProcessPeers (MessagesGenerator::makeGetMemory (address,
-                                                                 size));
-
-    mCurrentTask = new GetMemoryTask{};
-    waitUntilTaskComplete ();
-
-    UniquePointer<Task> task{std::move(mCurrentTask)};
-    auto pointer = static_cast<GetMemoryTask*>(task.get ());
-
-    return std::move(pointer->mMemory);
+Base::UniquePointer<ProcessPeersClient> ProcessPeersClient::runNewRemoteThread(LocalThread &localThread) {
+// TODO: needs memory.
 }
 
-void ProcessPeersClient::writeMemory(const SharedVector<Byte> &data, ZqAddress address)
-{
-    sendMessageToProcessPeers (MessagesGenerator::makeWriteMemory (data,
-                                                                  address));
+void ProcessPeersClient::killRemoteThread(GlobalThreadID threadID) {
+    if (! sendThreadMessage (threadID, MessagesGenerator::makeKillThread (threadID)))
+        return;
+
+    mCurrentTask = Task{Task::Type::KillRemoteThread};
+    waitUntilCurrentTaskComplete ();
 }
 
-void ProcessPeersClient::killRemoteThread(GlobalThreadID threadID)
-{
-   sendThreadMessage (threadID, MessagesGenerator::makeKillThread (threadID));
-}
+void ProcessPeersClient::stopRemoteThread(GlobalThreadID threadID) {
+    if (! sendThreadMessage (threadID, MessagesGenerator::makeStopThread (threadID)))
+        return;
 
-void ProcessPeersClient::stopRemoteThread(GlobalThreadID threadID)
-{
-    sendThreadMessage (threadID, MessagesGenerator::makeStopThread (threadID));
-}
-
-void ProcessPeersClient::continiueRemoteThread(GlobalThreadID threadID)
-{
-    sendThreadMessage (threadID, MessagesGenerator::makeContinueThread (threadID));
-}
-
-ZqRegisterType ProcessPeersClient::doSystemCall(ZqSystemCallIDType id, const UglyArray<ZqRegisterType> parameters, MemoryRevision &revision)
-{
-    sendThreadOwnerMessage (MessagesGenerator::makeDoSystemCall (id,
-                                                                 parameters,
-    {}));
-
-    DEBUG_CHECK (mCurrentTask == nullptr);
-
-    mCurrentTask = new DoSystemCallTask{};
-    waitUntilTaskComplete ();
-
-    UniquePointer<Task> task{std::move(mCurrentTask)};
-    auto pointer = static_cast<DoSystemCallTask*>(task.get ());
-    auto result = pointer->result;
-
-    // localProcess.applyMemoryMap (std::move(pointer.memoryMap));
-
-    return result;
-}
-
-ZqAddress ProcessPeersClient::getAndReserveMemory(SizeType pagesCount) {
-    DEBUG_CHECK (mCurrentTask == nullptr);
-
-    sendThreadOwnerMessage (MessagesGenerator::makeGetAndReserveMemory (pagesCount));
-
-    mCurrentTask = new GetAndReserveMemoryTask{};
-    waitUntilTaskComplete ();
-
-    UniquePointer<Task> task{std::move(mCurrentTask)};
-    auto pointer = static_cast<GetAndReserveMemoryTask*>(task.get ());
-
-    return pointer->address;
-}
-
-void ProcessPeersClient::sayHello()
-{
-    sendMessageToProcessPeers (MessagesGenerator::makeProcessPeerHello (mMyGlobalThreadID));
-}
-
-void ProcessPeersClient::sayGoodbye()
-{
-    sendMessageToProcessPeers (MessagesGenerator::makeProcessPeerGoodbye (mMyGlobalThreadID));
-}
-
-void ProcessPeersClient::onGetMemoryResultReceived(const SharedVector<Byte> &memory)
-{
-
-}
-
-void ProcessPeersClient::onRunThreadOKReceived()
-{
-
-}
-
-void ProcessPeersClient::onSystemCallResultReceived(ZqRegisterType result)
-{
-
+    mCurrentTask = Task{Task::Type::StopRemoteThread};
+    waitUntilCurrentTaskComplete ();
 }
 
 } // namespace Ziqe

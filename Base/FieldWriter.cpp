@@ -17,20 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "FieldWriter.h"
+#include "FieldWriter.hpp"
 
 namespace Ziqe {
-
-FieldWriter::FieldWriter(SharedVector<Byte> &&vector)
-    : mVector{std::move (vector)}
-{
-
-}
-
-FieldWriter::FieldWriter()
-    : mVector{{new Vector<Byte>{}}}
-{
-
-}
 
 } // namespace Ziqe

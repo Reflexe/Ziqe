@@ -17,36 +17,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "MemoryMap.h"
+#include "MemoryMap.hpp"
 
-#include "Base/SharedVector.h"
+#include "Base/ExtendedVector.hpp"
 
 namespace Ziqe {
 
+#if 0
 MemoryMap::MemoryMap()
 {
 
 }
 
-// TODO: we're creating a vector from other vector in order to copy it to
-// another vector. We can just copy it to the vector from the start.
-Vector<Byte> MemoryMap::toVector() const{
-    SizeType memorySize = 0;
-
-    for (const auto &addressAndVector : mAddressBaseToMemory)
-    {
-        memorySize += addressAndVector.second;
+void MemoryMap::merge(const MemoryMap &otherMap) {
+    for (const auto &addressAndArea : otherMap.mMemoryAreasTree) {
+        mMemoryAreasTree.insert (addressAndArea.first, addressAndArea.second);
+        
+        
     }
-
-    SharedVector<Byte, Vector<Byte>, UniquePointer<Byte>> vector;
-    vector.getVector ().resize (memorySize);
-
-    for (const auto &addressAndVector : mAddressBaseToMemory)
-    {
-        vector.insertVectorAtBegin (addressAndVector.second);
-    }
-
-    return std::move (vector.getVector ());
 }
+
+void MemoryMap::insertVector(const MemoryMap::AddressType address,
+                             SizeType begin,
+                             const MemoryMap::VectorType &copiedVector,
+                             MemoryTreeIterator nextIterator)
+{
+    auto pastLastAddress = address + copiedVector.size ();
+
+//    if (pastLastAddress > )
+}
+
+void MemoryMap::mergeSameAddressVectors(VectorType &vector,
+                                        const VectorType &copiedVector) {
+    // Check if we need some data from @c copiedVector; If not, just leave it as it is.
+    if (vector.size () >= copiedVector.size ())
+        return;
+
+    SizeType bytesToCopy = copiedVector.size () - vector.size ();
+    vector.expand (copiedVector.begin () + bytesToCopy, copiedVector.end (), bytesToCopy);
+}
+
+#endif
 
 } // namespace Ziqe

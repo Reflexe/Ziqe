@@ -26,65 +26,63 @@
 
 #include "asm/uaccess.h"
 
-#include "Memory.h"
+#include "../Memory.h"
 
-inline void ZqDeallocateVirtual (ZqKernelAddress address)
-{
-    vfree ((void *) address);
-}
-
-inline ZqKernelAddress ZqAllocateVirtual (ZqKernelAddress size)
-{
-    return (ZqKernelAddress) vmalloc (size);
-}
-
+#if 0
 void ZqRegisterLatePageFaultHandler(ZqPageFaultHandler handler)
 {
- // change all the vma in this task to call this handler instead of the default.
+    // TODO: in the start, set all the vm_areas to read only. Then, wait for faults,
+    // On a fault, copy the page, then allow writing. On an sync event, we would restart
+    // it all over again.
 
-    // Create a simple diassembler that detect what size of data required, and what the dst
-    // of this instruction. Then, send a (get|write)Memory and write the result to dst
-    // and skip the fault instruction.
+    // We should also consider the new API function.
+    // t-ZqVirtualMemoryPage;
+    // ZqChangeVirtualPagePermissions(), ZqChangeAllVirtualPagesPermissions,
+    // ZqSetVirtualPermissionsFailureHandler (handler, level={USER_GLOBAL,PROCESS,VM_AREA,VIRTUAL_PAGE},
+    // hookPlace={BEFORE_ACCESS_CHECK, BEFORE_SIGSEGV, BEFORE_COPY_ON_WRITE, AFTER_SWAP})
 
-    // That way we keep write and read atomic, but with a lot of overhead.
+    // t-PhysicalMemoryPage, ZqMapToKernel,ZqUnmapToKernel.
 
-    // We can also just request the complete page and create it on the requested computer.
-    // but then read/write aren't not atomic.
+    // User Virtual Memory:
+    // Create memory area (addr, size, data, flags); Remove memory area, Create Or Override Memory Area.
 }
 
-void ZqUnregisterLatePageFaultHandler()
+void ZqUnregisterLatePageFaultHandler(void)
 {
 
 }
 
-ZqBool ZqMapUserAddressToKernel(ZqUserAddress virtualAddress, ZqSizeType size, ZqAddress *result)
+ZqBool ZqMapUserAddressToKernel(ZqUserAddress virtualAddress, ZqSizeType size, ZqKernelAddress *result)
 {
     void *memory = vmalloc (size);
-    unsigned long result = copy_from_user (memory, virtualAddress, result);
+    unsigned long copied_bytes = copy_from_user (memory, (void *)virtualAddress, size);
 
-    if (result != size)
+    *result = memory;
+
+    if (copied_bytes != size) {
+        vfree (memory);
         return ZQ_FALSE;
-    else
+    } else {
         return ZQ_TRUE;
-
+    }
 
     // copy from user?
     // or just get_user_pages?
 }
 
-void ZqUnmapUserAddressToKernel(ZqAddress kernelAddress)
+void ZqUnmapUserAddressToKernel(ZqKernelAddress kernelAddress)
 {
     vfree ((void *) kernelAddress);
 }
 
 ZqUserAddress ZqAllocateUserMemory(ZqSizeType length) {
-    ZqAddress addr;
+    ZqUserAddress addr;
     struct mm_struct *mm;
 
     mm = current->mm;
 
     down_write(&mm->mmap_sem);
-    addr = (ZqAddress)do_mmap (NULL, 0, length, PROT_NONE, 0, 0);
+    addr = (ZqAddress)do_mmap (NULL, 0, length, 0, 0, 0, 0, NULL);
     up_write(&mm->mmap_sem);
 
     return addr;
@@ -96,6 +94,23 @@ void ZqDeallocateUserMemory(ZqKernelAddress address, ZqSizeType length) {
     mm = current->mm;
 
     down_write(&mm->mmap_sem);
-    do_munmap (mm, address, length);
+    do_munmap (mm, (unsigned long)address, length);
     up_write(&mm->mmap_sem);
 }
+
+ZqBool ZqGetVirtualMemoryAreaByAddress(ZqVirtualAddress address, ZqVirtualMemoryArea *virtualMemoryArea) {
+    struct mm_struct *mm;
+
+    mm = current->mm;
+    *virtualMemoryArea = find_vma (mm, address);
+
+    return (*virtualMemoryArea == NULL ? ZQ_TRUE : ZQ_FALSE);
+}
+
+
+ZqBool ZqMapPhysicalPageToKernel(ZqKernelAddress *mappedAddress, ZqPhysicalPage *memoryPage)
+{
+    kmap ()
+}
+
+#endif

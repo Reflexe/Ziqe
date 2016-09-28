@@ -17,29 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "GlobalThread.h"
+#include "GlobalThread.hpp"
 
+#include "Base/Checks.hpp"
 #include "ZiqeAPI/Memory.h"
 
 namespace Ziqe {
 
-GlobalThread::GlobalThread()
-    : mThreadOwnerClient{std::move (threadOwnerClient)}
+GlobalThread::GlobalThread(LocalThread &localThread)
 {
 
-}
-
-void GlobalThread::onPageFault(ZqAddress address, bool isWriteError) {
-    // lock this page's memory for write.
-    // TODO.
-
-
-    auto memory = mClient->getMemory (ZQ_PAGE_ALIGN (address),
-                                      ZQ_PAGE_SIZE);
-
-    ZqCopyToUser (ZQ_PAGE_ALIGN (address),
-                  &memory[0],
-                  memory.size ());
 }
 
 

@@ -17,23 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv4Protocol.h"
+#include "Udpv4Protocol.hpp"
 
 namespace Ziqe {
+namespace Net {
 
 Udpv4Protocol::Udpv4Protocol()
 {
 
 }
 
-UniquePointer<NetworkPacket> Udpv4Protocol::receivePacket()
-{
-
-}
-
-UniquePointer<NetworkProtocol> Udpv4Protocol::createFromPacket(const NetworkPacket &packet)
-{
-
-}
-
+} // namespace Net
 } // namespace Ziqe

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Mutex.h"
+#include "../Mutex.h"
 
 #include <linux/mutex.h>
 
@@ -30,7 +30,7 @@ void ZqMutexInit(ZqMutex *mutex) {
 
 void ZqMutexDeinit(ZqMutex *mutex)
 {
-    ZqDeallocateVirtual ((ZqAddress) *mutex);
+    ZqDeallocateVirtual ((ZqKernelAddress) *mutex);
 }
 
 void ZqMutexLock(ZqMutex *mutex)

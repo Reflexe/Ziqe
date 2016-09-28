@@ -25,7 +25,8 @@
 
 ZQ_BEGIN_C_DECL
 
-typedef ZqAddress ZqSpinLock;
+typedef ZqKernelAddress ZqSpinLock;
+#define ZQ_UNDEFINED_SPINLOCK (0)
 
 void ZqSpinLockInit(ZqSpinLock *spinlock);
 void ZqSpinLockDeinit(ZqSpinLock *spinlock);

@@ -27,6 +27,8 @@
 #include "Types.h"
 #include "Memory.h"
 
+#include "ProcessConfig.h"
+
 // You can implement these types as a real PID and TID or
 // just pointers to the Process / Thread structure in the kernel.
 typedef ZqRegisterType ZqProcessID;
@@ -37,15 +39,14 @@ typedef struct {
 
 } ZqProcessInfo;
 
+typedef struct
+{
+    int i;
+} ZqProcessMemory;
+
 typedef struct {
     ZqThreadID threadID;
 } ZqThreadInfo;
-
-typedef struct {
-    ZqMemoryEntry *entries;
-    ZqRegisterType entriesLength;
-
-} ZqProcessMemory;
 
 #define ZQ_NO_PROCESS_ID (0)
 
@@ -89,8 +90,6 @@ ZqBool ZqGetThreadInfo (ZqThreadID threadID,
  * @return
  */
 ZqThreadID ZqCreateThread (ZqProcessID processID,
-                           ZqAddress instructionPointer,
-                           ZqAddress stackPointer,
                            ZqThreadInfo *threadInfo);
 
 /**
@@ -110,7 +109,7 @@ ZqThreadID ZqGetCurrent (ZqThreadInfo *threadInfo);
  * @return
  */
 ZqBool ZqThreadCall (ZqThreadID threadID,
-                     ZqAddress address,
+                     ZqUserAddress address,
                      ZqRegisterType argument);
 
 ZQ_END_C_DECL

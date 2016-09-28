@@ -17,14 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "FieldReader.h"
+#include "FieldReader.hpp"
 
 namespace Ziqe {
+namespace Base {
 
-FieldReader::FieldReader(SharedVector<Byte> &&vector)
-    : mVector{std::move (vector)}
-{
-
-}
-
+} // namespace Base
 } // namespace Ziqe

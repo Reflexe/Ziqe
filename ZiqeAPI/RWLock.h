@@ -27,7 +27,7 @@ ZQ_BEGIN_C_DECL
 
 #define ZQ_UNDEFINED_RWLOCK (0)
 
-typedef ZqAddress ZqRWLock;
+typedef ZqKernelAddress ZqRWLock;
 
 void ZqRWLockInit(ZqRWLock *rw_lock);
 void ZqRWLockDeinit(ZqRWLock *rw_lock);

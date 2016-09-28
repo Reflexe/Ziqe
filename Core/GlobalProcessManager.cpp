@@ -17,17 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "GlobalProcessManager.h"
+#include "GlobalProcessManager.hpp"
 
 namespace Ziqe {
 
-GlobalProcessManager::GlobalProcessManager(UniquePointer<GlobalPeersClient> &&globalPeersClient,
-                                           UglyPointer<GlobalThreadManager> threadManager)
-    : mGlobalPeersClient{std::move (globalPeersClient)},
-      mThreadManager{threadManager}
+GlobalProcessManager::GlobalProcessManager()
 {
 }
 
+// TODO: wait for a more stable ProcessPeer API.
+#if 0
 void GlobalProcessManager::runThread(LocalThread &thread,
                                      const LocalProcess &process,
                                      bool forceNewPeer) {
@@ -37,9 +36,9 @@ void GlobalProcessManager::runThread(LocalThread &thread,
 
     auto iterator = mLocalToGlobal.find (process.getProcessID ());
 
-    // TODO: handle failures and timeouts.
-    // We can look for a new peer if the no shared process is responding after
-    // some time.
+//     TODO: handle failures and timeouts.
+//     We can look for a new peer if the no shared process is responding after
+//     some time.
     if (forceNewPeer || iterator == mProcesses.end ())  {
         auto newGlobalThreadAndProcess = mGlobalPeersClient->runThread (thread);
 
@@ -56,25 +55,26 @@ void GlobalProcessManager::runThread(LocalThread &thread,
                                    std::move (newGlobalThread));
     }
 }
+//UglyPointer<GlobalProcess> GlobalProcessManager::localToGlobalProcess(const LocalProcess &process) {
+//    auto iterator = mLocalToGlobal.find (process.getProcessID ());
 
-UglyPointer<GlobalProcess> GlobalProcessManager::localToGlobalProcess(const LocalProcess &process) {
-    auto iterator = mLocalToGlobal.find (process.getProcessID ());
+//    return (iterator == mLocalToGlobal.end ()) ?
+//                &(*iterator)
+//              : nullptr;
+//}
 
-    return (iterator == mLocalToGlobal.end ()) ?
-                &(*iterator)
-              : nullptr;
-}
+//GlobalProcessManager::ProcessTable::Iterator
+//GlobalProcessManager::addNewProcessConnection(const ProcessTable::Iterator &processIDLookupResult,
+//                                              UniquePointer<NetworkProtocol> &&processConnection) {
+//    if (processIDLookupResult == mLocalToGlobal.end ()) {
+//        UniquePointer<GlobalProcess> globalProcess = new GlobalProcess{};
 
-GlobalProcessManager::ProcessTable::Iterator
-GlobalProcessManager::addNewProcessConnection(const ProcessTable::Iterator &processIDLookupResult,
-                                              UniquePointer<NetworkProtocol> &&processConnection) {
-    if (processIDLookupResult == mLocalToGlobal.end ()) {
-        UniquePointer<GlobalProcess> globalProcess = new GlobalProcess{};
+//        // Create a new GlobalProcess.
+//    } else {
+//        // Add a process connection to the previous GlobalProcess.
+//    }
+//}
 
-        // Create a new GlobalProcess.
-    } else {
-        // Add a process connection to the previous GlobalProcess.
-    }
-}
+#endif
 
 } // namespace Ziqe

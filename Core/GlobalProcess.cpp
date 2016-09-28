@@ -17,9 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "GlobalProcess.h"
+#include "GlobalProcess.hpp"
 
-#include "Base/ProcessManager.h"
+#include "Base/ProcessManager.hpp"
 
 namespace Ziqe {
 

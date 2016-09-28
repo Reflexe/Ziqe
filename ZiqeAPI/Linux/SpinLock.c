@@ -18,19 +18,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpinLock.h"
+#include "../SpinLock.h"
 
 #include <linux/spinlock.h>
 
 void ZqSpinLockInit(ZqSpinLock *spinlock) {
-    *spinlock = (ZqSpinLock) ZqAllocateVirtual (sizeof (struct spinlock_t));
+    *spinlock = (ZqSpinLock) ZqAllocateVirtual (sizeof (spinlock_t));
 
     spin_lock_init ((spinlock_t *) *spinlock);
 }
 
 void ZqSpinLockDeinit(ZqSpinLock *spinlock)
 {
-    ZqDeallocateVirtual ((ZqAddress) *spinlock);
+    ZqDeallocateVirtual ((ZqKernelAddress) *spinlock);
 }
 
 void ZqSpinLockLock(ZqSpinLock *spinlock)

@@ -7,19 +7,20 @@ set(zq_root ${CMAKE_CURRENT_SOURCE_DIR})
 set(zq_library_type STATIC)
 set(zq_cpp_ext cpp)
 set(zq_target_prefix zq_)
-set(zq_h_ext h)
+set(zq_h_ext hpp)
 
-set(zq_debug 0)
+set(zq_debug 1)
+set(zq_test_build 0)
+set(zq_platform Linux)
 
 include_directories (${zq_root})
+enable_testing()
 
 if(zq_debug EQUAL "1")
     set(CMAKE_BUILD_TYPE Debug)
-else(zq_debug EQUAL "1")
+else()
     set(CMAKE_BUILD_TYPE Release)
-endif(zq_debug EQUAL "1")
-
-enable_testing()
+endif()
 
 function(__zq_add_module caller_name target_path)
     get_filename_component(target_name ${target_path} NAME)
@@ -47,30 +48,33 @@ macro(zq_add_module_auto_caller)
 endmacro()
 
 macro(zq_add_library library_name)
-    project(${library_name})
+#    project(${library_name})
 
     foreach(class_name ${ARGN})
         set(files_list ${files_list} "${class_name}.${zq_cpp_ext}" "${class_name}.${zq_h_ext}")
     endforeach()
 
-    add_library("${zq_target_prefix}${PROJECT_NAME}" ${zq_library_type} ${files_list})
+    add_library("${zq_target_prefix}${library_name}" ${zq_library_type} ${files_list})
 endmacro()
 
-set(zq_compiler_arguments "-nostdlib -Weverything -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-shadow -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -Wno-weak-vtables -Wno-packed -Wno-switch-enum -Wno-covered-switch-default")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${zq_compiler_arguments} -Wno-global-constructors -Wno-exit-time-destructors")
+if (zq_test_build)
+    set(zq_compiler_arguments "-Wno-old-style-cast -fno-rtti -fno-exceptions -Weverything -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic")
+else ()
+    set(zq_compiler_arguments "-Wno-old-style-cast -nostdlib -fno-rtti -fno-exceptions -Weverything -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic")
+endif ()
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${zq_compiler_arguments}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${zq_compiler_arguments}")
 
-set_property(GLOBAL PROPERTY CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD 11)
-
-set(zq_platform Linux)
+set_property(GLOBAL PROPERTY CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory (Base)
-add_subdirectory (ThirdParty)
-add_subdirectory (ZiqeAPI)
+#add_subdirectory (ThirdParty)
 add_subdirectory (Network)
 add_subdirectory (Core)
-add_library (Main main.cpp)
+zq_add_library (Main main)
+add_subdirectory (ZiqeAPI)
 
 #add_subdirectory (Worker)
 #add_subdirectory (Client)

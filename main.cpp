@@ -18,13 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Base/SystemCalls.h"
-#include "Base/ProcessManager.h"
+#include "Base/SystemCalls.hpp"
+#include "Base/ProcessManager.hpp"
 
-#include "Core/ZiqeProtocol/GlobalPeers.h"
+#include "Core/ZiqeProtocol/GlobalPeers.hpp"
 
-#include "Core/GlobalThreadManager.h"
-#include "Core/GlobalProcessManager.h"
+#include "Core/GlobalThreadManager.hpp"
+#include "Core/GlobalProcessManager.hpp"
+
+#include "ZiqeAPI/EntryPoints.h"
+
+class DriverMain
+{
+public:
+    DriverMain()
+    {
+    }
+
+    ~DriverMain()
+    {
+    }
+
+private:
+    Ziqe::GlobalThreadManager mThreadManager;
+};
+
+namespace {
+DriverMain *gDriverMain;
+}
+
+void ZqAPIInit ()
+{
+    gDriverMain = new DriverMain;
+}
+
+void ZqAPIExit ()
+{
+    delete gDriverMain;
+}
 
 ZqBool systemCallHook (const ZqSystemCallIDType id,
                        const ZqRegisterType *params,
@@ -53,30 +84,32 @@ ZqBool systemCallHook (const ZqSystemCallIDType id,
     return ZQ_TRUE;
 }
 
-int main (int argc, char *argv[]) {
-    using namespace Ziqe;
 
-    auto current = ProcessManager::getCurrentThread ();
-    SharedPointer<NetworkProtocol> mNetworkProtocol;
 
-    gThreadManager = new GlobalThreadManager{};
-    gProcessManager = new GlobalProcessManager{makeUnique<GlobalPeers>(mNetworkProtocol),
-                                               gThreadManager};
+//int main (int argc, char *argv[]) {
+//    using namespace Ziqe;
 
-    SystemCalls::setSystemCallHook (&systemCallHook);
+//    auto current = ProcessManager::getCurrentThread ();
+//    SharedPointer<NetworkProtocol> mNetworkProtocol;
 
-    GlobalPeersServer globalServer{mNetworkProtocol,
-                                   UniquePointer<GlobalPeersServer::Callback>{new GlobalPeersWorker}};
+//    gThreadManager = new GlobalThreadManager{};
+//    gProcessManager = new GlobalProcessManager{makeUnique<GlobalPeers>(mNetworkProtocol),
+//                                               gThreadManager};
 
-    while (! current.shouldExit ())
-    {
-        globalServer.run ();
-    }
+//    SystemCalls::setSystemCallHook (&systemCallHook);
 
-    SystemCalls::unsetSystemCallHook ();
+//    GlobalPeersServer globalServer{mNetworkProtocol,
+//                                   UniquePointer<GlobalPeersServer::Callback>{new GlobalPeersWorker}};
 
-    delete gThreadManager;
-    delete gProcessManager;
+//    while (! current.shouldExit ())
+//    {
+//        globalServer.run ();
+//    }
 
-    return 0;
-}
+//    SystemCalls::unsetSystemCallHook ();
+
+//    delete gThreadManager;
+//    delete gProcessManager;
+
+//    return 0;
+//}

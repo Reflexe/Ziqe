@@ -17,13 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "MemoryRevision.h"
+#include "MemoryRevision.hpp"
 
 namespace Ziqe {
+
+#if 0
+
+MemoryRevision MemoryRevision::mergeNew(const MemoryRevision &revision) const {
+    MemoryRevision thisCopy{*this};
+
+    thisCopy.mRevisionChanges.merge (revision.mRevisionChanges);
+    return thisCopy;
+}
 
 MemoryRevision::MemoryRevision()
 {
 
 }
+
+void MemoryRevision::merge(const MemoryRevision &revision)
+{
+    mRevisionChanges.merge (revision.mRevisionChanges);
+}
+
+#endif
 
 } // namespace Ziqe

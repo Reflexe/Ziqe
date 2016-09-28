@@ -25,7 +25,7 @@
 
 ZQ_BEGIN_C_DECL
 
-typedef ZqAddress ZqMutex;
+typedef ZqKernelAddress ZqMutex;
 #define ZQ_UNDEFINED_MUTEX (0)
 
 void ZqMutexInit(ZqMutex *mutex);

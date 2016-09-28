@@ -17,9 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "MemoryRevisionTree.h"
+#include "MemoryRevisionTree.hpp"
 
-#include "Base/RedBlackTree.h"
+#include "Base/RedBlackTree.hpp"
 
 namespace Ziqe {
 
@@ -31,19 +31,25 @@ MemoryRevisionTree::MemoryRevisionTree()
 MemoryRevision MemoryRevisionTree::diff(const MemoryRevision::ID &first) const{
     // First phase: check which data should we have in the new revision.
     // Second phase: actually prepare the new revision.
+    // TODO redblack tree
 
-    RedBlackTree<ZqUserAddress, UglyPointer<Vector<Byte>>> memoryMap;
+//    RedBlackTree<ZqUserAddress, UglyPointer<Vector<uint8_t>>> memoryMap;
 
-    for (auto &revision : revisions) {
-        for (auto &revisionChange : revision) {
-            memoryMap[revisionChange.address] = ref(revisionChange);
-        }
-    }
+//    for (auto &revision : revisions) {
+//        for (auto &revisionChange : revision) {
+//            memoryMap[revisionChange.address] = ref(revisionChange);
+//        }
+//    }
 
-    for (auto &change : memoryMap)
-    {
+//    for (auto &change : memoryMap)
+//    {
 
-    }
+//    }
+}
+
+const MemoryRevision &MemoryRevisionTree::currentRevision() const
+{
+//    return mIDtoRevision.before_end ();
 }
 
 } // namespace Ziqe

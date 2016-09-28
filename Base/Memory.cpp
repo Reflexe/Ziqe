@@ -17,10 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Memory.h"
+#include "Memory.hpp"
 
 namespace Ziqe {
-
-
-
 } // namespace Ziqe
+
+void *operator new(std::size_t count) {
+    static_assert (sizeof (ZqRegisterType) >= sizeof (void *),
+                   "Invalid ZqRegisterType");
+    return ZqAllocateVirtual (static_cast<ZqSizeType>(count));
+}
+
+void operator delete(void *pointer) noexcept
+{
+    ZqDeallocateVirtual (pointer);
+}

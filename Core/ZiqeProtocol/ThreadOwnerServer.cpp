@@ -17,60 +17,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "ThreadOwnerServer.h"
+#include "ThreadOwnerServer.hpp"
 
-#include "Message.h"
+#include "Message.hpp"
 
-#include "Base/FieldReader.h"
+#include "Base/FieldReader.hpp"
+#include "Base/SystemCalls.hpp"
 
 namespace Ziqe {
 
-ThreadOwnerServer::ThreadOwnerServer(UniquePointer<Callback> &&callback)
-    : mCallback{callback}
+ThreadOwnerServer::ThreadOwnerServer()
 {
 }
 
-void ThreadOwnerServer::onDataReceived(const InputStreamInterface::DataType &data) {
-    FieldReader reader{copy(data)};
+void ThreadOwnerServer::onDoSystemCall(const ZqSystemCallIDType systemCallID,
+                                       Base::RawPointer<const ZqRegisterType> parameters,
+                                       const SizeType parametersLength,
+                                       MemoryRevision &remoteRevision,
+                                       MemoryRevision::ID previousRemoteRevisionID)
+{
+    // TODO: memory revisions
+//    if (! localTherads.isEmpty ())
+//        updateCurrentRevisionFromLocalMemory ();
 
-    if (! Message::isValidReader (reader))
-        return;
+//    auto newRevision = remoteRevision.merge (mRevisionTree.getRead ().first.currentRevision ());
+//    memory.applyRevision (newRevision);
 
-    Message message{reader};
+//    SystemCalls::runSystemCall (systemCallID, parameters.get ());
 
-    if (! message.isThreadP2PMessage ())
-        return;
-
-    switch (message.getType ())
-    {
-    // 64Bit: syscall id.
-    // 8Bit : arg number.
-    // ???? : arg data.
-    // ???? : syscall data (memory).
-    case Message::Type::DoSystemCall: {
-        if (! reader.haveBytes (8+1))
-            return;
-
-        ZqSystemCallIDType syscallID = reader.readT<uint64_t>();
-        uint8_t            argsLength = reader.readT<uint8_t>();
-
-        if (! reader.haveBytes (static_cast<SizeType>(argsLength) * sizeof (ZqRegisterType)))
-            return;
-
-        auto currentByte = reader.getCurrent ();
-        reader.skipBytes (static_cast<SizeType>(argsLength) * sizeof (ZqRegisterType));
-
-        // TODO: what to do with the memory?
-        mCallback->onDoSystemCall (syscallID,
-                                   currentByte,
-                                   argsLength);
-
-        break;
-    }
-    default:
-        // Message::Type::SystemCallResult
-        return;
-    }
+//    updateCurrentRevisionFromLocalMemory ();
+//    newRevision = mRevisionTree.getRead ().first.diff (previousRemoteRevisionID);
 }
 
 } // namespace Ziqe

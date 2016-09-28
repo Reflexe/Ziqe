@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "LocalThread.h"
+#include "LocalThread.hpp"
 
-#include "Checks.h"
-#include "Macros.h"
+#include "Checks.hpp"
+#include "Macros.hpp"
 
 namespace Ziqe {
 
@@ -44,12 +44,12 @@ void runMemberFunction (ClassType *c)
     (c->*Function) ();
 }
 
-void LocalThread::run(Callback<void ()> &&toCall) {
-    Callback<void ()> *newCallback = new Callback<void ()> (std::move (toCall));
+//void LocalThread::run(Callback<void ()> &&toCall) {
+//    Callback<void ()> *newCallback = new Callback<void ()> (std::move (toCall));
 
-    return runAnyFunction(&runMemberFunction<Callback<void ()>, &Callback<void ()>::operator ()>,
-                          newCallback);
-}
+//    return runAnyFunction(&runMemberFunction<Callback<void ()>, &Callback<void ()>::operator ()>,
+//                          newCallback);
+//}
 
 void LocalThread::runFunction(void (*function)(ZqRegisterType), ZqRegisterType parameter) {
     ZqThreadCall (mThreadID,

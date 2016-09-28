@@ -25,34 +25,97 @@
 #include "Types.h"
 #include "Macros.h"
 
-typedef ZqRegisterType ZqAddress;
-typedef void*          ZqKernelAddress;
-typedef ZqRegisterType ZqUserAddress;
-
-typedef struct {
-    ZqRegisterType address;
-    ZqAddress data;
-    ZqRegisterType dataLength;
-} ZqMemoryEntry;
-
 ZQ_BEGIN_C_DECL
 
-void ZqDeallocateVirtual (ZqKernelAddress address);
-ZqAddress ZqAllocateVirtual (ZqKernelAddress size);
+#include "MemoryConfig.h.generated"
 
-ZqUserAddress ZqAllocateUserMemory (ZqSizeType length);
-void ZqDeallocateUserMemory (ZqKernelAddress address, ZqSizeType length);
+static void ZqDeallocateVirtual (ZqKernelAddress address);
+static ZqKernelAddress ZqAllocateVirtual (ZqSizeType size);
 
 ZqBool ZqCopyToUser (ZqUserAddress destination,
                      ZqKernelAddress source,
                      ZqSizeType length);
 
-ZqBool ZqMapUserAddressToKernel (ZqUserAddress virtualAddress, ZqSizeType size, ZqKernelAddress *result);
-void ZqUnmapUserAddressToKernel (ZqKernelAddress kernelAddress);
+/* Physical Page - A Memory page */
 
-typedef ZqBool(* ZqPageFaultHandler) (ZqAddress address);
-void ZqRegisterLatePageFaultHandler (ZqPageFaultHandler handler);
-void ZqUnregisterLatePageFaultHandler ();
+/**
+ * @brief ZqAllocatePhysicalMemoryPage  Allocate an unused physical page.
+ * @param memoryPage  Pointer to an allocated ZqPhysicalPage object.
+ * @return ZQ_TRUE on success, ZQ_FALSE on error (probably out of memory).
+ */
+ZqBool ZqAllocatePhysicalMemoryPage (ZqPhysicalPage *memoryPage);
+/**
+ * @brief ZqDeallocatePhysicalMemoryPage  Deallocate an physical memory page.
+ * @param memoryPage An valid and filled memory page object.
+ */
+void ZqDeallocatePhysicalMemoryPage (ZqPhysicalPage *memoryPage);
+
+/**
+ * @brief ZqMapPhysicalPageToKernel  Map an physical page to the kernel space.
+ * @param mappedAddress  Will contain the mapped page's address (on success).
+ * @param memoryPage  The page to map.
+ * @return ZQ_TRUE on success, ZQ_FALSE on error (out of kernel virtual memory probably).
+ *
+ * @note The page will not be deallocted until it unmapped.
+ */
+ZqBool ZqMapPhysicalPageToKernel (ZqKernelAddress *mappedAddress,
+                                  ZqPhysicalPage *memoryPage);
+/**
+ * @brief ZqUnmapPhysicalPageToKernel  Undo ZqMapPhysicalPageToKernel and
+ *                                     possibly free the mapped physical page.
+ * @param mappedAddress  The result of @arg mappedAddress in ZqMapPhysicalPageToKernel.
+ */
+void ZqUnmapPhysicalPageToKernel (ZqKernelAddress mappedAddress);
+
+/* Virtual Pages (User Mapped Physical Paged) */
+/**
+ * @brief ZqChangeVirtualPagePermissions  Change a Virtual Page Permissions
+ * @param page  The page.
+ * @param newPermissions Set of new permissions.
+ */
+void ZqChangeVirtualPagePermissions (ZqVirtualPage *page,
+                                     ZqVirtualPagePermissions newPermissions);
+
+void ZqChangeAllVirtualPagesPermissions (ZqVirtualPagePermissions newPermissions);
+
+/* User Virtual Memory Areas - User Virtual Memory Ranges */
+typedef ZqBool(*ZqVirtualPagePermsFaultHandler) (ZqKernelAddress pointer,
+                                                 ZqUserAddress addressFault,
+                                                 ZqMemoryFaultFlags faultFlags,
+                                                 ZqVirtualPage *failedPage);
+
+void ZqSetWriteProtectedFaultHandler (ZqVirtualPagePermsFaultHandler handler,
+                                      ZqVirtualMemoryArea *area,
+                                      ZqKernelAddress pointer);
+// MAYBE: move data.
+ZqBool ZqCreateMemoryArea (ZqUserAddress address,
+                           ZqSizeType areaSize,
+                           ZqKernelAddress dataAddress,
+                           ZqVirtualMemoryArea *result);
+
+ZqBool ZqCreateOrOverrideMemoryArea (ZqUserAddress address,
+                                     ZqSizeType areaSize,
+                                     ZqKernelAddress dataAddress,
+                                     ZqVirtualMemoryArea *result);
+
+void ZqRemoveMemoryAreaByAddress (ZqUserAddress address,
+                                  ZqSizeType areaSize);
+void ZqRemoveMemoryArea (ZqVirtualMemoryArea *area);
+
+ZqBool ZqGetMemoryArea (ZqUserAddress beginAddress,
+                        ZqSizeType areaSize,
+                        ZqVirtualMemoryArea *result);
+
+// TODO: in the start, set all the vm_areas to read only. Then, wait for faults,
+// On a fault, copy the page, then allow writing. On an sync event, we would restart
+// it all over again.
+
+// t-PhysicalMemoryPage, ZqMapToKernel,ZqUnmapToKernel.
+
+// User Virtual Memory:
+// Create memory area (addr, size, data, flags); Remove memory area, Create Or Override Memory Area.
+
+#include "MemoryInline.h.generated"
 
 ZQ_END_C_DECL
 

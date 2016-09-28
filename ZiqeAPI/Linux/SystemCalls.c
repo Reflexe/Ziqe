@@ -23,6 +23,8 @@
 
 #include "../SystemCalls.h"
 
+#include "../Memory.h"
+
 #include <linux/init.h>
 
 #include <linux/kernel.h>
@@ -32,42 +34,43 @@
 
 #include <asm/syscalls.h>
 
-static ZqBool init_system_calls_hook(void);
-
 #ifdef __x86_64__
 #define SYSCALL_ID_FROM_REGISTERS(regs) (regs->ax)
 #define SYSCALL_FIRST_ARG(regs)         (ZqRegisterType *)(&regs->di)
 #define SYSCALL_RESULT_REGS(regs)       (regs->ax)
 #define SYSCALL_MAX_ARGS                (5)
-#define SYSCALL_INVOKE_REGS(regs)       (original_sys_call_table[regs->ax](regs->di, regs->si, regs->dx, regs->r10, regs->r8, regs->r9))
-#define SYSCALL_INVOKE(id,regs)         (original_sys_call_table[id]((regs)[0], (regs)[1], (regs)[2], (regs)[3], (regs)[4], (regs)[5]))
+#define SYSCALL_INVOKE_REGS(regs)       (syscall_function(regs),(ZqRegisterType) regs->ax)
 
-#define SYSCALL_SYMBOL  "entry_SYSCALL64_slow_path"
+typedef void(*syscall_function_t)(struct pt_regs *regs);
+
+/* #define SYSCALL_SYMBOL  "entry_SYSCALL64_slow_path" */
+
+// The slow path's symbol, only threads with TIF_SYSCALL_TRACE go there.
+// That will reduce the overhead for regular user mode tasks.
+#define SYSCALL_SYMBOL "syscall_trace_enter" /* TODO: other syscalls entries - vDSO, 32bit */
 #define SYSCALL_END_OFFSET 1
 #endif
 
+static ZqBool init_system_calls_hook(void);
+
 ZqBool is_syscall_hook_initialized = ZQ_FALSE;
-ZqSystemCallHookType syscall_book  = NULL;
+ZqSystemCallHookType syscall_hook  = NULL;
 
-static int kprobe_pre_handler (struct kprobe *kprobe, struct pt_regs *regs) {
-    if (test_thread_flag (TIF_SYSCALL_TRACE)) {
-        // Call our hook.
-        if (syscall_book (SYSCALL_ID_FROM_REGISTERS (regs),
-                          SYSCALL_FIRST_ARG (regs),
-                          &SYSCALL_RESULT_REGS(regs)) == ZQ_FALSE)
-        {
-            // The hook says that it don't want this thread.
-            return 0;
-        }
+syscall_function_t syscall_function;
 
-        // Skip the kernel's actual syscall.
-        regs->ip = (ZqRegisterType) kprobe->addr + SYSCALL_END_OFFSET;
-
-        /* Notify the kernel that we've changed regs->ip */
-        return 1;
+static int syscall_kprobe_pre_handler (struct kprobe *kprobe, struct pt_regs *regs) {
+    // Call our hook.
+    if (syscall_hook ((ZqThreadRegisters *) regs, &SYSCALL_RESULT_REGS (regs)) == ZQ_FALSE)
+    {
+        // The hook says that it don't want this thread.
+        return 0;
     }
 
-    return 0;
+    // Skip the kernel's actual syscall.
+    regs->ip = (ZqRegisterType) kprobe->addr + SYSCALL_END_OFFSET;
+
+    /* Notify the kernel that we've changed regs->ip */
+    return 1;
 }
 
 static int kprobe_empty_break_handler (struct kprobe *p, struct pt_regs *a)
@@ -75,33 +78,33 @@ static int kprobe_empty_break_handler (struct kprobe *p, struct pt_regs *a)
     return 0;
 }
 
-struct kprobe kprobe = {
-    .symbol_name = SYSCALL_SYMBOL
+struct kprobe syscall_kprobe = {
+    .symbol_name = SYSCALL_SYMBOL,
+    .pre_handler = syscall_kprobe_pre_handler,
+
+
+    /* Force the kernel not to use optimization so we can
+     * change the flow with regs->ip in the pre_handler.
+     * (See Documentation/kprobes.txt:266)
+     */
+    .break_handler = kprobe_empty_break_handler
 };
 
 static ZqBool init_system_calls_hook () {
-    kprobe.pre_handler = kprobe_pre_handler;
-
-    /* Force the kernel not to use optimization so we can
-     * change regs->ip in the pre_handler.
-     * (See Documentation/kprobes.txt:266)
-     */
-    kprobe.break_handler = kprobe_empty_break_handler;
-
-    if (register_kprobe (&kprobe) < 0)
+    if (register_kprobe (&syscall_kprobe) < 0)
         return ZQ_FALSE;
 
     return ZQ_TRUE;
 }
 
 void ZqInitSystemCallsHook(ZqSystemCallHookType hook) {
-    syscall_book = hook;
+    syscall_hook = hook;
 
     if (is_syscall_hook_initialized == ZQ_FALSE)
         init_system_calls_hook ();
 }
 
-ZqRegisterType ZqCallSyscall(ZqSystemCallIDType id, const ZqRegisterType *params)
+ZqRegisterType ZqCallSyscall(ZqThreadRegisters *regs)
 {
-//    return SYSCALL_INVOKE (*id, params);
+    return SYSCALL_INVOKE_REGS ((struct pt_regs *) regs);
 }

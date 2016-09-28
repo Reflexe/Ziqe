@@ -17,77 +17,84 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "ProcessPeersServer.h"
+#include "ProcessPeersServer.hpp"
+
+#include "MessagesGenerator.hpp"
 
 namespace Ziqe {
 
 ProcessPeersServer::ProcessPeersServer()
+    : mOtherServers{mLock}
 {
-
+    sendHello ();
 }
 
-void ProcessPeersServer::addConnection(GlobalThreadID threadId,
-                                       UniquePointer<NetworkProtocol> &&protocol) {
-    RWLock::ScopedWriteLock lock{mConnections->first};
-
-    mConnections->second.insert (threadId, std::move (protocol));
-}
-
-void ProcessPeersServer::removeConnection(GlobalThreadID threadId) {
-    RWLock::ScopedWriteLock lock{mConnections->first};
-
-    mConnections->second.erase (threadId);
-}
-
-void ProcessPeersServer::onGetMemoryReceived(ZqAddress address, SizeType length)
+ProcessPeersServer::~ProcessPeersServer()
 {
-
-}
-
-void ProcessPeersServer::onWriteMemoryReceived(ZqAddress address, const SharedVector<Byte> &memory)
-{
-
+    sendGoodbye ();
 }
 
 void ProcessPeersServer::onStopThreadReceived(GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
-    DEBUG_CHECK_REPORT (thread);
+
+    if (! thread ) {
+        DEBUG_CHECK_REPORT (thread);
+        replyToLastPacket (MessagesGenerator::makeStopThreadOK ());
+    }
 
     thread->stop ();
+    replyToLastPacket (MessagesGenerator::makeStopThreadOK ());
 }
 
-void ProcessPeersServer::onContiniueThread(GlobalThreadID threadID)
-{
+void ProcessPeersServer::onContinueThread(GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
-    DEBUG_CHECK_REPORT (thread);
+
+    if (! thread ) {
+        DEBUG_CHECK_REPORT (thread);
+        replyToLastPacket (MessagesGenerator::makeContinueThreadOK ());
+    }
 
     thread->cont ();
+    replyToLastPacket (MessagesGenerator::makeContinueThreadOK ());
 }
 
-void ProcessPeersServer::onKillThreadReceived(GlobalThreadID threadID)
-{
+void ProcessPeersServer::onKillThreadReceived(GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
-    DEBUG_CHECK_REPORT (thread);
+
+    if (! thread ) {
+        DEBUG_CHECK_REPORT (thread);
+        replyToLastPacket (MessagesGenerator::makeKillThreadOK ());
+    }
 
     thread->kill ();
+    replyToLastPacket (MessagesGenerator::makeKillThreadOK ());
 }
 
 void ProcessPeersServer::onRunThreadReceived(GlobalThreadID newThreadID,
-                                             MemoryMap &currentMemoryMap, ThreadState &state)
+                                             MemoryMap &currentMemoryMap,
+                                             ThreadState &state)
 {
 
 }
 
-void ProcessPeersServer::onHelloReceived(GlobalThreadID newThread)
+void ProcessPeersServer::onHelloReceived(const Base::RawArray<GlobalThreadID> &newThreads)
 {
-    addConnection (newThread, createProtocolFromn(mCurrentProcessedPacket));
+
 }
 
-void ProcessPeersServer::onGoodbyeReceived(UglyArray<GlobalThreadID> threads) {
-    for (SizeType i = 0; i < threads.size (); ++i)
-    {
-        removeConnection (threads[i]);
-    }
+void ProcessPeersServer::onGoodbyeReceived(const Base::RawArray<GlobalThreadID> &leavingThreads)
+{
+    mOtherServers.getWrite ().first->removeThreads (leavingThreads);
+}
+
+void ProcessPeersServer::sendHello()
+{
+    mOtherServers.getRead ().first->sendMessageToProcessPeers (MessagesGenerator::makeProcessPeerHello (getProcessThreadIDs ().toRawArray ()));
+}
+
+void ProcessPeersServer::sendGoodbye()
+{
+    mOtherServers.getRead ().first->sendMessageToProcessPeers (MessagesGenerator::makeProcessPeerGoodbye (getProcessThreadIDs ().toRawArray ()));
 }
 
 } // namespace Ziqe

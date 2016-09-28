@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "ProcessManager.h"
+#include "ProcessManager.hpp"
 
 namespace Ziqe {
 
@@ -25,7 +25,8 @@ ProcessManager::ProcessManager()
 {
 
 }
-
+// TODO: stable API
+#if 0
 LocalThread ProcessManager::createThread(LocalProcess &process,
                                          ZqAddress stackAddress,
                                          ZqAddress runAddress)
@@ -41,5 +42,6 @@ LocalThread ProcessManager::getCurrentThread()
 {
     return LocalThread{ZqGetCurrent (nullptr)};
 }
+#endif
 
 } // namespace Ziqe

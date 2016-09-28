@@ -34,4 +34,9 @@
 # define ZQ_END_C_DECL
 #endif
 
+#define ZQ_UNUSED(expr) (void)expr
+
+// I HATE misleading titles!
+#define inline_hint inline
+
 #endif
