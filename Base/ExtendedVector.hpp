@@ -57,7 +57,7 @@ public:
         DEBUG_CHECK (mIndexEnd > mIndexBegin);
     }
 
-    ALLOW_COPY_AND_MOVE (ExtendedVector)
+    ZQ_ALLOW_COPY_AND_MOVE (ExtendedVector)
 
     T &operator [](SizeType index) {
         DEBUG_CHECK_ADD_OVERFLOW (index, mIndexBegin);

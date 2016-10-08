@@ -54,15 +54,14 @@ typedef int ZqSocketOptionName;
 
 typedef in_addr ZqIpv4Address;
 typedef in6_addr ZqIpv6Address;
+typedef in_port_t ZqPort;
 
-#define ZQ_SOCKET_INET AF_INET
-#define ZQ_SOCKET_INET6 AF_INET6
+#define ZQ_AF_INET AF_INET
+#define ZQ_AF_INET6 AF_INET6
+#define ZQ_AF_UNSPEC AF_UNSPEC
 
 #define ZQ_SOCKET_TYPE_STREAM SOCK_STREAM
 #define ZQ_SOCKET_TYPE_DGRAM SOCK_DGRAM
-
-#define ZQ_PROTO_TCP IPPROTO_TCP
-#define ZQ_PROTO_TYPE_UDP IPPROTO_UDP
 
 #define ZQ_OPTION_BROADCAST SO_BROADCAST
 #define ZQ_LEVEL_SOCKET SOL_SOCKET

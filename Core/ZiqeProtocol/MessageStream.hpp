@@ -35,7 +35,7 @@ class MessageStream : private Net::NetworkProtocol::Callback
 public:
     MessageStream();
     virtual ~MessageStream() = default;
-    ALLOW_COPY_AND_MOVE (MessageStream)
+    ZQ_ALLOW_COPY_AND_MOVE (MessageStream)
 
 protected:
     typedef Net::NetworkPacket::DataType DataType;

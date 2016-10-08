@@ -62,7 +62,7 @@ public:
         {
         }
 
-        ALLOW_COPY_AND_MOVE (_IteratorBase)
+        ZQ_ALLOW_COPY_AND_MOVE (_IteratorBase)
 
         _IteratorBase &operator++ () {
             DEBUG_CHECK (mCurrent->next != nullptr);
@@ -88,7 +88,7 @@ public:
             return {mCurrent->previous};
         }
 
-        DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(_IteratorBase, mCurrent)
+        ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(_IteratorBase, mCurrent)
 
         bool isNull () const
         {

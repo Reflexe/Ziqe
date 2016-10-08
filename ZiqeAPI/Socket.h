@@ -84,7 +84,8 @@ ZqBool ZqSocketBindConnect (ZqSocket zqsocket,
  */
 ZqBool ZqSocketReceive(ZqSocket zqsocket,
                        ZqKernelAddress buffer,
-                       ZqSizeType bufferSize, ZqSizeType *bytesReceived);
+                       ZqSizeType bufferSize,
+                       ZqSizeType *bytesReceived);
 
 /**
  * @brief ZqSocketSend  Send data to a socket.
@@ -94,8 +95,9 @@ ZqBool ZqSocketReceive(ZqSocket zqsocket,
  * @return
  */
 ZqBool ZqSocketSend(ZqSocket zqsocket,
-                    ZqKernelAddress buffer,
-                    ZqSizeType bufferSize, ZqSizeType *bytesSent);
+                    ZqConstKernelAddress buffer,
+                    ZqSizeType bufferSize,
+                    ZqSizeType *bytesSent);
 
 
 /**
@@ -108,7 +110,8 @@ ZqBool ZqSocketSend(ZqSocket zqsocket,
 ZqBool ZqSocketReceiveFrom(ZqSocket zqsocket,
                            ZqKernelAddress buffer,
                            ZqSizeType bufferSize,
-                           ZqSocketAddress sockaddr, ZqSizeType *bytesReceived);
+                           ZqSocketAddress *sockaddr,
+                           ZqSizeType *bytesReceived);
 
 /**
  * @brief ZqSocketSendTo  Send data to a socket.
@@ -118,15 +121,15 @@ ZqBool ZqSocketReceiveFrom(ZqSocket zqsocket,
  * @return
  */
 ZqBool ZqSocketSendTo(ZqSocket zqsocket,
-                      ZqKernelAddress buffer,
+                      ZqConstKernelAddress buffer,
                       ZqSizeType bufferSize,
-                      ZqSocketAddress sockaddr,
+                      const ZqSocketAddress *sockaddr,
                       ZqSizeType *bytesSent);
 
 ZqBool ZqSetSocketOption (ZqSocket zqsocket,
                           ZqSocketOptionLevel level,
                           ZqSocketOptionName name,
-                          ZqKernelAddress optionValue,
+                          ZqConstKernelAddress optionValue,
                           ZqSizeType optionSize);
 
 ZQ_END_C_DECL

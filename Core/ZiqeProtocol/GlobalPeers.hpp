@@ -33,7 +33,7 @@ public:
     struct Callback {
         Callback() = default;
         virtual ~Callback() = 0;
-        ALLOW_COPY_AND_MOVE (Callback)
+        ZQ_ALLOW_COPY_AND_MOVE (Callback)
 
 //        virtual void onRunThreadPeerLookup (UniquePointer<NetworkPacket> &&packet,
 //                                            FieldReader &&fieldsReader,

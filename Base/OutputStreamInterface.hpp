@@ -31,7 +31,7 @@ class OutputStreamInterface
 public:
     OutputStreamInterface();
     virtual ~OutputStreamInterface () = 0;
-    ALLOW_COPY_AND_MOVE (OutputStreamInterface)
+    ZQ_ALLOW_COPY_AND_MOVE (OutputStreamInterface)
 
     using OutputDataType=Vector<uint8_t>;
 

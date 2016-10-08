@@ -5,7 +5,7 @@ endmacro ()
 
 # Linux's version; by default, the current.
 # Will be used to find Linux's headers.
-set (zq_linux_version "")
+#set (zq_linux_version "")
 zq_get_current_linux_version (zq_linux_version)
 
 # Linux X-obj param would get only relative parameter; but,

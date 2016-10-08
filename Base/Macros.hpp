@@ -25,20 +25,22 @@
 #include "Base/Types.hpp"
 #include <utility>
 
-#define ALLOW_COPY(name) name(const name &) = default; name &operator= (const name &) = default;
-#define ALLOW_MOVE(name) name(name &&)      = default; name &operator= (name &&)      = default;
+#define implements
 
-#define ALLOW_COPY_AND_MOVE(name) ALLOW_COPY(name) ALLOW_MOVE(name)
+#define ZQ_ALLOW_COPY(name) name(const name &) = default; name &operator= (const name &) = default;
+#define ZQ_ALLOW_MOVE(name) name(name &&)      = default; name &operator= (name &&)      = default;
 
-#define DISALLOW_COPY(name) name(const name &) = delete; name &operator= (const name &) = delete;
-#define DISALLOW_MOVE(name) name(name &&)      = delete; name & operator= (name &&)     = delete;
+#define ZQ_ALLOW_COPY_AND_MOVE(name) ZQ_ALLOW_COPY(name) ZQ_ALLOW_MOVE(name)
 
-#define DISALLOW_COPY_AND_MOVE(name) DISALLOW_COPY(name) DISALLOW_MOVE(name)
+#define ZQ_DISALLOW_COPY(name) name(const name &) = delete; name &operator= (const name &) = delete;
+#define ZQ_DISALLOW_MOVE(name) name(name &&)      = delete; name & operator= (name &&)     = delete;
 
-#define DEFINE_EQUAL_BY_MEMBER(type, name) bool operator ==(const type &other) const{ return name == other.name; }
-#define DEFINE_NOT_EQUAL_BY_MEMBER(type, name) bool operator !=(const type &other) const{ return name != other.name; }
+#define ZQ_DISALLOW_COPY_AND_MOVE(name) ZQ_DISALLOW_COPY(name) ZQ_DISALLOW_MOVE(name)
 
-#define DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(type, name) DEFINE_EQUAL_BY_MEMBER(type, name) DEFINE_NOT_EQUAL_BY_MEMBER(type, name)
+#define ZQ_DEFINE_EQUAL_BY_MEMBER(type, name) bool operator ==(const type &other) const{ return name == other.name; }
+#define ZQ_DEFINE_NOT_EQUAL_BY_MEMBER(type, name) bool operator !=(const type &other) const{ return name != other.name; }
+
+#define ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(type, name) ZQ_DEFINE_EQUAL_BY_MEMBER(type, name) ZQ_DEFINE_NOT_EQUAL_BY_MEMBER(type, name)
 
 namespace Ziqe {
 namespace Base {
@@ -83,7 +85,7 @@ constexpr T &min(T &one, T &two)
  * printN(MakeStaticVariable(6));
  * \endcode
  */
-#define MakeStaticVariable(expr) StaticVariable<decltype(expr), (expr)>()
+#define ZQ_MakeStaticVariable(expr) StaticVariable<decltype(expr), (expr)>()
 template<class T, T sValue>
 class StaticVariable
 {
@@ -94,8 +96,8 @@ class StaticVariable
   *
   * Use it when you can use the template parameter (everywhere except template constructors).
   */
-#define MakeTemplateVariable(expr) decltype(expr), (expr)
-#define TemplateVariable(name) class _T##name, _T##name name
+#define ZQ_MakeTemplateVariable(expr) decltype(expr), (expr)
+#define ZQ_TemplateVariable(name) class _T##name, _T##name name
 
 /**
  * @brief An sizeof for parameter pack (NOT sizeof...).
@@ -203,7 +205,7 @@ struct DerefrenceIsLessThan
     }
 };
 
-#define DEFINE_CONST_AND_NON_CONST(ReturnValueConst, ReturnValueNonConst, name, args, ...) ReturnValueConst name args const __VA_ARGS__ \
+#define ZQ_DEFINE_CONST_AND_NON_CONST(ReturnValueConst, ReturnValueNonConst, name, args, ...) ReturnValueConst name args const __VA_ARGS__ \
     ReturnValueNonConst name args __VA_ARGS__
 
 }

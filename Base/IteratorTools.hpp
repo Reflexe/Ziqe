@@ -42,7 +42,7 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (MoveIterator)
+    ZQ_ALLOW_COPY_AND_MOVE (MoveIterator)
 
     decltype (std::move (*mInput)) operator* ()
     {
@@ -60,7 +60,7 @@ public:
         return *this;
     }
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (MoveIterator, mInput)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (MoveIterator, mInput)
 };
 
 template <class InputIterator>
@@ -85,7 +85,7 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (ActionIterator)
+    ZQ_ALLOW_COPY_AND_MOVE (ActionIterator)
 
     decltype (mFunction (*mInput)) operator* ()
     {
@@ -103,7 +103,7 @@ public:
         return *this;
     }
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (ActionIterator, mInput)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (ActionIterator, mInput)
 };
 
 template <class InputIterator, class FunctionType>

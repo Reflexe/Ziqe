@@ -44,7 +44,7 @@ public:
         ZqMutexDeinit (&mMutex);
     }
 
-    DISALLOW_COPY (Mutex)
+    ZQ_DISALLOW_COPY (Mutex)
 
     Mutex (Mutex &&other)
         : mMutex{other.mMutex}
@@ -78,7 +78,7 @@ public:
                 ZqMutexUnlock (&mLockedMutex->mMutex);
         }
 
-        DISALLOW_COPY (ScopedLock)
+        ZQ_DISALLOW_COPY (ScopedLock)
 
         ScopedLock &operator =(ScopedLock &&) = delete;
 

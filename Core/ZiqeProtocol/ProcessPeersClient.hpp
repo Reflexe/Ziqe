@@ -37,7 +37,7 @@ public:
     ProcessPeersClient(ProcessPeersServer &localServer);
     ~ProcessPeersClient();
 
-    ALLOW_COPY_AND_MOVE (ProcessPeersClient)
+    ZQ_ALLOW_COPY_AND_MOVE (ProcessPeersClient)
 
     /**
      * @brief Continue a remote thread [blocking]
@@ -76,7 +76,7 @@ private:
             ContinueRemoteThread
         };
 
-        Task() {}
+        Task() = default;
 
         Task(Type type)
             : mTaskType{type},
@@ -106,7 +106,7 @@ private:
     }
 
     void onMessageReceived (const Message &type, InputDataType &vector,
-                            Net::NetworkProtocol &protocol) override;
+                            Net::NetworkProtocol &protocol);
     void onRunThreadOKReceived ();
 
     /**

@@ -76,7 +76,7 @@ public:
 
     ProcessPeersServer();
     ~ProcessPeersServer();
-    ALLOW_COPY_AND_MOVE (ProcessPeersServer)
+    ZQ_ALLOW_COPY_AND_MOVE (ProcessPeersServer)
 
     const ConnectionsType &getConnections ()
     {

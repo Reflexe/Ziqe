@@ -1,5 +1,5 @@
 /**
- * @file Udpv6Packet.cpp
+ * @file TcpStream.hpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,13 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Udpv6Packet.hpp"
+#ifndef ZIQE_NET_TCPSTREAM_HPP
+#define ZIQE_NET_TCPSTREAM_HPP
+
 
 namespace Ziqe {
+namespace Net {
 
-Udpv6Packet::Udpv6Packet()
+class TcpStream
 {
+public:
+    TcpStream();
+};
 
-}
-
+} // namespace Net
 } // namespace Ziqe
+
+#endif // ZIQE_NET_TCPSTREAM_HPP

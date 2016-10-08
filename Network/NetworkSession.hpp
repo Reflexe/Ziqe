@@ -17,10 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_NETWORKPROTOCOL_H
-#define ZIQE_NETWORKPROTOCOL_H
+#ifndef ZIQE_NETWORKSESSION_H
+#define ZIQE_NETWORKSESSION_H
 
 #include "Base/Memory.hpp"
+#include "Base/Socket.hpp"
 #include "Base/IOStreamInterface.hpp"
 
 #include "NetworkPacket.hpp"
@@ -28,12 +29,16 @@
 namespace Ziqe {
 namespace Net {
 
-class NetworkProtocol
+struct Ziqe {
+
+};
+
+class NetworkSession
 {
 public:
     enum class InternetProtocol : ZqSocketFamily {
-        IPv4 = ZQ_SOCKET_INET,
-        IPv6 = ZQ_SOCKET_INET6
+        IPv4 = ZQ_AF_INET,
+        IPv6 = ZQ_AF_INET6
     };
 
     enum class TransportProtocol : ZqSocketType {
@@ -41,29 +46,18 @@ public:
         UDP = ZQ_SOCKET_TYPE_DGRAM
     };
 
-    static const SizeType sReceiveBufferSize = 1;
-
-    NetworkProtocol(InternetProtocol internetProtocol,
-                    TransportProtocol transportProtocol);
-    NetworkProtocol(NetworkPacket::PacketInfo &packetInfo);
-    ~NetworkProtocol();
-
-    struct Callback {
-        Callback() = default;
-        virtual ~Callback () = 0;
-        ALLOW_COPY_AND_MOVE (Callback)
-
-        // MAYBE: remove these virtual function, there is no real need for them, they can be a regular
-        //        functions if callbackReceiveData and callbackReceivePacket would get a template T param.
-        virtual void onPacketReceived (NetworkProtocol &protocol, Base::UniquePointer<NetworkPacket> &&packet) = 0;
-    };
+    NetworkSession(InternetProtocol internetProtocol,
+                   TransportProtocol transportProtocol);
+    NetworkSession(NetworkPacket::PacketInfo &packetInfo);
+    ~NetworkSession();
 
     Base::UniquePointer<NetworkPacket> receivePacket ();
 
     void sendPacket (NetworkPacket &&networkPacket);
 
-    static Base::UniquePointer<NetworkProtocol> CreateFromPacket (const NetworkPacket &packet);
+    static Base::UniquePointer<NetworkSession> CreateFromPacket (const NetworkPacket &packet);
 
+    template<class Callback>
     void callbackReceivePacket (Callback &callback)
     {
         callback.onPacketReceived (*this, receivePacket ());
@@ -76,4 +70,4 @@ private:
 } // namespace Net
 } // namespace Ziqe
 
-#endif // ZIQE_NETWORKPROTOCOL_H
+#endif // ZIQE_NETWORKSESSION_H

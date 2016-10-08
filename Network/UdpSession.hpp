@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Packet.hpp
+ * @file UdpStream.hpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,18 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_UDPV4PACKET_H
-#define ZIQE_UDPV4PACKET_H
+#ifndef ZIQE_NET_UDPSESSION_HPP
+#define ZIQE_NET_UDPSESSION_HPP
 
+#include "Types.hpp"
+#include "Network/NetworkSession.hpp"
 
 namespace Ziqe {
+namespace Net {
 
-class Udpv4Packet
+class UdpSession final : implements public NetworkSession
 {
 public:
-    Udpv4Packet();
+    // UDP's ports are 16 bits.
+    typedef uint16_t Port;
+
+    UdpSession();
+
+    UdpSession ListenToPort (Port port);
+    UdpSession connect(const Address &address, Port port);
+
+private:
+    
 };
 
+} // namespace Net
 } // namespace Ziqe
 
-#endif // ZIQE_UDPV4PACKET_H
+#endif // ZIQE_NET_UDPSESSION_HPP

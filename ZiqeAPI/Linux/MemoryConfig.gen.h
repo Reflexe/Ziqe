@@ -7,6 +7,7 @@
 typedef uint64_t _ZqLinuxPTE;
 
 typedef void*          ZqKernelAddress;
+typedef const void *   ZqConstKernelAddress;
 typedef ZqRegisterType ZqMapableAddress;
 typedef ZqRegisterType ZqUserAddress;
 typedef ZqRegisterType ZqVirtualAddress;

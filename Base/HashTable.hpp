@@ -201,12 +201,12 @@ public:
         mTable.resize (tableSize);
     }
 
-    ALLOW_MOVE (_HashTableBase)
+    ZQ_ALLOW_MOVE (_HashTableBase)
     // FIXME: Copy shouldn't work because that the Iterators in the vector
     // would still be owned by the first owner.
 
-    DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, begin, (), { return mKeysList.begin (); })
-    DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, end, (), { return mKeysList.end (); })
+    ZQ_DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, begin, (), { return mKeysList.begin (); })
+    ZQ_DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, end, (), { return mKeysList.end (); })
 
      /**
       * @brief find  Find an iterator for @param key.

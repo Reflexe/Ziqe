@@ -1,1 +1,1 @@
-zq_add_library(Network NetworkProtocol NetworkPacket Udpv4Packet Udpv6Packet Udpv4Protocol Udpv6Protocol)
+zq_add_library(Network Types NetworkSession NetworkPacket UdpSession TcpSession)

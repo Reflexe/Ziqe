@@ -1,5 +1,5 @@
 /**
- * @file Udpv6Packet.hpp
+ * @file Types.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,18 +17,4 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_UDPV6PACKET_H
-#define ZIQE_UDPV6PACKET_H
-
-
-namespace Ziqe {
-
-class Udpv6Packet
-{
-public:
-    Udpv6Packet();
-};
-
-} // namespace Ziqe
-
-#endif // ZIQE_UDPV6PACKET_H
+#include "Types.hpp"

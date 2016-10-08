@@ -105,7 +105,7 @@ public:
         return *this;
     }
 
-    DEFINE_CONST_AND_NON_CONST (RawArray<const T>, RawArray<T>, toRawArray, (), { return {data (), size ()}; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (RawArray<const T>, RawArray<T>, toRawArray, (), { return {data (), size ()}; })
 
     template<class InputIterator>
     void assign(const InputIterator &begin, const InputIterator &end)
@@ -145,6 +145,12 @@ public:
         // Construct the new objects (If there are).
         if (newSize > oldSize)
             mConstrutor.constructN (mPointer+oldSize, newSize-oldSize, std::forward<Args>(args)...);
+    }
+
+    void shrinkWithoutFree(SizeType howMuch) {
+        DEBUG_CHECK (mSize >= howMuch);
+
+        mSize -= howMuch;
     }
 
     template<class ...Args>
@@ -276,7 +282,7 @@ private:
             return;
 
         mConstrutor.destruct (pointer, size);
-        mAllocator.deallocate (pointer, size);
+        mAllocator.deallocate (pointer);
     }
 
     PointerType mPointer = nullptr;

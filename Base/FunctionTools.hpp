@@ -26,7 +26,7 @@
 namespace Ziqe {
 namespace Base {
 
-template<TemplateVariable (sFunc), class CallbackT, class... Args>
+template<ZQ_TemplateVariable (sFunc), class CallbackT, class... Args>
 void runAndCallback(const CallbackT &callback, Args&&... args)
 {
     callback(sFunc(std::forward<Args>(args)...));
@@ -40,7 +40,7 @@ struct runAndCallParam {
     ParameterType functionParameter;
 };
 
-template<TemplateVariable (sFunc), class ParameterType>
+template<ZQ_TemplateVariable (sFunc), class ParameterType>
 void runAndCallbackSingleParameter(ParameterType *parameter)
 {
     parameter->callback(sFunc(&parameter->functionParameter));

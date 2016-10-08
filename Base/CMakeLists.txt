@@ -3,6 +3,6 @@ zq_add_library(Base LocalProcess LocalThread SystemCalls ProcessManager
                Types LinkedList InputStreamInterface
                OutputStreamInterface Mutex FunctionTools
                FieldReader FieldWriter IOStreamInterface RWLock RedBlackTree
-               SpinLock RangesMap ExtendedVector Logger)
+               SpinLock RangesMap ExtendedVector Logger Socket)
 
 add_subdirectory (Tests)

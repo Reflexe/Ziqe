@@ -35,7 +35,7 @@ public:
 
     LocalProcess(ProcessID processID);
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (LocalProcess, mProcessID)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (LocalProcess, mProcessID)
 
     ZqProcessID getProcessID() const;
 

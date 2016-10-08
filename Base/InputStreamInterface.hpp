@@ -38,7 +38,7 @@ public:
 
         Callback() = default;
         virtual ~Callback () = 0;
-        ALLOW_COPY_AND_MOVE (Callback)
+        ZQ_ALLOW_COPY_AND_MOVE (Callback)
 
         virtual void onDataReceived (const InputDataType &data) = 0;
     };
@@ -47,7 +47,7 @@ protected:
     InputStreamInterface();
     virtual ~InputStreamInterface() = 0;
 
-    ALLOW_COPY_AND_MOVE (InputStreamInterface)
+    ZQ_ALLOW_COPY_AND_MOVE (InputStreamInterface)
 };
 
 } // namespace Base

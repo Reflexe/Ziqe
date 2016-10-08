@@ -42,7 +42,7 @@ public:
         ZqRWLockDeinit (&mLock);
     }
 
-    DISALLOW_COPY (RWLock)
+    ZQ_DISALLOW_COPY (RWLock)
 
     RWLock (RWLock &&other)
         : mLock{other.mLock}
@@ -73,7 +73,7 @@ public:
                 ZqRWLockUnlockRead (&mLockedLock->mLock);
         }
 
-        DISALLOW_COPY (ScopedReadLock)
+        ZQ_DISALLOW_COPY (ScopedReadLock)
 
         ScopedReadLock &operator =(ScopedReadLock &&) = delete;
 
@@ -101,7 +101,7 @@ public:
                 ZqRWLockUnlockWrite (&mLockedLock->mLock);
         }
 
-        DISALLOW_COPY (ScopedWriteLock)
+        ZQ_DISALLOW_COPY (ScopedWriteLock)
 
         ScopedWriteLock &operator =(ScopedWriteLock &&) = delete;
 
@@ -131,8 +131,8 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (RWLocked)
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (RWLocked, mValue)
+    ZQ_ALLOW_COPY_AND_MOVE (RWLocked)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (RWLocked, mValue)
 
     const Pair<const T&, RWLock::ScopedReadLock> getRead () {
         return Pair<const T&, RWLock::ScopedReadLock>{mValue,

@@ -47,7 +47,7 @@ struct Allocator {
         return static_cast<T*>(::operator new(n));
     }
 
-    void deallocate(T *p, SizeType)
+    void deallocate(T *p)
     {
         ::operator delete(p);
     }
@@ -149,7 +149,7 @@ public:
         reset (pointer);
     }
 
-    DISALLOW_COPY (UniquePointerBase)
+    ZQ_DISALLOW_COPY (UniquePointerBase)
 
     template<class Tp>
     void reset (Tp *pointer = nullptr) {
@@ -211,7 +211,7 @@ public:
         return *(this);
     }
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UniquePointerBase, mPointer)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (UniquePointerBase, mPointer)
 
 protected:
     T *mPointer = nullptr;
@@ -254,7 +254,7 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (UniquePointer)
+    ZQ_ALLOW_COPY_AND_MOVE (UniquePointer)
 
     T &operator [](SizeType index)
     {
@@ -424,7 +424,7 @@ public:
         return mPointer;
     }
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (SharedPointerBase, mPointer)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (SharedPointerBase, mPointer)
 
     CountType getReferenceCount () const{
         if (mPointer == nullptr)
@@ -545,7 +545,7 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (SharedPointer)
+    ZQ_ALLOW_COPY_AND_MOVE (SharedPointer)
 
     T &operator [](SizeType index)
     {
@@ -577,7 +577,7 @@ public:
         return mPointer;
     }
 
-    ALLOW_COPY_AND_MOVE (RawPointerBase)
+    ZQ_ALLOW_COPY_AND_MOVE (RawPointerBase)
 
     void reset (T *pointer = nullptr)
     {
@@ -629,7 +629,7 @@ public:
         return *(this);
     }
 
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (RawPointerBase, mPointer)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (RawPointerBase, mPointer)
 
 protected:
     T *mPointer = nullptr;
@@ -671,7 +671,7 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (RawPointer)
+    ZQ_ALLOW_COPY_AND_MOVE (RawPointer)
 
     T &operator [](SizeType index)
     {
@@ -696,7 +696,7 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (RawArray)
+    ZQ_ALLOW_COPY_AND_MOVE (RawArray)
 
     bool operator ==(const RawArray &other)
     {
@@ -721,9 +721,9 @@ public:
     typedef T* Iterator;
     typedef const T* ConstIterator;
 
-    DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, begin, (), { return this->get (); })
+    ZQ_DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, begin, (), { return this->get (); })
 
-    DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, end, (), { return this->get () + mSize; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, end, (), { return this->get () + mSize; })
 
     ConstIterator cbegin () const
     {

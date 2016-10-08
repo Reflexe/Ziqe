@@ -98,7 +98,7 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (FieldReader)
+    ZQ_ALLOW_COPY_AND_MOVE (FieldReader)
 
     template <typename T, SizeType sByteLength=sizeof (T)>
     T readT() {

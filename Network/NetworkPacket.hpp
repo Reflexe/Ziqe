@@ -46,11 +46,11 @@ public:
         PacketInfo(ZqSocketAddress sockaddr);
 
         enum class Type : ZqSocketFamily {
-            IPv4 = ZQ_SOCKET_INET,
-            IPv6 = ZQ_SOCKET_INET6,
+            IPv4 = ZQ_AF_INET,
+            IPv6 = ZQ_AF_INET6,
         };
 
-        ALLOW_COPY_AND_MOVE (PacketInfo)
+        ZQ_ALLOW_COPY_AND_MOVE (PacketInfo)
         friend struct Base::Hash<Net::NetworkPacket::PacketInfo>;
 
         bool operator != (const PacketInfo &info);
@@ -71,7 +71,7 @@ public:
         return mData;
     }
 
-    DEFINE_CONST_AND_NON_CONST (const PacketInfo&, PacketInfo&, getInfo, (), { return mPacketInfo; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (const PacketInfo&, PacketInfo&, getInfo, (), { return mPacketInfo; })
 
 private:
     DataType mData;

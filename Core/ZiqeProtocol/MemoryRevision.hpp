@@ -35,7 +35,7 @@ public:
     typedef uint64_t ID;
 
     MemoryRevision();
-    ALLOW_COPY_AND_MOVE (MemoryRevision)
+    ZQ_ALLOW_COPY_AND_MOVE (MemoryRevision)
     // TODO: memory map
 #if 0
     /**

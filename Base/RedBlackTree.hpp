@@ -31,13 +31,13 @@ template<class KeyType, class T>
 struct BinaryTreeNode {
     typedef BinaryTreeNode Node;
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRight, (), { return mRight; })
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeft, (), { return mLeft; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRight, (), { return mRight; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeft, (), { return mLeft; })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightOrLeft, (), { return (mRight == nullptr) ? mLeft : mRight; })
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftOrRight, (), { return (mLeft == nullptr) ? mRight : mLeft; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightOrLeft, (), { return (mRight == nullptr) ? mLeft : mRight; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftOrRight, (), { return (mLeft == nullptr) ? mRight : mLeft; })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getUncle, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getUncle, (),
     {
         if (! hasParent ())
             return nullptr;
@@ -45,7 +45,7 @@ struct BinaryTreeNode {
         return _getUncle ();
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getBrother, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getBrother, (),
     {
         if (! hasParent ())
             return nullptr;
@@ -53,7 +53,7 @@ struct BinaryTreeNode {
         return _getBrother ();
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightBrother, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightBrother, (),
     {
         if (! hasParent ())
             return nullptr;
@@ -61,7 +61,7 @@ struct BinaryTreeNode {
         return _getRightBrother ();
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftBrother, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftBrother, (),
     {
         if (! hasParent ())
             return nullptr;
@@ -69,7 +69,7 @@ struct BinaryTreeNode {
         return _getLeftBrother ();
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getGrandparent, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getGrandparent, (),
     {
         if (! hasParent ())
             return nullptr;
@@ -77,7 +77,7 @@ struct BinaryTreeNode {
         return mParent->mParent;
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getParent, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getParent, (),
     {
         return mParent;
     })
@@ -114,12 +114,12 @@ struct BinaryTreeNode {
 
     // Other version for some functions that doesn't do
     // the "parent check".
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getUncle, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getUncle, (),
     {
         return mParent->getBrother ();
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getBrother, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getBrother, (),
     {
         if (mParent->mLeft == this)
             return mParent->mRight;
@@ -127,12 +127,12 @@ struct BinaryTreeNode {
             return mParent->mLeft;
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getRightBrother, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getRightBrother, (),
     {
         return  mParent->mRight;
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getLeftBrother, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getLeftBrother, (),
     {
         return  mParent->mRight;
     })
@@ -147,12 +147,12 @@ struct BinaryTreeNode {
         return (mParent->mRight == this);
     }
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getGrandparent, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getGrandparent, (),
     {
         return  mParent->mParent;
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftestNode, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftestNode, (),
     {
         // Node*
         auto node = mLeft;
@@ -167,7 +167,7 @@ struct BinaryTreeNode {
         return node;
     })
 
-    DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightestNode, (),
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightestNode, (),
     {
         // Node*
         auto node = mRight;
@@ -216,7 +216,7 @@ public:
         {
         }
 
-        ALLOW_COPY_AND_MOVE (_IteratorBase)
+        ZQ_ALLOW_COPY_AND_MOVE (_IteratorBase)
 
         // from left to right.
         void next () {
@@ -277,7 +277,7 @@ public:
             return *this;
         }
 
-        DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (_IteratorBase, mCurrentNode)
+        ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (_IteratorBase, mCurrentNode)
 
     protected:
         IteratorNodeType *mCurrentNode;
@@ -534,7 +534,7 @@ public:
     using ConstIterator=typename BinaryTreeType::Iterator;
 
     explicit RedBlackTree() = default;
-    ALLOW_COPY_AND_MOVE (RedBlackTree)
+    ZQ_ALLOW_COPY_AND_MOVE (RedBlackTree)
 
     using BinaryTreeType::begin;
     using BinaryTreeType::cbegin;

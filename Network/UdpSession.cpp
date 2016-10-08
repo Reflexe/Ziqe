@@ -1,5 +1,5 @@
 /**
- * @file Udpv4Protocol.hpp
+ * @file UdpStream.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,23 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_UDPV4PROTOCOL_H
-#define ZIQE_UDPV4PROTOCOL_H
-
-#include "NetworkProtocol.hpp"
+#include "UdpStream.hpp"
 
 namespace Ziqe {
 namespace Net {
 
-// TODO: implement network protocols with ZqAPI's socket interface.
-class Udpv4Protocol : public NetworkProtocol
+UdpStream::UdpStream()
 {
-public:
-    Udpv4Protocol();
 
-};
+}
 
 } // namespace Net
 } // namespace Ziqe
-
-#endif // ZIQE_UDPV4PROTOCOL_H

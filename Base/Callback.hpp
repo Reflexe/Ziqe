@@ -58,8 +58,8 @@ private:
         {
         }
 
-        ALLOW_MOVE (RegularFunctionObjectManager)
-        DISALLOW_COPY (RegularFunctionObjectManager)
+        ZQ_ALLOW_MOVE (RegularFunctionObjectManager)
+        ZQ_DISALLOW_COPY (RegularFunctionObjectManager)
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
@@ -77,8 +77,8 @@ private:
         {
         }
 
-        ALLOW_MOVE (RegularObjectManager)
-        DISALLOW_COPY (RegularObjectManager)
+        ZQ_ALLOW_MOVE (RegularObjectManager)
+        ZQ_DISALLOW_COPY (RegularObjectManager)
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
@@ -105,8 +105,8 @@ private:
         {
         }
 
-        ALLOW_MOVE (UniqueObjectManager)
-        DISALLOW_COPY (UniqueObjectManager)
+        ZQ_ALLOW_MOVE (UniqueObjectManager)
+        ZQ_DISALLOW_COPY (UniqueObjectManager)
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
@@ -133,8 +133,8 @@ private:
         {
         }
 
-        ALLOW_MOVE (SharedObjectManager)
-        DISALLOW_COPY (SharedObjectManager)
+        ZQ_ALLOW_MOVE (SharedObjectManager)
+        ZQ_DISALLOW_COPY (SharedObjectManager)
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
@@ -156,8 +156,8 @@ private:
     UniquePointer<ObjectManagerInterface> mObjectManager;
 public:
 
-    ALLOW_MOVE (Callback)
-    DISALLOW_COPY (Callback)
+    ZQ_ALLOW_MOVE (Callback)
+    ZQ_DISALLOW_COPY (Callback)
 
     /// @brief Default constructor.
     Callback() = default;

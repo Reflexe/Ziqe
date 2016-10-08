@@ -41,7 +41,7 @@ public:
         ZqSpinLockDeinit (&mLock);
     }
 
-    DISALLOW_COPY (SpinLock)
+    ZQ_DISALLOW_COPY (SpinLock)
 
     SpinLock (SpinLock &&other)
         : mLock{other.mLock}
@@ -73,7 +73,7 @@ public:
                 ZqSpinLockUnlock (&mLockedLock->mLock);
         }
 
-        DISALLOW_COPY (ScopedLock)
+        ZQ_DISALLOW_COPY (ScopedLock)
 
         ScopedLock &operator =(ScopedLock &&) = delete;
 
@@ -104,8 +104,8 @@ public:
     {
     }
 
-    ALLOW_COPY_AND_MOVE (SpinLocked)
-    DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (SpinLocked, mValue)
+    ZQ_ALLOW_COPY_AND_MOVE (SpinLocked)
+    ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (SpinLocked, mValue)
 
     const Pair<T&, SpinLock::ScopedLock> get () {
         return Pair<T&, SpinLock::ScopedLock>{mValue,
