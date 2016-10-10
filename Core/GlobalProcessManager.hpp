@@ -26,8 +26,6 @@
 #include "Core/GlobalThreadManager.hpp"
 #include "Core/GlobalProcess.hpp"
 
-#include "Network/NetworkProtocol.hpp"
-
 namespace Ziqe {
 
 class GlobalProcessManager

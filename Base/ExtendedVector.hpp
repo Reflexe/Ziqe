@@ -48,8 +48,8 @@ public:
     }
 
     explicit ExtendedVector(VectorReferenceType &&vector,
-                            const SizeType        indexBegin,
-                            const SizeType        indexEnd=kNoIndex)
+                            const DifferenceType        indexBegin,
+                            const DifferenceType        indexEnd=kNoIndex)
         : mVector{std::move (vector)},
           mIndexBegin{indexBegin},
           mIndexEnd{(indexEnd == kNoIndex) ? getVector().size() : indexEnd}
@@ -97,7 +97,7 @@ public:
 
     void increaseBegin (SizeType howMuch = 1) {
         DEBUG_CHECK_ADD_OVERFLOW (howMuch, mIndexBegin);
-        DEBUG_CHECK (size() + howMuch <= getVector().size ());
+        DEBUG_CHECK (mIndexBegin + howMuch <= mIndexEnd);
 
         mIndexBegin += howMuch;
     }
@@ -148,8 +148,8 @@ public:
 private:
     VectorReferenceType mVector;
 
-    SizeType mIndexBegin;
-    SizeType mIndexEnd;
+    DifferenceType mIndexBegin;
+    DifferenceType mIndexEnd;
 };
 
 template<class T>

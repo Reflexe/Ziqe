@@ -1,1 +1,1 @@
-zq_add_library(Network Types NetworkSession NetworkPacket UdpSession TcpSession)
+zq_add_library(Network TcpStream Stream UdpStream)

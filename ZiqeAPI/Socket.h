@@ -26,6 +26,8 @@
 
 #include "SocketConfig.h.generated"
 
+#define ZQ_NO_BACKLOG (0)
+
 typedef struct {
     ZqSizeType socklen;
     union {
@@ -37,7 +39,7 @@ typedef struct {
 ZQ_BEGIN_C_DECL
 
 /**
- * @brief ZqSocketOpen  Create a new socket.
+ * @brief Create a new socket.
  * @param family
  * @param type
  * @param protocol
@@ -53,7 +55,7 @@ ZqSocket ZqSocketOpen (ZqSocketFamily family,
 void ZqSocketClose (ZqSocket socket);
 
 /**
- * @brief ZqSocketBindListen  Bind a server socket.
+ * @brief Bind a server socket.
  * @param socket
  * @param sockaddr
  * @param backlog
@@ -62,21 +64,23 @@ void ZqSocketClose (ZqSocket socket);
  * On supported streams, this function will try to create
  * a server that can accept connections.
  */
-ZqBool ZqSocketBindListen (ZqSocket socket,
-                           ZqSocketAddress sockaddr,
+ZqBool ZqSocketListen (ZqSocket socket,
                            ZqSizeType backlog);
 
 /**
- * @brief ZqSocketBindConnect  Bind a client / connectionless socket.
+ * @brief Bind a client / connectionless socket.
  * @param socket
  * @param sockaddr
  * @return
  */
-ZqBool ZqSocketBindConnect (ZqSocket zqsocket,
-                            ZqSocketAddress sockaddr);
+ZqBool ZqSocketConnect (ZqSocket zqsocket,
+                            const ZqSocketAddress *sockaddr);
+
+ZqBool ZqSocketBind(ZqSocket zqsocket,
+                    const ZqSocketAddress *sockaddr);
 
 /**
- * @brief ZqSocketReceive  Receive data from a socket.
+ * @brief Receive data from a socket.
  * @param socket
  * @param buffer
  * @param bufferSize
@@ -88,7 +92,7 @@ ZqBool ZqSocketReceive(ZqSocket zqsocket,
                        ZqSizeType *bytesReceived);
 
 /**
- * @brief ZqSocketSend  Send data to a socket.
+ * @brief Send data to a socket.
  * @param socket
  * @param buffer
  * @param bufferSize
@@ -101,7 +105,7 @@ ZqBool ZqSocketSend(ZqSocket zqsocket,
 
 
 /**
- * @brief ZqSocketReceiveFrom  Receive data from a socket.
+ * @brief Receive data from a socket.
  * @param socket
  * @param buffer
  * @param bufferSize
@@ -114,7 +118,7 @@ ZqBool ZqSocketReceiveFrom(ZqSocket zqsocket,
                            ZqSizeType *bytesReceived);
 
 /**
- * @brief ZqSocketSendTo  Send data to a socket.
+ * @brief Send data to a socket.
  * @param socket
  * @param buffer
  * @param bufferSize

@@ -1,5 +1,5 @@
 /**
- * @file Types.hpp
+ * @file Stream.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,17 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_NET_TYPES_HPP
-#define ZIQE_NET_TYPES_HPP
-
-#include "ZiqeAPI/Socket.h"
+#include "Stream.hpp"
 
 namespace Ziqe {
 namespace Net {
 
-typedef ZqIpv6Address Address;
+Stream::Stream()
+{
+
+}
 
 } // namespace Net
 } // namespace Ziqe
-
-#endif // ZIQE_TYPES_HPP

@@ -23,7 +23,7 @@
 #include "Base/Memory.hpp"
 #include "Base/LocalThread.hpp"
 
-#include "Network/NetworkProtocol.hpp"
+#include "Core/ZiqeProtocol/MessageStream.hpp"
 
 #include "Core/ZiqeProtocol/ProcessPeersServer.hpp"
 #include "Core/ZiqeProtocol/MemoryRevision.hpp"
@@ -32,10 +32,10 @@ namespace Ziqe {
 
 // Local Allocations: Allowed, but the page should be registred by the
 // ProcessOwner first. The method: GetAndAllocateNewPage.
-class ThreadOwnerClient : private Base::InputStreamInterface::Callback
+class ThreadOwnerClient final : implements private MessageStream::Callback
 {
 public:
-    ThreadOwnerClient(Base::UniquePointer<Net::NetworkProtocol> &&ioStream);
+    ThreadOwnerClient(Base::UniquePointer<MessageStream> &&stream);
 
     ZqRegisterType doSystemCall(ZqSystemCallIDType id,
                                 const Base::RawArray<ZqRegisterType> parameters,
@@ -43,9 +43,11 @@ public:
 
     ZqUserAddress getAndReserveMemory (SizeType bytesCount);
 
-    void onDataReceived (const InputDataType &data) override;
-
 private:
+    void onMessageReceived (const Message &type,
+                            MessageFieldReader &fieldReader,
+                            const Net::Stream &stream) override;
+
     struct Task {
         enum class Type {
             None,
@@ -80,18 +82,16 @@ private:
     };
 
     // Receivers
-
-
-    void sendThreadOwnerMessage (const Base::Vector<uint8_t> &vector)
-    { // TODO
-        mNetworkProtocol->sendData (Base::copy (vector));
+    void sendThreadOwnerMessage (const MessageStream::OutputDataType &vector)
+    {
+        mThreadOwnerStream->sendMessage (vector);
     }
 
     void waitUntilTaskComplete (const Task &task) {
         mCurrentTaskType = task.mTaskType;
 
         do {
-            mNetworkProtocol->callbackReceiveData (*this);
+            mThreadOwnerStream->receiveMessage (*this);
         } while (task.isComplete == false);
     }
 
@@ -101,7 +101,7 @@ private:
     DoSystemCallTask mSystemCallTask;
     GetAndReserveMemoryTask mGetAndReserveMemoryTask;
 
-    Base::UniquePointer<Net::NetworkProtocol> mNetworkProtocol;
+    Base::UniquePointer<MessageStream> mThreadOwnerStream;
 };
 
 } // namespace Ziqe

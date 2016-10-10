@@ -1,5 +1,5 @@
 /**
- * @file MessagesStream.cpp
+ * @file UdpStream.cpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,13 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "MessagesStream.h"
+#include "UdpStream.hpp"
 
 namespace Ziqe {
+namespace Net {
 
-MessagesStream::MessagesStream()
+UdpStream::UdpStream(const UdpStream::Address &address, ZqPort port)
+    : mSocket{Base::Socket::SocketAddress::CreateIn6 (address, port), ZQ_SOCKET_TYPE_DGRAM}
 {
-
 }
 
+} // namespace Net
 } // namespace Ziqe

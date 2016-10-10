@@ -21,21 +21,20 @@
 #define ZIQE_THREADOWNERSERVER_H
 
 #include "Base/Types.hpp"
-#include "ZiqeAPI/Types.hpp"
+#include "ZiqeAPI/Types.h"
 
 #include "MemoryRevision.hpp"
 
-#include "Network/NetworkProtocol.hpp"
+#include "Network/Stream.hpp"
 
 namespace Ziqe {
 
-class ThreadOwnerServer final : public Net::NetworkProtocol::Callback
+class ThreadOwnerServer final : implements public Net::Stream::Callback
 {
 public:
     ThreadOwnerServer();
 
 private:
-
 
     void onDoSystemCall (const ZqSystemCallIDType systemCallID,
                          Base::RawPointer<const ZqRegisterType> parameters,

@@ -36,7 +36,7 @@ public:
     struct SocketAddress {
         SocketAddress() = default;
 
-        static SocketAddress CreateIn6(Zq_in6_addr address, uint16_t port) {
+        static SocketAddress CreateIn6(Zq_in6_addr address, ZqPort port) {
             SocketAddress socketAddress;
 
             socketAddress.mSocketAddress.in6.sin6_family   = ZQ_AF_INET6;
@@ -49,7 +49,7 @@ public:
             return socketAddress;
         }
 
-        static SocketAddress CreateIn4(Zq_in_addr address, uint16_t port) {
+        static SocketAddress CreateIn4(Zq_in_addr address, ZqPort port) {
             SocketAddress socketAddress;
 
             socketAddress.mSocketAddress.in.sin_family = ZQ_AF_INET;
@@ -72,7 +72,11 @@ public:
     };
 
     Socket(ZqSocketFamily family, ZqSocketType type, ZqSocketProtocol protocol);
-    Socket(const SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol);
+    Socket(const SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol=0);
+
+    static Socket Connect(const SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol=0);
+    static Socket Listen(const SocketAddress &address, ZqSocketType type, ZqSizeType backlog=ZQ_NO_BACKLOG, ZqSocketProtocol protocol=0);
+    static Socket Bind(const SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol=0);
 
     ZQ_DISALLOW_COPY(Socket)
     Socket(Socket &&socket)
@@ -92,15 +96,17 @@ public:
 
     void close();
 
-    void send(const RawArray<const uint8_t> &array);
+    void send(const RawArray<const uint8_t> &array) const;
 
-    Vector<uint8_t> receive();
+    Vector<uint8_t> receive() const;
 
-    void sendToAddress(const SocketAddress &socketAddress, const RawArray<uint8_t> &array);
+    void sendToAddress(const SocketAddress &socketAddress, const RawArray<uint8_t> &array) const;
 
-    Pair<Vector<uint8_t>, SocketAddress> receiveWithAddress();
+    Pair<Vector<uint8_t>, SocketAddress> receiveWithAddress() const;
 
 private:
+    void bind(const SocketAddress &socketAddress);
+
     ZqSocket mSocket;
 
 };

@@ -29,8 +29,8 @@ namespace Ziqe {
 namespace Base {
 
 /**
- * @brief Vector A very simple vector implementation, with no insert,push_back,pop_back,erase and more.
- *               Basicly, it's a normal dynamic array: what std::vector should really be.
+ * @brief A very simple vector implementation, with no insert,push_back,pop_back,erase and more.
+ *        Basicly, it's a normal dynamic array: what std::vector should really be.
  */
 template<class T, class Allocator=Allocator<T>, class Constructor=Constructor<T>>
 class Vector

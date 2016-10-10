@@ -50,17 +50,11 @@ void ZqSocketClose(ZqSocket zqsocket) {
     sock_release(sock);
 }
 
-ZqBool ZqSocketBindListen(ZqSocket zqsocket,
-                          ZqSocketAddress sockaddr,
-                          ZqSizeType backlog)
+ZqBool ZqSocketListen(ZqSocket zqsocket,
+                      ZqSizeType backlog)
 {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
-
-    retval = sock->ops->bind(sock, (struct sockaddr *) &sockaddr.storage,
-                             sockaddr.socklen);
-    if (retval)
-        return ZQ_FALSE;
 
     retval = sock->ops->listen (sock, backlog);
     if (retval)
@@ -69,12 +63,25 @@ ZqBool ZqSocketBindListen(ZqSocket zqsocket,
     return ZQ_TRUE;
 }
 
-ZqBool ZqSocketBindConnect(ZqSocket zqsocket, ZqSocketAddress sockaddr) {
+ZqBool ZqSocketBind(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
 
-    retval = sock->ops->connect(sock, (struct sockaddr *) &sockaddr.storage,
-                                sockaddr.socklen, 0);
+    retval = sock->ops->bind(sock, (struct sockaddr *) sockaddr->in,
+                             sockaddr->socklen);
+    if (retval)
+        return ZQ_FALSE;
+
+    return ZQ_TRUE;
+}
+
+
+ZqBool ZqSocketConnect(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
+    struct socket *sock = zqsocket_to_socket (zqsocket);
+    int retval;
+
+    retval = sock->ops->connect(sock, (struct sockaddr *) &sockaddr->in,
+                                sockaddr->socklen, 0);
 
     if (retval)
         return ZQ_FALSE;

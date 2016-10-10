@@ -23,8 +23,8 @@
 
 namespace Ziqe {
 
-ThreadOwnerClient::ThreadOwnerClient(Base::UniquePointer<Net::NetworkProtocol> &&ioStream)
-    : mNetworkProtocol{std::move (ioStream)}
+ThreadOwnerClient::ThreadOwnerClient(Base::UniquePointer<MessageStream> &&stream)
+    : mThreadOwnerStream{std::move (stream)}
 {
 
 }
@@ -37,7 +37,6 @@ ZqRegisterType ThreadOwnerClient::doSystemCall(ZqSystemCallIDType id,
                                                                  parameters,
                                                                  revision));
     waitUntilTaskComplete (mSystemCallTask);
-    // apply mSystemCallTask.newRevision
 
     return mSystemCallTask.result;
 }
@@ -50,8 +49,16 @@ ZqUserAddress ThreadOwnerClient::getAndReserveMemory(SizeType bytesCount) {
     return mGetAndReserveMemoryTask.address;
 }
 
-void ThreadOwnerClient::onDataReceived(const InputDataType &data) {
-
+void ThreadOwnerClient::onMessageReceived(const Message &type,
+                                          MessageStream::MessageFieldReader &fieldReader,
+                                          const Net::Stream &stream)
+{
+    if (mCurrentTaskType == Task::Type::DoSystemCall) {
+        // TODO: memory revision
+    } else if (mCurrentTaskType == Task::Type::GetAndReserveMemory) {
+    } else {
+        return;
+    }
 }
 
 } // namespace Ziqe

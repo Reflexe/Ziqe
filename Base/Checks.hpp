@@ -36,7 +36,7 @@ namespace Base {
 template<class X, class Y>
 bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
 {
-     return ((std::numeric_limits<decltype (x + y)>::max() - x) < y);
+     return ((std::numeric_limits<decltype (x + y)>::max() - x) > y);
 }
 
 #define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))

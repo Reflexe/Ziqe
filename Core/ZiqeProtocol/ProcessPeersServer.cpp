@@ -34,55 +34,77 @@ ProcessPeersServer::~ProcessPeersServer()
     sendGoodbye ();
 }
 
-void ProcessPeersServer::onStopThreadReceived(GlobalThreadID threadID) {
+void ProcessPeersServer::onMessageReceived(const Message &type,
+                                           MessageStream::Callback::MessageFieldReader &fieldReader,
+                                           const Net::Stream &stream)
+{
+    switch (type.getType ()) {
+    case Message::Type::StopThread:
+        break;
+    case Message::Type::ContinueThread:
+        break;
+    case Message::Type::KillThread:
+        break;
+    case Message::Type::ProcessPeerRunThread:
+        break;
+    case Message::Type::ProcessPeerHello:
+        break;
+    case Message::Type::ProcessPeerGoodbye:
+        break;
+    default:
+        return;
+    }
+}
+
+void ProcessPeersServer::onStopThreadReceived(MessageStream &stream, GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
         DEBUG_CHECK_REPORT (thread);
-        replyToLastPacket (MessagesGenerator::makeStopThreadOK ());
+        stream.sendMessage (MessagesGenerator::makeStopThreadOK ());
     }
 
     thread->stop ();
-    replyToLastPacket (MessagesGenerator::makeStopThreadOK ());
+    stream.sendMessage (MessagesGenerator::makeStopThreadOK ());
 }
 
-void ProcessPeersServer::onContinueThread(GlobalThreadID threadID) {
+void ProcessPeersServer::onContinueThread(MessageStream &stream, GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
         DEBUG_CHECK_REPORT (thread);
-        replyToLastPacket (MessagesGenerator::makeContinueThreadOK ());
+        stream.sendMessage (MessagesGenerator::makeContinueThreadOK ());
     }
 
     thread->cont ();
-    replyToLastPacket (MessagesGenerator::makeContinueThreadOK ());
+    stream.sendMessage (MessagesGenerator::makeContinueThreadOK ());
 }
 
-void ProcessPeersServer::onKillThreadReceived(GlobalThreadID threadID) {
+void ProcessPeersServer::onKillThreadReceived(MessageStream &stream, GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
         DEBUG_CHECK_REPORT (thread);
-        replyToLastPacket (MessagesGenerator::makeKillThreadOK ());
+        stream.sendMessage (MessagesGenerator::makeKillThreadOK ());
     }
 
     thread->kill ();
-    replyToLastPacket (MessagesGenerator::makeKillThreadOK ());
+    stream.sendMessage (MessagesGenerator::makeKillThreadOK ());
 }
 
-void ProcessPeersServer::onRunThreadReceived(GlobalThreadID newThreadID,
+void ProcessPeersServer::onRunThreadReceived(MessageStream &stream, GlobalThreadID newThreadID,
                                              MemoryMap &currentMemoryMap,
                                              ThreadState &state)
 {
 
 }
 
-void ProcessPeersServer::onHelloReceived(const Base::RawArray<GlobalThreadID> &newThreads)
+void ProcessPeersServer::onHelloReceived(MessageStream &stream, const Base::RawArray<GlobalThreadID> &newThreads)
 {
-
+    mOtherServers.getWrite ().first->addThreads (newThreads, stream);
 }
 
-void ProcessPeersServer::onGoodbyeReceived(const Base::RawArray<GlobalThreadID> &leavingThreads)
+void ProcessPeersServer::onGoodbyeReceived(MessageStream &stream, const Base::RawArray<GlobalThreadID> &leavingThreads)
 {
     mOtherServers.getWrite ().first->removeThreads (leavingThreads);
 }

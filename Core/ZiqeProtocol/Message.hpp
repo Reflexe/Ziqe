@@ -157,6 +157,8 @@ public:
     bool isGlobalServerMessage() const;
     bool isGlobalClientMessage() const;
 
+    static bool isValidMessageType(Type type);
+
 private:
     MessageType mMessageType;
 };

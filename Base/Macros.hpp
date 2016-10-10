@@ -42,6 +42,9 @@
 
 #define ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(type, name) ZQ_DEFINE_EQUAL_BY_MEMBER(type, name) ZQ_DEFINE_NOT_EQUAL_BY_MEMBER(type, name)
 
+#define ZQ_DEFINE_CONST_AND_NON_CONST(ReturnValueConst, ReturnValueNonConst, name, args, ...) ReturnValueConst name args const __VA_ARGS__ \
+    ReturnValueNonConst name args __VA_ARGS__
+
 namespace Ziqe {
 namespace Base {
 
@@ -204,9 +207,6 @@ struct DerefrenceIsLessThan
         return (*one < *other);
     }
 };
-
-#define ZQ_DEFINE_CONST_AND_NON_CONST(ReturnValueConst, ReturnValueNonConst, name, args, ...) ReturnValueConst name args const __VA_ARGS__ \
-    ReturnValueNonConst name args __VA_ARGS__
 
 }
 }

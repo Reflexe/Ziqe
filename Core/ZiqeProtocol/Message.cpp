@@ -27,4 +27,13 @@ Message::Message(MessageType type)
 
 }
 
+bool Message::isValidMessageType(Message::Type type)
+{
+    switch(type) {
+    // TODO: a stable messages.
+    default:
+        return false;
+    }
+}
+
 } // namespace Ziqe

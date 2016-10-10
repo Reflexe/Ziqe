@@ -20,14 +20,37 @@
 #ifndef ZIQE_NET_TCPSTREAM_HPP
 #define ZIQE_NET_TCPSTREAM_HPP
 
+#include "Network/Stream.hpp"
+
+#include "Base/Socket.hpp"
 
 namespace Ziqe {
 namespace Net {
 
-class TcpStream
+class TcpStream final : implements public Stream
 {
 public:
-    TcpStream();
+    typedef Zq_in6_addr Address;
+    typedef ZqPort Port;
+
+    ZQ_ALLOW_COPY_AND_MOVE (TcpStream)
+
+    static TcpStream Connect(const Address &address, Port port);
+    static TcpStream Listen(Port port, SizeType backlog=0, const Address &address=ZQ_INADDR6_ANY);
+
+    virtual DataType receive() override;
+
+    virtual void send(const DataType &data) override;
+
+private:
+    // connect constructor.
+    TcpStream(Port port, const Address &address);
+
+    // listen constructor.
+    TcpStream(const Address &address, Port port, SizeType backlog);
+
+    Base::Socket mSocket;
+
 };
 
 } // namespace Net

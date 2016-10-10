@@ -27,9 +27,30 @@ Socket::Socket(ZqSocketFamily family, ZqSocketType type, ZqSocketProtocol protoc
     mSocket = ZqSocketOpen (family, type, protocol);
 }
 
-Socket::Socket(const Socket::SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol=0)
-    : Socket{address.getFamily (), type, protocol}
-{
+Socket Socket::Connect(const Socket::SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol) {
+    auto socket = Socket{address.getFamily (), type, protocol};
+
+    ZqSocketConnect (socket.mSocket, &address.get ());
+
+    return socket;
+}
+
+Socket Socket::Listen(const Socket::SocketAddress &address, ZqSocketType type,
+                      ZqSizeType backlog, ZqSocketProtocol protocol) {
+    auto socket = Socket{address.getFamily (), type, protocol};
+
+    ZqSocketBind(socket.mSocket, &address.get ());
+    ZqSocketListen (socket.mSocket, backlog);
+
+    return socket;
+}
+
+Socket Socket::Bind(const Socket::SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol) {
+    auto socket = Socket{address.getFamily (), type, protocol};
+
+    ZqSocketBind(socket.mSocket, &address.get ());
+
+    return socket;
 }
 
 bool Socket::isOpen() const
@@ -45,7 +66,7 @@ void Socket::close() {
     mSocket = ZQ_INVALID_SOCKET;
 }
 
-void Socket::send(const RawArray<const uint8_t> &array) {
+void Socket::send(const RawArray<const uint8_t> &array) const{
     ZqSizeType bytesSent = 0;
 
     while (bytesSent < array.size ()) {
@@ -60,7 +81,7 @@ void Socket::send(const RawArray<const uint8_t> &array) {
     }
 }
 
-Vector<uint8_t> Socket::receive() {
+Vector<uint8_t> Socket::receive() const{
     Vector<uint8_t> vector;
     ZqSizeType bytesReceived;
 
@@ -78,7 +99,7 @@ Vector<uint8_t> Socket::receive() {
     return vector;
 }
 
-void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const RawArray<uint8_t> &array) {
+void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const RawArray<uint8_t> &array) const{
     ZqSizeType bytesSent = 0;
 
     while (bytesSent < array.size ()) {
@@ -94,7 +115,7 @@ void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const Raw
     }
 }
 
-Pair<Vector<uint8_t>, Socket::SocketAddress> Socket::receiveWithAddress() {
+Pair<Vector<uint8_t>, Socket::SocketAddress> Socket::receiveWithAddress() const{
     Vector<uint8_t> vector;
     ZqSizeType bytesReceived;
     SocketAddress socketAddress;

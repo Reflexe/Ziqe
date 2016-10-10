@@ -23,33 +23,9 @@
 
 namespace Ziqe {
 
-MessageStream::MessageStream()
+MessageStream::MessageStream(Base::UniquePointer<Net::Stream> &&stream)
+    : mStream{std::move(stream)}
 {
 }
-
-void MessageStream::onPacketReceived(Net::NetworkProtocol &protocol,
-                                     Base::UniquePointer<Net::NetworkPacket> &&packet) {
-    pCurrentPacket = std::move (packet);
-    ZQ_UNUSED (protocol);
-
-    Base::LittleEndianFieldReader<Base::ExtendedVector<uint8_t>> reader{Base::ExtendedVector<uint8_t>{std::move (pCurrentPacket->getData ())}};
-
-    if (! reader.canReadT <uint16_t> ()) {
-        // TODO: logging.
-#if 0
-        ZQ_DEBUG ("Dropping invalid message");
-#endif
-
-        return;
-    }
-
-    Message::Type type = static_cast<Message::Type>(reader.readT <uint16_t> ());
-
-    // TODO: check for valid message type, how should I do that?
-    return onMessageReceived (type, reader.getVector ().getVector (),
-                              protocol);
-}
-
-
 
 } // namespace Ziqe

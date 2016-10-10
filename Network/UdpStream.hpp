@@ -1,5 +1,5 @@
 /**
- * @file UdpStream.cpp
+ * @file UdpStream.hpp
  * @author shrek0 (shrek0.tk@gmail.com)
  *
  * Ziqe: copyright (C) 2016 shrek0
@@ -17,15 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "UdpStream.hpp"
+#ifndef ZIQE_NET_UDPSTREAM_HPP
+#define ZIQE_NET_UDPSTREAM_HPP
+
+#include "Network/Stream.hpp"
+
+#include "Base/Socket.hpp"
 
 namespace Ziqe {
 namespace Net {
 
-UdpStream::UdpStream()
+class UdpStream
 {
+public:
+    typedef Zq_in6_addr Address;
 
-}
+    UdpStream(const Address &address, ZqPort port);
+
+private:
+    Base::Socket::SocketAddress mLastReceivedSocketAddress;
+
+    Base::Socket::SocketAddress mSocketAddress;
+    Base::Socket mSocket;
+};
 
 } // namespace Net
 } // namespace Ziqe
+
+#endif // ZIQE_NET_UDPSTREAM_HPP

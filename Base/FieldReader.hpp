@@ -102,8 +102,6 @@ public:
 
     template <typename T, SizeType sByteLength=sizeof (T)>
     T readT() {
-        DEBUG_CHECK (mVector.size() <= sByteLength);
-
         T value;
         mValueReader.readValue (value, mVector);
         mVector.increaseBegin (sByteLength);

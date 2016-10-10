@@ -20,9 +20,9 @@
 #ifndef ZIQE_MESSAGESTREAM_H
 #define ZIQE_MESSAGESTREAM_H
 
-#include "Base/FieldWriter.hpp"
+#include "Base/FieldReader.hpp"
 
-#include "Network/NetworkProtocol.hpp"
+#include "Network/Stream.hpp"
 
 #include "Core/Types.hpp"
 #include "Core/ZiqeProtocol/Message.hpp"
@@ -30,29 +30,65 @@
 
 namespace Ziqe {
 
-class MessageStream : private Net::NetworkProtocol::Callback
+class MessageStream
 {
 public:
-    MessageStream();
-    virtual ~MessageStream() = default;
+    MessageStream(Base::UniquePointer<Net::Stream> &&stream);
     ZQ_ALLOW_COPY_AND_MOVE (MessageStream)
 
-protected:
-    typedef Net::NetworkPacket::DataType DataType;
+    /**
+    * @brief DataType  The type used to transform received data.
+    */
+    typedef Net::Stream::StreamVector InputDataType;
 
-    void receiveMessage (Net::NetworkProtocol &networkProtocol)
-    {
-        networkProtocol.callbackReceivePacket (*this);
+    /**
+     * @brief OutputDataType  Used to send data.
+     */
+    typedef Base::Vector<uint8_t> OutputDataType;
+
+    /**
+     * @brief MessageFieldReader  FieldReader used in this stream.
+     */
+    typedef Base::LittleEndianFieldReader<InputDataType> MessageFieldReader;
+
+    struct Callback {
+        Callback() = default;
+        virtual ~Callback() = default;
+        ZQ_ALLOW_COPY_AND_MOVE (Callback)
+
+        typedef MessageFieldReader MessageFieldReader;
+
+        virtual void onMessageReceived (const Message &type,
+                                        MessageFieldReader &fieldReader,
+                                        const Net::Stream &stream) = 0;
+    };
+
+    /**
+     * @brief receiveMessage  Receive one message and call the callback.
+     * @param stream
+     */
+    template<class Callback>
+    void receiveMessage (Callback &callback) const{
+        auto vector = mStream->getStreamVector ();
+        MessageFieldReader reader{std::move(vector)};
+        Message::Type type = static_cast<Message::Type>(reader.readT <uint16_t> ());
+
+        if (! Message::isValidMessageType (type)) {
+            // TODO: logging - Log this incident.
+
+            return;
+        }
+
+        return callback.onMessageReceived (type, reader, *mStream);
     }
 
-    virtual void onMessageReceived (const Message &type, DataType &vector,
-                                    Net::NetworkProtocol &protocol) = 0;
-
-    Base::UniquePointer<Net::NetworkPacket> pCurrentPacket;
+    void sendMessage(const OutputDataType &messageData) const
+    {
+        mStream->send (messageData);
+    }
 
 private:
-    void onPacketReceived (Net::NetworkProtocol &protocol,
-                           Base::UniquePointer<Net::NetworkPacket> &&packet) override;
+    Base::UniquePointer<Net::Stream> mStream;
 };
 
 } // namespace Ziqe

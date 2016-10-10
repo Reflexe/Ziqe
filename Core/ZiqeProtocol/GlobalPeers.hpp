@@ -23,7 +23,7 @@
 #include "Base/LocalThread.hpp"
 
 #include "Core/GlobalThread.hpp"
-#include "Network/NetworkProtocol.hpp"
+#include "MessageStream.hpp"
 
 namespace Ziqe {
 
