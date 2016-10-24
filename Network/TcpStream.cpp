@@ -42,14 +42,19 @@ TcpStream TcpStream::Listen(TcpStream::Port port, SizeType backlog, const TcpStr
     return TcpStream{address, port, backlog};
 }
 
-Stream::DataType TcpStream::receive()
+Stream::DataType TcpStream::receive() const
 {
     return mSocket.receive ();
 }
 
-void TcpStream::send(const Stream::DataType &data)
+void TcpStream::send(const Stream::DataType &data) const
 {
     mSocket.send (data.toRawArray ());
+}
+
+TcpStream TcpStream::acceptConnection()
+{
+    mSocket.Connect ()
 }
 
 } // namespace Net

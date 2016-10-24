@@ -180,7 +180,7 @@ public:
         explicit PairType(const KeyType &key,
                           const typename TableType::Iterator &parameterTableIterator,
                            Args&&... args)
-            : RealPairType{key, std::forward<Args>(args)...},
+            : RealPairType{key, Base::forward<Args>(args)...},
               tableIterator{parameterTableIterator}
         {
         }
@@ -582,7 +582,7 @@ public:
         auto newKeyEntry = this->mKeysList.emplace_before (isEmptyHashEntry ? listEnd : next (firstKeyEntry),
                                                            key,
                                                            tableEntryIterator,
-                                                           std::forward<Args>(args)...);
+                                                           Base::forward<Args>(args)...);
 
         // If there were no entries with this hash, set this key entry
         // as this hash's first key entry.
@@ -603,10 +603,10 @@ public:
     Iterator insertOrAssign(const KeyType &key,
                             Args&&... args)
     {
-        auto result = insert (key, std::forward<Args>(args)...);
+        auto result = insert (key, Base::forward<Args>(args)...);
 
         if (! result.first)
-            result.second->second = T{std::forward<Args>(args)...};
+            result.second->second = T{Base::forward<Args>(args)...};
 
         return result.second;
     }
@@ -616,7 +616,7 @@ public:
     Iterator insertOrAssign(const KeyType &key,
                             const T& args)
     {
-        auto result = insert (key, std::forward<T&>(args));
+        auto result = insert (key, Base::forward<T&>(args));
 
         if (! result.first)
             result.second->second = args;
@@ -627,10 +627,10 @@ public:
     Iterator insertOrAssign(const KeyType &key,
                             T&& args)
     {
-        auto result = insert (key, std::move (args));
+        auto result = insert (key, Base::move (args));
 
         if (! result.first)
-            result.second->second = std::move (args);
+            result.second->second = Base::move (args);
 
         return result.second;
     }
@@ -720,7 +720,7 @@ public:
                                                           : firstKeyEntry,
                                                           key,
                                                           tableEntryIterator,
-                                                          std::forward<Args>(args)...);
+                                                          Base::forward<Args>(args)...);
 
         // If there were no entries with this hash, set this key entry
         // as this hash's first key entry.

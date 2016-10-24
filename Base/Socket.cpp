@@ -134,5 +134,10 @@ Pair<Vector<uint8_t>, Socket::SocketAddress> Socket::receiveWithAddress() const{
     return {vector, socketAddress};
 }
 
+Socket::SocketAddress Socket::acceptClient()
+{
+    ZqSocketClose ()
+}
+
 } // namespace Base
 } // namespace Ziqe

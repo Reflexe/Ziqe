@@ -33,6 +33,8 @@ public:
 
     Stream() = default;
     virtual ~Stream() = default;
+    ZQ_ALLOW_COPY_AND_MOVE (Stream)
+
 
     virtual DataType receive() const = 0;
 
@@ -44,19 +46,19 @@ public:
      * @todo Take an onTimeout / onError function argument (Instead of using exceptions).
      */
     struct StreamVector {
-        StreamVector(Stream &stream)
+        StreamVector(const Stream &stream)
             : mStream{stream}, mCurrentVector{receiveNewData ()}
         {
         }
 
-        void increaseBegin(SizeType howMuch) {
-            DEBUG_CHECK (howMuch <= mCurrentVector.size ());
+        void increaseBegin(DifferenceType howMuch) {
+            DEBUG_CHECK (howMuch <= static_cast<DifferenceType>(mCurrentVector.size ()));
             mCurrentVector.increaseBegin (howMuch);
         }
 
-        uint8_t operator[] (SizeType index) {
+        uint8_t operator[] (const DifferenceType index) {
             // Out of range.
-            if (mCurrentVector.getSize () <= index) {
+            if (static_cast<DifferenceType>(mCurrentVector.getSize ()) <= index) {
                 // Receive more data and make the new extended vector to start from the index
                 // -index (Then, fouther calls for operator[] would work).
                 mCurrentVector = Base::ExtendedVector<uint8_t>{receiveNewData (),
@@ -72,7 +74,7 @@ public:
         }
 
     private:
-        Stream &mStream;
+        const Stream &mStream;
 
         Base::ExtendedVector<uint8_t> mCurrentVector;
     };

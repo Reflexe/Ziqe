@@ -29,7 +29,7 @@ namespace Base {
 template<ZQ_TemplateVariable (sFunc), class CallbackT, class... Args>
 void runAndCallback(const CallbackT &callback, Args&&... args)
 {
-    callback(sFunc(std::forward<Args>(args)...));
+    callback(sFunc(Base::forward<Args>(args)...));
 }
 
 

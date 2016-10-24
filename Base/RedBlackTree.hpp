@@ -323,45 +323,10 @@ public:
         }
     };
 
-    Iterator find (const KeyType &key) {
-        Node *currentNode = mHead;
-
-        while (currentNode != nullptr) {
-            const auto &currentNodeKey = currentNode->getKey ();
-
-            if (mIsEqual (key, currentNodeKey))
-                return Iterator{currentNode};
-
-            if (mComare (key, currentNodeKey))
-                currentNode = currentNode->getLeft ();
-            else
-                currentNode = currentNode->getRight ();
-        }
-
-        // We have reached the end and didn't found the
-        // required key.
-        return Iterator{nullptr};
-    }
-
-    ConstIterator find (const KeyType &key) const{
-        Node *currentNode = mHead;
-
-        while (currentNode != nullptr) {
-            const auto &currentNodeKey = currentNode->getKey ();
-
-            if (mIsEqual (key, currentNodeKey))
-                return ConstIterator{currentNode};
-
-            if (mComare (key, currentNodeKey))
-                currentNode = currentNode->getLeft ();
-            else
-                currentNode = currentNode->getRight ();
-        }
-
-        // We have reached the end and didn't found the
-        // required key.
-        return ConstIterator{nullptr};
-    }
+    ZQ_DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, find, (const KeyType &key),
+    {
+        return {findNode (key)};
+    })
 
     bool isExist (const KeyType &key) const
     {
@@ -425,39 +390,9 @@ public:
 
     template<class...Args>
     Pair<Iterator, bool> insert (const KeyType &key, Args&&... args) {
-        Node *previousNode = nullptr;
-        Node *currentNode = mHead;
+        ZQ_UNUSED (key);
 
-        if (currentNode == nullptr) {
-            return (mHead = mLeftest = mRightest = new Node{previousNode,
-                    nullptr, nullptr,
-                    std::forward<Args>(args)...});
-        }
-
-        do {
-            const auto &currentNodeKey = currentNode->getKey ();
-
-            if (mIsEqual (key, currentNodeKey))
-                return currentNode;
-
-            previousNode = currentNode;
-
-            if (mComare (key, currentNodeKey)) {
-                currentNode = currentNode->left ();
-
-                if (currentNode == nullptr)
-                    return (previousNode->mLeft = new Node{previousNode,
-                                                  nullptr, nullptr,
-                                                  std::forward<Args>(args)...});
-            } else {
-                currentNode = currentNode->right ();
-
-                if (currentNode == nullptr)
-                    return (previousNode->mRight = new Node{previousNode,
-                                                   nullptr, nullptr,
-                                                   std::forward<Args>(args)...});
-            }
-        } while (true);
+        NOT_IMPLEMENTED ();
     }
 
     Pair<Iterator, Iterator>
@@ -466,6 +401,23 @@ public:
 
     Pair<ConstIterator, ConstIterator>
     findBefore(const KeyType &key) const;
+
+    ZQ_DEFINE_CONST_AND_NON_CONST (ZQ_ARG (Pair<ConstIterator, ConstIterator>),
+                                   ZQ_ARG (Pair<Iterator, Iterator>),
+                                   findAfter, (const KeyType &key),
+    {
+        auto findNodeResult = findNode(key);
+
+        if (findNodeResult.first == nullptr)
+            return {nullptr, nullptr};
+
+
+        Iterator iterator{findNodeResult.first};
+        if (findNodeResult.second == false)
+            return {iterator, end()};
+        else
+            return {Base::previous(iterator), iterator};
+    })
 
     Pair<Iterator, Iterator>
     findAfter(const KeyType &key);
@@ -479,11 +431,42 @@ public:
         NOT_IMPLEMENTED ();
     }
 
-    Triple<Iterator, Iterator, Iterator>
-    findBeforeAndAfter (const KeyType &key);
+    ZQ_DEFINE_CONST_AND_NON_CONST (ZQ_ARG(Triple<ConstIterator, ConstIterator, ConstIterator>),
+                                   ZQ_ARG(Triple<Iterator, Iterator, Iterator>),
+                                   findBeforeAndAfter, (const KeyType &key),
+    {
+        auto findNodeResult = findNode(key);
 
-    Triple<ConstIterator, ConstIterator, ConstIterator>
-    findBeforeAndAfter (const KeyType &key) const;
+        if (findNodeResult.first == nullptr)
+            return {nullptr, nullptr, nullptr};
+
+
+    })
+
+    Pair<Node*, bool> findNode(const KeyType &key) {
+        if (mHead == nullptr)
+            return {nullptr, false};
+
+        Node *currentNode = mHead;
+        Node *nextNode    = mHead;
+
+        do {
+            currentNode = nextNode;
+
+            auto compareResult = mCompare(key, currentNode->getKey ());
+
+            if (compareResult == CompareType::Equal)
+                return {currentNode, true};
+            else if (compareResult == CompareType::GreaterThan)
+                nextNode = currentNode->getLeft ();
+            else
+                nextNode = currentNode->getRight ();
+        } while(nextNode != nullptr);
+
+        // We have reached the end and didn't found the
+        // required key.
+        return {currentNode, false};
+    }
 
     Node *mHead;
     Node *mLeftest;
@@ -548,6 +531,21 @@ public:
 
     using BinaryTreeType::isExist;
     using BinaryTreeType::find;
+
+    template<class...Args>
+    Pair<Iterator, bool> insert (const KeyType &key, Args&&... args) {
+
+    }
+
+    Iterator remove(const KeyType &key)
+    {
+
+    }
+
+    Iterator erase(ConstIterator iterator)
+    {
+
+    }
 };
 
 } // namespace Base

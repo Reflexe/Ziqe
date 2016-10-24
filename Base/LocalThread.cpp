@@ -45,7 +45,7 @@ void runMemberFunction (ClassType *c)
 }
 
 //void LocalThread::run(Callback<void ()> &&toCall) {
-//    Callback<void ()> *newCallback = new Callback<void ()> (std::move (toCall));
+//    Callback<void ()> *newCallback = new Callback<void ()> (Base::move (toCall));
 
 //    return runAnyFunction(&runMemberFunction<Callback<void ()>, &Callback<void ()>::operator ()>,
 //                          newCallback);

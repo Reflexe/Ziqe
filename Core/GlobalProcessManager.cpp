@@ -43,16 +43,16 @@ void GlobalProcessManager::runThread(LocalThread &thread,
         auto newGlobalThreadAndProcess = mGlobalPeersClient->runThread (thread);
 
         mThreadManager->addThread (newGlobalThread.getThreadID (),
-                                   std::move (newGlobalThread));
+                                   Base::move (newGlobalThread));
 
         addNewProcessConnection (iterator,
-                                 std::move (newGlobalThreadAndProcess.second));
+                                 Base::move (newGlobalThreadAndProcess.second));
     } else {
         // If the process is shared with someone already.
 
         auto newGlobalThread = iterator->second.getClient().runThread (thread);
         mThreadManager->addThread (thread.getThreadID (),
-                                   std::move (newGlobalThread));
+                                   Base::move (newGlobalThread));
     }
 }
 //UglyPointer<GlobalProcess> GlobalProcessManager::localToGlobalProcess(const LocalProcess &process) {

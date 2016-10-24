@@ -39,7 +39,7 @@ public:
 
     template<class ...Args>
     Base::RawPointer<GlobalThread> addThread (LocalThread::ThreadID threadID, Args &&... args) {
-        auto pair = mThreads.insert (threadID, std::forward<Args> (args)...);
+        auto pair = mThreads.insert (threadID, Base::forward<Args> (args)...);
 
         if (pair.first == true)
             return &(pair.second->second);

@@ -1,13 +1,13 @@
 #ifndef ZQ_API_LINUX_MEM_INLINE_H
 #define ZQ_API_LINUX_MEM_INLINE_H
 
-#if @zq_test_build@ == 1
+#ifdef ZQ_TEST_BUILD
 #include <cstdlib>
-static inline_hint void vfree (const void *addr)
+static inline_hint void vfree (ZqKernelAddress addr)
 {
     free (addr);
 }
-static inline_hint void* vmalloc (ZqSizeType size)
+static inline_hint ZqKernelAddress vmalloc (ZqSizeType size)
 {
     return malloc (size);
 }

@@ -139,7 +139,7 @@ public:
 
         pack_foreach ([this](auto arg) {
                           writeOneT (arg);
-                      }, std::forward<Args>(args)...);
+                      }, Base::forward<Args>(args)...);
     }
 
     VectorType &getVector()

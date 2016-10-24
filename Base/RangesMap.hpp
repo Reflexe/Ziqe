@@ -71,7 +71,7 @@ public:
         if (! (begin < end))
             return;
 
-        auto beginIterator = mTree.insert_or_assign (keyBegin, std::forward<Args>(args...));
+        auto beginIterator = mTree.insert_or_assign (keyBegin, Base::forward<Args>(args...));
 
         auto endIterator = mTree.lower_bound (keyEnd);
         bool isEndIteratorEnd = (endIterator == mTree.end ());
@@ -91,7 +91,7 @@ public:
             if (!isKeyEndExist) {
                 DEBUG_CHECK (mTree.count (keyEnd) == 0);
                 endIterator = mTree.emplace_hint (beforeEndIterator, keyEnd,
-                                                  std::move (beforeEndIterator->second));
+                                                  Base::move (beforeEndIterator->second));
             }
 
             // if eraseEndToo, endIterator != end().

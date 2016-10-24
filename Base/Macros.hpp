@@ -23,6 +23,7 @@
 #include "ZiqeAPI/Macros.h"
 
 #include "Base/Types.hpp"
+
 #include <utility>
 
 #define implements
@@ -42,6 +43,7 @@
 
 #define ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER(type, name) ZQ_DEFINE_EQUAL_BY_MEMBER(type, name) ZQ_DEFINE_NOT_EQUAL_BY_MEMBER(type, name)
 
+#define ZQ_ARG(...) __VA_ARGS__
 #define ZQ_DEFINE_CONST_AND_NON_CONST(ReturnValueConst, ReturnValueNonConst, name, args, ...) ReturnValueConst name args const __VA_ARGS__ \
     ReturnValueNonConst name args __VA_ARGS__
 
@@ -165,6 +167,8 @@ T copy (const T &value)
     return value;
 }
 
+using std::move;
+using std::forward;
 
 /// @brief An generic IsEqual.
 template<class T>
@@ -207,6 +211,12 @@ struct DerefrenceIsLessThan
         return (*one < *other);
     }
 };
+
+template<class T1, class T2, class T3>
+Triple<T1, T2, T3> makeTriple (T1&& first, T2&& second, T3&& third)
+{
+    return Triple<T1, T2, T3>{Base::forward<T1>(first), Base::forward<T2>(second), Base::forward<T3>(third)};
+}
 
 }
 }

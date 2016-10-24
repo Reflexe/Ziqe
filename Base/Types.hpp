@@ -22,8 +22,6 @@
 
 /* Types that aren't big enough to have their own file */
 
-#include <utility>
-
 #include "ZiqeAPI/Types.h"
 
 namespace Ziqe {
@@ -48,12 +46,6 @@ struct Triple
     T2 second;
     T3 third;
 };
-
-template<class T1, class T2, class T3>
-Triple<T1, T2, T3> makeTriple (T1&& first, T2&& second, T3&& third)
-{
-    return Triple<T1, T2, T3>{std::forward<T1>(first), std::forward<T2>(second), std::forward<T3>(third)};
-}
 
 } // namespace Ziqe
 

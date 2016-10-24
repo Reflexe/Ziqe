@@ -121,13 +121,19 @@ private:
     ZqRWLock mLock;
 };
 
-template<class T>
+template<class T, class PointerType=DummyPointer<RWLock>>
 class RWLocked
 {
 public:
     template<class... Args>
     RWLocked(RWLock &lock, Args&&... values)
-        : mLock{&lock}, mValue{std::forward<Args> (values)...}
+        : mLock{&lock}, mValue{Base::forward<Args> (values)...}
+    {
+    }
+
+    template<class... Args>
+    RWLocked(Args&&... values)
+        : mValue{Base::forward<Args> (values)...}
     {
     }
 
@@ -145,9 +151,15 @@ public:
     }
 
 private:
-    RawPointer<RWLock> mLock;
+    PointerType mLock;
     T mValue;
 };
+
+template<class T>
+using SharedRWLocked=SharedPointer<RWLocked<T>>;
+
+template<class T>
+using RawRWLocked=RawPointer<RWLocked<T>>;
 
 } // namespace Base
 } // namespace Ziqe

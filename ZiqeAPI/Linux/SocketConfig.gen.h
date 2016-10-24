@@ -69,6 +69,7 @@ typedef in_port_t ZqPort;
 #define ZQ_SOCKLEN_BY_ADDRSIZE(size) ((size) + )
 
 #define ZQ_INADDR_ANY INADDR_ANY
+#define ZQ_INADDR6_ANY IN6ADDR_ANY_INIT
 
 typedef struct __kernel_sockaddr_storage Zq_sockaddr_storage;
 typedef struct sockaddr_in Zq_sockaddr_in;

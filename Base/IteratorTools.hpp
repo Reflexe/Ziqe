@@ -28,8 +28,8 @@
 namespace Ziqe {
 namespace Base {
 
-using std::move;
-using std::forward;
+using Base::move;
+using Base::forward;
 
 template<class InputIterator>
 class MoveIterator
@@ -44,9 +44,9 @@ public:
 
     ZQ_ALLOW_COPY_AND_MOVE (MoveIterator)
 
-    decltype (std::move (*mInput)) operator* ()
+    decltype (Base::move (*mInput)) operator* ()
     {
-        return std::move(*mInput);
+        return Base::move(*mInput);
     }
 
     MoveIterator &operator++ () {
@@ -81,7 +81,7 @@ private:
 
 public:
     explicit ActionIterator(const InputIterator &iterator, FunctionType &&function)
-        : mInput{iterator}, mFunction{std::move (function)}
+        : mInput{iterator}, mFunction{Base::move (function)}
     {
     }
 
@@ -109,7 +109,7 @@ public:
 template <class InputIterator, class FunctionType>
 inline_hint ActionIterator<InputIterator, FunctionType> makeActionIterator(const InputIterator &inputIterator, FunctionType &&function)
 {
-    return ActionIterator<InputIterator, FunctionType>{inputIterator, std::move (function)};
+    return ActionIterator<InputIterator, FunctionType>{inputIterator, Base::move (function)};
 }
 
 template <class ActionIteratorType,

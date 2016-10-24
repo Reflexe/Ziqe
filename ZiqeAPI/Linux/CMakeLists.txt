@@ -11,12 +11,11 @@ zq_get_current_linux_version (zq_linux_version)
 # Linux X-obj param would get only relative parameter; but,
 # we can only get the absolute path to our library; therefore,
 # we would insert the relative path of root (/) from this directory.
-# (example: ../../../home/user/project/file in /home/user/project)
+# (example: ../../../home/user/project/file instead of /home/user/project)
 file(RELATIVE_PATH zq_here_to_root ${CMAKE_CURRENT_SOURCE_DIR} /)
 
 macro(zq_get_lib_linker_flags output_name lib_name)
     set (current_target ${zq_target_prefix}${lib_name})
-#    set (${output_name} "-L$<TARGET_LINKER_FILE_DIR:${zq_target_prefix}${lib_name}> -l${zq_target_prefix}${lib_name}")
     set (${output_name} "${zq_here_to_root}$<TARGET_LINKER_FILE:${current_target}>")
 
     # Make the other target include Linux's (linux/X) headers.
@@ -44,8 +43,3 @@ add_custom_target (LinuxZiqeAPI ALL
                    SOURCES ${SOURCES} Makefile
                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                    COMMENT "Building Linux module")
-
-#add_library (LinuxZiqeAPI ${SOURCES})
-#target_include_directories (LinuxZiqeAPI BEFORE PRIVATE "/usr/lib/modules/${zq_linux_version}/build/include/"
-#    "/usr/lib/modules/${zq_linux_version}/build/arch/x86/include"
-#    "${CMAKE_CURRENT_SOURCE_DIR}/../")

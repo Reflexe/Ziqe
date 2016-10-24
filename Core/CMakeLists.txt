@@ -1,4 +1,7 @@
-add_subdirectory (ZiqeProtocol)
+add_subdirectory (Protocol)
 
-zq_add_library(Core ProcessMemory GlobalProcess GlobalThread
-                    GlobalThreadManager GlobalProcessManager Types)
+zq_add_library(Core ThreadOwnerServer ThreadOwnerClient
+                    ProcessMemory GlobalProcess GlobalThread
+                    GlobalThreadManager GlobalProcessManager Types
+                    ProcessPeersServer
+                    GlobalPeers ProcessPeersClient MemoryRevisionTree)

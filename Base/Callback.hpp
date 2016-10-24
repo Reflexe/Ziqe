@@ -63,7 +63,7 @@ private:
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
-            return sFunction (std::forward<ArgsTypes> (args)...);
+            return sFunction (Base::forward<ArgsTypes> (args)...);
         }
 
         virtual ~RegularFunctionObjectManager() override = default;
@@ -82,7 +82,7 @@ private:
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
-            return (mClassPointer->*sClassFunction)(std::forward<ArgsTypes>(args)...);
+            return (mClassPointer->*sClassFunction)(Base::forward<ArgsTypes>(args)...);
         }
 
         virtual bool isValid() const override
@@ -101,7 +101,7 @@ private:
     struct UniqueObjectManager final : public ObjectManagerInterface
     {
         UniqueObjectManager(UniquePointer<ClassType> &&uniquePointer)
-            : mClassPointer{std::move(uniquePointer)}
+            : mClassPointer{Base::move(uniquePointer)}
         {
         }
 
@@ -110,7 +110,7 @@ private:
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
-            return (mClassPointer.get()->*sClassFunction)(std::forward<ArgsTypes>(args)...);
+            return (mClassPointer.get()->*sClassFunction)(Base::forward<ArgsTypes>(args)...);
         }
 
         virtual bool isValid() const override
@@ -138,7 +138,7 @@ private:
 
         virtual ReturnType invoke(ArgsTypes&&... args) override
         {
-            return (mClassPointer.get()->*sClassFunction)(std::forward<ArgsTypes>(args)...);
+            return (mClassPointer.get()->*sClassFunction)(Base::forward<ArgsTypes>(args)...);
         }
 
         virtual bool isValid() const override
@@ -181,7 +181,7 @@ public:
     template<class ClassType, ClassMemeberFunctionType<ClassType> sFunction>
     Callback(StaticVariable<ClassMemeberFunctionType<ClassType>, sFunction>,
              UniquePointer<ClassType> &&uniquePointer)
-        : mObjectManager{new UniqueObjectManager<ClassType, sFunction>(std::move(uniquePointer))}
+        : mObjectManager{new UniqueObjectManager<ClassType, sFunction>(Base::move(uniquePointer))}
     {
     }
 
@@ -194,14 +194,14 @@ public:
 
     /// Initilize from an object manager.
     Callback (UniquePointer<ObjectManagerInterface> &&objectManager)
-        : mObjectManager{std::move(objectManager)}
+        : mObjectManager{Base::move(objectManager)}
     {
     }
 
     ReturnType operator() (ArgsTypes&&... args) {
         DEBUG_CHECK (mObjectManager->isValid());
 
-        return mObjectManager->invoke (std::forward<ArgsTypes>(args)...);
+        return mObjectManager->invoke (Base::forward<ArgsTypes>(args)...);
     }
 
     operator bool ()

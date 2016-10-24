@@ -38,9 +38,11 @@ public:
     static TcpStream Connect(const Address &address, Port port);
     static TcpStream Listen(Port port, SizeType backlog=0, const Address &address=ZQ_INADDR6_ANY);
 
-    virtual DataType receive() override;
+    virtual DataType receive() const override ;
 
-    virtual void send(const DataType &data) override;
+    virtual void send(const DataType &data) const override ;
+
+    TcpStream acceptConnection();
 
 private:
     // connect constructor.

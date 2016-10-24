@@ -26,8 +26,6 @@
 
 #include "ZiqeAPI/Memory.h"
 
-#include <utility>
-
 void* operator new  (std::size_t count);
 void operator delete (void *pointer) noexcept;
 
@@ -58,13 +56,13 @@ struct Constructor {
     template<class ...Args>
     T *constructN(T *pointer, SizeType n, Args ...args)
     {
-        return ::new(static_cast<void*>(pointer)) T[n]{std::forward<Args>(args)...};
+        return ::new(static_cast<void*>(pointer)) T[n]{Base::forward<Args>(args)...};
     }
 
     template<class ...Args>
     T *construct(T *pointer, Args&&...args)
     {
-        return ::new(static_cast<void*>(pointer)) T{std::forward<Args>(args)...};
+        return ::new(static_cast<void*>(pointer)) T{Base::forward<Args>(args)...};
     }
 
     void destruct(T *pointer, SizeType n) {
@@ -738,10 +736,77 @@ private:
     SizeType mSize;
 };
 
+/**
+ * Class that act like a pointer but it is a regular value.
+ */
+template<class T>
+class DummyPointer
+{
+public:
+    template<class ...Args>
+    DummyPointer(Args...args)
+        : mValue{Base::forward<Args>(args)...}
+    {
+    }
+
+    operator T* ()
+    {
+        return &mValue;
+    }
+
+    operator bool ()
+    {
+        return true;
+    }
+
+    T *get()
+    {
+        return &mValue;
+    }
+
+    const T *get() const
+    {
+        return &mValue;
+    }
+
+    T &operator *()
+    {
+        return mValue;
+    }
+
+    const T &operator *() const
+    {
+        return mValue;
+    }
+
+    T *operator ->()
+    {
+        return &mValue;
+    }
+
+    const T *operator ->() const
+    {
+        return &mValue;
+    }
+
+    operator T& ()
+    {
+        return *(this);
+    }
+
+    operator const T& () const
+    {
+        return *(this);
+    }
+
+private:
+    T mValue;
+};
+
 template<class T, class ...Args>
 UniquePointer<T> makeUnique(Args&&... args)
 {
-    return UniquePointer<T>{new T{std::forward<Args>(args)...}};
+    return UniquePointer<T>{new T{Base::forward<Args>(args)...}};
 }
 
 template<class T>

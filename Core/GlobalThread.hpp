@@ -24,8 +24,8 @@
 #include "Base/LocalThread.hpp"
 #include "Base/LocalProcess.hpp"
 
-#include "ZiqeProtocol/ProcessPeersClient.hpp"
-#include "ZiqeProtocol/ThreadOwnerClient.hpp"
+#include "Core/ProcessPeersClient.hpp"
+#include "Core/ThreadOwnerClient.hpp"
 
 namespace Ziqe {
 

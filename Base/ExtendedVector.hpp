@@ -34,7 +34,7 @@ class ExtendedVector
 public:
     typedef typename VectorType::SizeType SizeType;
 
-    const static SizeType kNoIndex = static_cast<SizeType>(-1);
+    const static DifferenceType kNoIndex = static_cast<DifferenceType>(-1);
 
     ExtendedVector()
         : mIndexBegin{0}, mIndexEnd{0}
@@ -43,32 +43,32 @@ public:
     }
 
     explicit ExtendedVector(VectorReferenceType &&vector)
-        : mVector{std::move (vector)}, mIndexBegin{0}, mIndexEnd{getVector().size()}
+        : mVector{Base::move (vector)}, mIndexBegin{0}, mIndexEnd{static_cast<DifferenceType>(getVector().size())}
     {
     }
 
     explicit ExtendedVector(VectorReferenceType &&vector,
                             const DifferenceType        indexBegin,
                             const DifferenceType        indexEnd=kNoIndex)
-        : mVector{std::move (vector)},
+        : mVector{Base::move (vector)},
           mIndexBegin{indexBegin},
-          mIndexEnd{(indexEnd == kNoIndex) ? getVector().size() : indexEnd}
+          mIndexEnd{(indexEnd == kNoIndex) ? static_cast<DifferenceType>(getVector().size()) : indexEnd}
     {
         DEBUG_CHECK (mIndexEnd > mIndexBegin);
     }
 
     ZQ_ALLOW_COPY_AND_MOVE (ExtendedVector)
 
-    T &operator [](SizeType index) {
+    T &operator [](DifferenceType index) {
         DEBUG_CHECK_ADD_OVERFLOW (index, mIndexBegin);
 
-        return (getVector())[index + mIndexBegin];
+        return (getVector())[static_cast<SizeType>(index + mIndexBegin)];
     }
 
-    const T &operator [](SizeType index) const {
+    const T &operator [](DifferenceType index) const {
         DEBUG_CHECK_ADD_OVERFLOW (index, mIndexBegin);
 
-        return (getVector())[index + mIndexBegin];
+        return (getVector())[static_cast<SizeType>(index + mIndexBegin)];
     }
 
     template<class _VectorType>
@@ -87,7 +87,7 @@ public:
 
     SizeType size() const
     {
-        return mIndexEnd - mIndexBegin;
+        return static_cast<SizeType>(mIndexEnd - mIndexBegin);
     }
 
     SizeType getSize() const
@@ -95,7 +95,7 @@ public:
         return size();
     }
 
-    void increaseBegin (SizeType howMuch = 1) {
+    void increaseBegin (DifferenceType howMuch = 1) {
         DEBUG_CHECK_ADD_OVERFLOW (howMuch, mIndexBegin);
         DEBUG_CHECK (mIndexBegin + howMuch <= mIndexEnd);
 

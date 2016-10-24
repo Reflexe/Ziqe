@@ -90,6 +90,8 @@ public:
 
         mSocket = socket.mSocket;
         socket.mSocket = ZQ_INVALID_SOCKET;
+
+        return *this;
     }
 
     bool isOpen() const;
@@ -99,6 +101,8 @@ public:
     void send(const RawArray<const uint8_t> &array) const;
 
     Vector<uint8_t> receive() const;
+
+    SocketAddress acceptClient();
 
     void sendToAddress(const SocketAddress &socketAddress, const RawArray<uint8_t> &array) const;
 

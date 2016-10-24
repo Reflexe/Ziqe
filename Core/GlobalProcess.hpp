@@ -24,9 +24,9 @@
 #include "Base/LinkedList.hpp"
 #include "Base/RWLock.hpp"
 
-#include "Core/ZiqeProtocol/MemoryRevisionTree.hpp"
+#include "Core/MemoryRevisionTree.hpp"
 
-#include "ZiqeProtocol/ProcessPeersServer.hpp"
+#include "Core/ProcessPeersServer.hpp"
 
 namespace Ziqe {
 
@@ -36,7 +36,8 @@ public:
     GlobalProcess();
 
 private:
-//    ProcessPeersServer mProcessPeersServer;
+    Base::SharedPointer<ProcessPeersServer> mProcessServer;
+
 
 };
 

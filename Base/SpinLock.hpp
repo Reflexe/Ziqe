@@ -100,7 +100,7 @@ class SpinLocked
 public:
     template<class... Args>
     SpinLocked(PointerType &&lock, Args&&... values)
-        : mLock{std::move (lock)}, mValue{std::forward<Args> (values)...}
+        : mLock{Base::move (lock)}, mValue{Base::forward<Args> (values)...}
     {
     }
 

@@ -136,6 +136,9 @@ ZqBool ZqSetSocketOption (ZqSocket zqsocket,
                           ZqConstKernelAddress optionValue,
                           ZqSizeType optionSize);
 
+ZqBool ZqAccept(ZqSocket zqsocket,
+                )
+
 ZQ_END_C_DECL
 
 #endif // ZIQEAPI_SOCKET_H

@@ -37,7 +37,7 @@ public:
         explicit DoubleLinkedListNode(struct DoubleLinkedListNode *parameterPrevious,
                              struct DoubleLinkedListNode *parameterNext,
                              Args&&... args)
-            : data{std::forward<Args>(args)...},
+            : data{Base::forward<Args>(args)...},
               previous{parameterPrevious},
               next{parameterNext}
         {
@@ -137,7 +137,7 @@ public:
         }
 
         T &operator* () const{
-            DEBUG_CHECK (this->mCurrent != nullptr && this->mCurrent->data);
+            DEBUG_CHECK (this->mCurrent != nullptr);
 
             return this->mCurrent->data;
         }
@@ -213,13 +213,13 @@ public:
     template<class ...Args>
     Iterator emplace_before(const ConstIterator &where, Args&&... args) {
         if (where == cend ())
-            return emplace_after (cBeforeEnd (), std::forward<Args>(args)...);
+            return emplace_after (cBeforeEnd (), Base::forward<Args>(args)...);
 
         NodeType *newNode;
 
         newNode = new NodeType{where.mCurrent->previous,
                                where.mCurrent,
-                               std::forward<Args>(args)...};
+                               Base::forward<Args>(args)...};
         auto previous = where.mCurrent->previous;
         if (previous)
             previous->next = newNode;
@@ -243,14 +243,14 @@ public:
         if (where == cend ()) {
             newNode = new NodeType{nullptr,
                                    nullptr,
-                                   std::forward<Args>(args)...};
+                                   Base::forward<Args>(args)...};
 
             // mBegin must be cend().
             mBegin = Iterator{newNode};
         } else {
             newNode = new NodeType{where.mCurrent,
                                    where.mCurrent->next,
-                                   std::forward<Args>(args)...};
+                                   Base::forward<Args>(args)...};
             auto next = where.mCurrent->next;
             if (next)
                 next->previous = newNode;
@@ -271,13 +271,13 @@ public:
     template<class ...Args>
     Iterator emplace_back(Args&&... args) {
         return emplace_after (mBeforeEnd,
-                               std::forward<Args>(args)...);
+                               Base::forward<Args>(args)...);
     }
 
     template<class ...Args>
     Iterator emplace_front(Args&&... args) {
         return emplace_before (mBegin,
-                               std::forward<Args>(args)...);
+                               Base::forward<Args>(args)...);
     }
 
     void erase(const ConstIterator &begin, const ConstIterator &end) {

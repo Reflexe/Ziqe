@@ -22,10 +22,5 @@
 namespace Ziqe {
 namespace Net {
 
-Stream::Stream()
-{
-
-}
-
 } // namespace Net
 } // namespace Ziqe

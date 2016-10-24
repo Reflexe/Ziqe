@@ -10,11 +10,17 @@ set(zq_target_prefix zq_)
 set(zq_h_ext hpp)
 
 set(zq_debug 1)
-set(zq_test_build 0)
+set(zq_test_build 1)
 set(zq_platform Linux)
 
-include_directories (${zq_root})
-enable_testing()
+set(zq_compiler_arguments -std=c++14 -Weverything -Wno-old-style-cast -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic)
+
+if (zq_test_build)
+    set(zq_compiler_arguments ${zq_compiler_arguments} -DZQ_TEST_BUILD)
+    enable_testing()
+endif()
+
+set(zq_include_directories ${zq_root})
 
 if(zq_debug EQUAL "1")
     set(CMAKE_BUILD_TYPE Debug)
@@ -24,6 +30,7 @@ endif()
 
 function(__zq_add_module caller_name target_path)
     get_filename_component(target_name ${target_path} NAME)
+    set(target_name "${zq_target_prefix}${target_path}")
 
     if(NOT IS_DIRECTORY "${target_path}/")
        message(FATAL_ERROR "${target_path} is not exist!")
@@ -55,19 +62,24 @@ macro(zq_add_library library_name)
     endforeach()
 
     add_library("${zq_target_prefix}${library_name}" ${zq_library_type} ${files_list})
+    target_compile_options("${zq_target_prefix}${library_name}" PUBLIC ${zq_compiler_arguments} -fno-rtti -fno-exceptions)
+    target_include_directories ("${zq_target_prefix}${library_name}" PUBLIC ${zq_include_directories})
 endmacro()
 
-if (zq_test_build)
-    set(zq_compiler_arguments "-Wno-old-style-cast -fno-rtti -fno-exceptions -Weverything -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic")
-else ()
-    set(zq_compiler_arguments "-Wno-old-style-cast -nostdlib -fno-rtti -fno-exceptions -Weverything -Wno-c++98-compat -Wno-documentation -Wno-padded -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic")
-endif ()
+macro (zq_add_test name)
+    if (NOT zq_test_build)
+        return()
+    endif ()
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${zq_compiler_arguments}")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${zq_compiler_arguments}")
+    set(target_name "zqtest_${name}")
 
-set_property(GLOBAL PROPERTY CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD 14)
+    add_executable (${target_name} "${name}.${zq_cpp_ext}")
+    add_test (${target_name} "./${name}")
+    zq_add_module(${target_name} ${ARGN})
+
+    target_include_directories (${target_name} PUBLIC ${zq_include_directories})
+    target_compile_options (${target_name} PUBLIC ${zq_compiler_arguments})
+endmacro ()
 
 add_subdirectory (Base)
 #add_subdirectory (ThirdParty)

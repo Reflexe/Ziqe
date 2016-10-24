@@ -64,7 +64,7 @@ public:
     }
 
     Vector(Vector &&other)
-        : mPointer{std::move (other.mPointer)}, mSize{other.mSize}
+        : mPointer{Base::move (other.mPointer)}, mSize{other.mSize}
     {
         other.mSize = 0;
         other.mPointer = nullptr;
@@ -144,7 +144,7 @@ public:
 
         // Construct the new objects (If there are).
         if (newSize > oldSize)
-            mConstrutor.constructN (mPointer+oldSize, newSize-oldSize, std::forward<Args>(args)...);
+            mConstrutor.constructN (mPointer+oldSize, newSize-oldSize, Base::forward<Args>(args)...);
     }
 
     void shrinkWithoutFree(SizeType howMuch) {
@@ -156,7 +156,7 @@ public:
     template<class ...Args>
     void expand (SizeType size, Args&&...args)
     {
-        resize (mSize + size, std::forward<Args>(args)...);
+        resize (mSize + size, Base::forward<Args>(args)...);
     }
 
     template<class InputIterator>
@@ -244,7 +244,7 @@ private:
             return;
         }
 
-        PointerType pointer{std::move (mPointer)};
+        PointerType pointer{Base::move (mPointer)};
         auto pointerSize = mSize;
 
         mPointer = mAllocator.allocate (newSize);
