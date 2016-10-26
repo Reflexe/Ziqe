@@ -32,7 +32,7 @@ public:
     typedef Base::Vector<uint8_t> DataType;
 
     Stream() = default;
-    virtual ~Stream() = default;
+    virtual ~Stream();
     ZQ_ALLOW_COPY_AND_MOVE (Stream)
 
 
