@@ -1,4 +1,5 @@
-add_custom_target (ZqIncludes SOURCES SystemCalls.h Types.h Process.h Macros.h Memory.h SpinLock.h Mutex.h RWLock.h Socket.h)
+add_custom_target (ZqIncludes SOURCES SystemCalls.h Types.h Process.h Macros.h
+                   Memory.h SpinLock.h Mutex.h RWLock.h Socket.h Logging.h)
 
 macro(zq_define_per_platform_file_generator Name)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${zq_platform}/${Name}.gen.h" "${CMAKE_CURRENT_SOURCE_DIR}/${Name}.h.generated")

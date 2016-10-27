@@ -22,16 +22,28 @@
 
 #include <limits>
 
+// For ZQ_UNUSED.
+#include "Base/Macros.hpp"
+#include "Base/Logger.hpp"
+
 namespace Ziqe {
 namespace Base {
 
-// CHECK things that shouldn't happend.
-#define DEBUG_CHECK(expr) (void)(expr)
-#define DEBUG_CHECK_NOT_REACHED() DEBUG_CHECK(false)
+#ifdef ZQ_TEST_BUILD
+# define DEBUG_CHECK(expr) (void)(expr)
+# define DEBUG_CHECK_NOT_REACHED() DEBUG_CHECK(false)
 
-#define DEBUG_CHECK_REPORT(expr)
-#define DEBUG_CHECK_REPORT_NOT_REACHED() (void)0
-#define NOT_IMPLEMENTED() DEBUG_CHECK_REPORT_NOT_REACHED()
+# define DEBUG_CHECK_REPORT(expr, msg) ZQ_SGMT_BEGIN if (expr) {} else { Logger::logWarning (#expr " Failed"); } ZQ_SGMT_END
+# define DEBUG_CHECK_REPORT_NOT_REACHED(msg) Logger::logWarning (msg)
+# define NOT_IMPLEMENTED() DEBUG_CHECK_REPORT_NOT_REACHED("NotImplemented reached")
+#else
+# define DEBUG_CHECK(expr) (void)(expr)
+# define DEBUG_CHECK_NOT_REACHED() DEBUG_CHECK(false)
+
+# define DEBUG_CHECK_REPORT(expr, msg) (void) msg, (void) expr
+# define DEBUG_CHECK_REPORT_NOT_REACHED(msg) ZQ_UNUSED (msg)
+# define NOT_IMPLEMENTED() (void)0
+#endif
 
 template<class X, class Y>
 bool Z_CHECK_ADD_OVERFLOW(X x, Y y)

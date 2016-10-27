@@ -27,6 +27,27 @@ class Logger
 {
 public:
     Logger();
+
+    /**
+       @brief Log and report an error.
+       @param string    The message.
+
+       @note This function should get used in a very rare cases in release:
+             on some architectures, it will stop the system.
+     */
+    static void logError (const char *string);
+
+    /**
+       @brief Log a warning message.
+       @param string  The message.
+     */
+    static void logWarning (const char *string);
+
+    /**
+       @brief Log a regular information message.
+       @param string  The message.
+     */
+    static void logMessage (const char *string);
 };
 
 } // namespace Ziqe

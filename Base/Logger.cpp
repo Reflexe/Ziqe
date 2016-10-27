@@ -19,11 +19,28 @@
  */
 #include "Logger.hpp"
 
+#include "ZiqeAPI/Logging.h"
+
 namespace Ziqe {
 
 Logger::Logger()
 {
 
+}
+
+void Logger::logError(const char *string)
+{
+    ZqOnBug (string);
+}
+
+void Logger::logWarning(const char *string)
+{
+    ZqLogWarning (string);
+}
+
+void Logger::logMessage(const char *string)
+{
+    ZqLogText (string);
 }
 
 } // namespace Ziqe
