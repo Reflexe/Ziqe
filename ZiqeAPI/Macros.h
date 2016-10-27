@@ -22,21 +22,50 @@
 #ifndef ZIQE_API_MACROS_H
 #define ZIQE_API_MACROS_H
 
+/**
+  @brief A few macros for declaring function for C and C++.
+
+  To enable declaring functions for both C and C++,
+  we should declare them in C linkage on C++.
+  */
 #ifdef __cplusplus
 # define ZQ_BEGIN_C_DECL extern "C" {
-#else
-# define ZQ_BEGIN_C_DECL
-#endif
-
-#ifdef __cplusplus
 # define ZQ_END_C_DECL }
 #else
+# define ZQ_BEGIN_C_DECL
 # define ZQ_END_C_DECL
 #endif
 
+/**
+  @brief A simple macro to safely ignore variables without a compiler warning.
+  */
 #define ZQ_UNUSED(expr) (void)expr
 
-// I HATE misleading titles!
+/**
+  @brief Two macros for implementing nulti-expression macros.
+
+  To enable the user to use a macro as an expression, it should
+  be one expression:
+  @code
+  #define FOO foo()
+
+  // OK
+  FOO;
+  @endcode
+
+  However, with more that one expression, it is a problem. Therefore, we should
+  use these macros:
+  @code
+  #define DO_A_THING(foo, bar) ZQ_SGMT_BEGIN int i; while(foo < i) { ++foo, ++bar ; } ZQ_SGMT_END
+
+  // OK; would be a problem without ZQ_SGMT_BEGIN and ZQ_SGMT_END in DO_A_THING.
+  DO_A_THING(foo, bar);
+  @endcode
+  */
+#define ZQ_SGMT_BEGIN do {
+#define ZQ_SGMT_END } while(1)
+
+/* I HATE misleading titles! */
 #define inline_hint inline
 
 #endif
