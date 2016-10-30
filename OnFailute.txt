@@ -1,0 +1,90 @@
+Q: What should I do on a major failure?
+    - e.g.: can't allocate memory.
+    - e.g.: fail with function that should not fail.
+
+    In other words: what to do with exceptions when I doesn't have exceptions?
+
+A: Use exception somehow:
+    Pros: good.
+    Cons: hard to implement for cross-platform, not supported, weird as hell.
+
+A: Clean up the current dust and then call a global handler (not modular).
+    Pros: very simple, can be implemented dynamicly with a special API (handleFailure).
+    Cons: not modular, there may be situations that errors are not so critical. Or that requires 
+          a special handleing.
+
+A: Use pointer return values (null on fail):
+    Pros: very simple, good for C programmers.
+    Cons: a lot of allocation and framentation, and fursuration.
+
+A: boost::optional:
+    Pros: very simple.
+    Const: need a error check in every level. However, exceptions 
+    has overhead too. 
+
+A: Some kind of strange ExceptionCatcher class that holds a code that should
+   run on excpetion. This class's instance can be passed by reference to 
+   the next constructor and when there is an error, anyone can call it by
+   ExceptionCatcher::throw. 
+   
+   NO: no stack cleanup before the excpetion handler.
+
+
+## Conclusion
+I decided to use an implementation of boost::optional. Despite its overhead
+it is a very good solution (combined with factor functions).
+
+The main problem with this approch is the overhead in the checks if the optional
+is valid. For example, consider this situation:
+class ConstructorMayFail 
+{ 
+    ConstructorMayFail();
+
+    boost::optional<ConstructorMayFail> create();
+};
+
+# With exceptions:
+AnotherObject foo()
+{
+    ConstructorMyFail object;
+
+    // AnotherObject's consturctor would be called only if object is 
+    // valid. There is not need to check object.
+    return AnotherObject(object)
+}
+
+void bar()
+{
+    try {
+        foo ();   
+    } catch (std::excpetion &e) {
+       // Handle the error 
+    }
+}
+
+# With boost::optional
+boost::optional<AnotherObject> foo() {
+    auto object = ConstructorMayFail::create();
+
+    // Object can be invalid. We should make sure it is valid
+    // before we passing it to @c AnotherObject 's consturctor.
+    // This is an overhead, because that foo 's called should also 
+    // check its return value and so on.
+
+    // Note: it can also be implemented in @c AnotherObject 's factor function.
+    if (! object) {
+        return {};
+    } else {
+        return AnotherObject(*object);
+    }
+}
+
+## Another exceptions overhead and problem with modular design.
+As you can see, the boost::optional has overhead too. But real use of 
+modular excpetion model should catch excpetions from lower parts and rethrow them 
+as itsown excpetion. For example: TcpStream::connect should not throw a Socket::SocketError
+on failure. It should catch Socket::SocketError and throw its own TcpStream::ConnectTimeout.
+That's a overhead for excpetions that simetimes even not happens because that there are
+lazy programmers in the world.
+
+
