@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _LINUX
+
 #include "../Socket.h"
 
 #include <linux/socket.h>
@@ -25,11 +27,11 @@
 
 #define zqsocket_to_socket(zqsocket) ((struct socket *) zqsocket)
 
-static int ziqe_sendmsg (struct socket *sock, ZqKernelAddress buffer, ZqSizeType buffer_size,
+static int ziqe_sendmsg (struct socket *sock, ZqConstKernelAddress buffer, ZqSizeType buffer_size,
                          struct sockaddr *sockaddr, ZqSizeType sockaddr_len);
 static int ziqe_recvmsg (struct socket *sock, ZqKernelAddress buffer,
                          ZqSizeType buffer_size, struct sockaddr *sockaddr,
-                         ZqSizeType sockaddr_len);
+                         ZqSizeType *sockaddr_len);
 
 ZqSocket ZqSocketOpen(ZqSocketFamily family,
                       ZqSocketType type,
@@ -67,7 +69,7 @@ ZqBool ZqSocketBind(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
 
-    retval = sock->ops->bind(sock, (struct sockaddr *) sockaddr->in,
+    retval = sock->ops->bind(sock, (struct sockaddr *) &sockaddr->in,
                              sockaddr->socklen);
     if (retval)
         return ZQ_FALSE;
@@ -159,7 +161,7 @@ ZqBool ZqSocketSendTo(ZqSocket zqsocket, ZqConstKernelAddress buffer,
 
 
 static int ziqe_sendmsg (struct socket *sock,
-                         ZqKernelAddress buffer, ZqSizeType buffer_size,
+                         ZqConstKernelAddress buffer, ZqSizeType buffer_size,
                          struct sockaddr *sockaddr, ZqSizeType sockaddr_len) {
     struct msghdr msg;
     struct kvec kvec[1];
@@ -171,7 +173,7 @@ static int ziqe_sendmsg (struct socket *sock,
     msg.msg_controllen = 0;
     msg.msg_flags    = 0;
 
-    kvec[0].iov_base = buffer;
+    kvec[0].iov_base = (void*) buffer;
     kvec[0].iov_len = buffer_size;
 
     retval = kernel_sendmsg(sock, &msg, kvec, 1, kvec[0].iov_len);
@@ -181,13 +183,13 @@ static int ziqe_sendmsg (struct socket *sock,
 
 static int ziqe_recvmsg (struct socket *sock, ZqKernelAddress buffer,
                          ZqSizeType buffer_size, struct sockaddr *sockaddr,
-                         ZqSizeType sockaddr_len) {
+                         ZqSizeType *sockaddr_len) {
     struct msghdr msg;
     struct kvec kvec[1];
     int retval;
 
     msg.msg_name     = sockaddr;
-    msg.msg_namelen  = sockaddr_len;
+    msg.msg_namelen  = (sockaddr_len ? *sockaddr_len : 0);
     msg.msg_control  = NULL;
     msg.msg_controllen = 0;
     msg.msg_flags    = 0;
@@ -197,10 +199,13 @@ static int ziqe_recvmsg (struct socket *sock, ZqKernelAddress buffer,
 
     retval = kernel_recvmsg(sock, &msg, kvec, 1, kvec[0].iov_len, 0);
 
+    if (sockaddr_len)
+        *sockaddr_len = msg.msg_namelen;
+
     return retval;
 }
 
-ZqBool ZqSetSocketOption(ZqSocket zqsocket,
+ZqBool ZqSocketSetOption(ZqSocket zqsocket,
                          ZqSocketOptionLevel level,
                          ZqSocketOptionName name,
                          ZqConstKernelAddress optionValue,
@@ -209,7 +214,7 @@ ZqBool ZqSetSocketOption(ZqSocket zqsocket,
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int ret;
 
-    ret = sock->ops->setsockopt (sock, level, name, optionValue, optionSize);
+    ret = sock->ops->setsockopt (sock, level, name, (void*)optionValue, optionSize);
 
     if (ret)
         return ZQ_FALSE;

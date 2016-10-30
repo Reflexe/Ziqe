@@ -7,45 +7,48 @@ endmacro ()
 # Will be used to find Linux's headers.
 #set (zq_linux_version "")
 zq_get_current_linux_version (zq_linux_version)
+set(zq_linux_version "${zq_linux_version}" CACHE STRING "Linux version for drivers")
+
+set(zq_linux_here ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 
 # Linux X-obj param would get only relative parameter; but,
 # we can only get the absolute path to our library; therefore,
 # we would insert the relative path of root (/) from this directory.
 # (example: ../../../home/user/project/file instead of /home/user/project/file)
-file(RELATIVE_PATH zq_here_to_root ${CMAKE_CURRENT_SOURCE_DIR} /)
+file(RELATIVE_PATH zq_here_to_root ${zq_here} /)
+set(zq_here_to_root "${zq_here_to_root}" CACHE INTERNAL "A relative path to this directory")
 
-macro(zq_get_lib_linker_flags output_name lib_name)
-    set (current_target ${zq_target_prefix}${lib_name})
+macro(zq_linux_get_library_path current_target output_name)
     set (${output_name} "${zq_here_to_root}$<TARGET_LINKER_FILE:${current_target}>")
 endmacro ()
 
-macro(zq_linux_link_static_library lib_name)
-    zq_get_lib_linker_flags(lib_linker_flags ${lib_name})
-    set (ZQ_OBJECTS "${ZQ_OBJECTS} ${lib_linker_flags}")
-endmacro ()
 
 set(SOURCES Linux.c SystemCalls.c Process.c Memory.c
-    SpinLock.c Mutex.c EntryPoint.c Socket.c Logging.c)
+    SpinLock.c Mutex.c EntryPoint.c Socket.c Logging.c )
 
-# Add Ziqe's libraries to future drivers.
-zq_linux_link_static_library (Main)
-zq_linux_link_static_library (ZiqeProtocol)
-zq_linux_link_static_library (Core)
-zq_linux_link_static_library (Network)
-zq_linux_link_static_library (Base)
+set(SOURCES ${SOURCES} CACHE INTERNAL "The ZiqeAPI's Linux module's files")
 
-function(zq_add_driver name driver_sources)
-    string (REPLACE ";" " " MODULE_SOURCES "${driver_sources}")
+function(zq_add_driver name)
+    foreach(file ${SOURCES})
+        set(FULL_SOURCES ${FULL_SOURCES} "${zq_linux_here}/${file}")
+    endforeach()
+
+    zq_library_to_target(libraries ${ARGN})
+
+    foreach(library ${libraries})
+        zq_linux_get_library_path (${library} library_path)
+        set(ZQ_OBJECTS ${ZQ_OBJECTS} ${library_path})
+    endforeach()
+
+    string (REPLACE ";" " " MODULE_SOURCES "${SOURCES}")
+    string (REPLACE ";" " " MODULE_OBJECTS "${ZQ_OBJECTS}")
     add_custom_target (${name} ALL
-                       "${CMAKE_CURRENT_SOURCE_DIR}/CompileLinuxModule.sh" "${MODULE_SOURCES}" "${ZQ_OBJECTS}"
-                                                                           "${CMAKE_CURRENT_SOURCE_DIR}/Makefile"
-                                                                           "${zq_linux_version}"
-                       SOURCES ${SOURCES} Makefile
-                       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                       COMMENT "Building Linux module: ${name}")
+                       "${zq_linux_here}/CompileLinuxModule.sh" "${MODULE_SOURCES}" "${MODULE_OBJECTS}" "${zq_linux_here}/Makefile" "${zq_linux_version}" "${CMAKE_CURRENT_BINARY_DIR}" "${name}"
+                       SOURCES ${FULL_SOURCES} "${zq_linux_here}/Makefile" "${zq_linux_here}/CompileLinuxModule.sh"
+                       WORKING_DIRECTORY "${zq_linux_here}"
+                       COMMENT "Building Linux module: ${name}"
+                       DEPENDS ${libraries})
 
      # Make the other target include Linux's (linux/X) headers.
-     target_include_directories (${current_target} BEFORE PUBLIC "/usr/lib/modules/${zq_linux_version}/build/include/")
+     #target_include_directories (${name} BEFORE PUBLIC "/usr/lib/modules/${zq_linux_version}/build/include/")
 endfunction ()
-
-zq_add_driver (main ${SOURCES})

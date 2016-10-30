@@ -29,7 +29,11 @@
 #define ZQ_NO_BACKLOG (0)
 
 typedef struct {
+    // The size of the current active sockaddr.
     ZqSizeType socklen;
+
+    ZqSocketFamily socket_family;
+
     union {
         Zq_sockaddr_in in;
         Zq_sockaddr_in6 in6;
@@ -130,14 +134,15 @@ ZqBool ZqSocketSendTo(ZqSocket zqsocket,
                       const ZqSocketAddress *sockaddr,
                       ZqSizeType *bytesSent);
 
-ZqBool ZqSetSocketOption (ZqSocket zqsocket,
+ZqBool ZqSocketSetOption (ZqSocket zqsocket,
                           ZqSocketOptionLevel level,
                           ZqSocketOptionName name,
                           ZqConstKernelAddress optionValue,
                           ZqSizeType optionSize);
 
-ZqBool ZqAccept(ZqSocket zqsocket,
-                )
+// TODO
+//ZqBool ZqAccept(ZqSocket zqsocket,
+//                )
 
 ZQ_END_C_DECL
 

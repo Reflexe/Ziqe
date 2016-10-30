@@ -63,7 +63,7 @@
   @endcode
   */
 #define ZQ_SGMT_BEGIN do {
-#define ZQ_SGMT_END } while(1)
+#define ZQ_SGMT_END } while(0)
 
 /* I HATE misleading titles! */
 #define inline_hint inline

@@ -21,6 +21,8 @@
  * Implementation of the SystemCalls.h ZiqeAPI for Linux.
  */
 
+#define _LINUX
+
 #include "../SystemCalls.h"
 
 #include "../Memory.h"

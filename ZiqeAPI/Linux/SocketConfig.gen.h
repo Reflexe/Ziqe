@@ -22,14 +22,14 @@
 
 #ifdef _LINUX
 // struct sockaddr_storage, AF_*, SOCK_*, SO_*, SOL_*
-#include <linux/socket.h>
+#include <uapi/linux/socket.h>
 
 // IPPROTO_*
-#include <linux/ip.h>
+#include <uapi/linux/ip.h>
 
 // sockaddr_in[6]
-#include <linux/in.h>
-#include <linux/in6.h>
+#include <uapi/linux/in.h>
+#include <uapi/linux/in6.h>
 #else
 // This headers are "C++ Safe".
 
@@ -52,9 +52,9 @@ typedef int ZqSocketProtocol;
 typedef int ZqSocketOptionLevel;
 typedef int ZqSocketOptionName;
 
-typedef in_addr ZqIpv4Address;
-typedef in6_addr ZqIpv6Address;
-typedef in_port_t ZqPort;
+typedef struct in_addr ZqIpv4Address;
+typedef struct in6_addr ZqIpv6Address;
+typedef uint16_t ZqPort;
 
 #define ZQ_AF_INET AF_INET
 #define ZQ_AF_INET6 AF_INET6
@@ -65,8 +65,6 @@ typedef in_port_t ZqPort;
 
 #define ZQ_OPTION_BROADCAST SO_BROADCAST
 #define ZQ_LEVEL_SOCKET SOL_SOCKET
-
-#define ZQ_SOCKLEN_BY_ADDRSIZE(size) ((size) + )
 
 #define ZQ_INADDR_ANY INADDR_ANY
 #define ZQ_INADDR6_ANY IN6ADDR_ANY_INIT

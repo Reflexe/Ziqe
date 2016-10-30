@@ -1,3 +1,5 @@
+#define _LINUX
+
 #include "../Logging.h"
 
 #include <linux/module.h>
