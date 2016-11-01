@@ -20,14 +20,13 @@
 #ifndef ZIQE_LOGGER_H
 #define ZIQE_LOGGER_H
 
+#include "ZiqeAPI/Logging.h"
 
 namespace Ziqe {
 
 class Logger
 {
 public:
-    Logger();
-
     /**
        @brief Log and report an error.
        @param string    The message.
@@ -35,19 +34,32 @@ public:
        @note This function should get used in a very rare cases in release:
              on some architectures, it will stop the system.
      */
-    static void logError (const char *string);
+    static void logError (const char *string)
+    {
+        ZqOnBug (string);
+    }
 
     /**
        @brief Log a warning message.
        @param string  The message.
      */
-    static void logWarning (const char *string);
+    static void logWarning (const char *string)
+    {
+        ZqLogWarning (string);
+    }
 
     /**
        @brief Log a regular information message.
        @param string  The message.
      */
-    static void logMessage (const char *string);
+    static void logMessage (const char *string)
+    {
+        ZqLogText (string);
+    }
+
+private:
+    Logger();
+
 };
 
 } // namespace Ziqe
