@@ -77,10 +77,10 @@ public:
         return mIsError;
     }
 
-    const ErrorType &getError() const{
+    ZQ_DEFINE_CONST_AND_NON_CONST(const ErrorType&, ErrorType&, getError, (), {
         DEBUG_CHECK (mIsError);
         return mError;
-    }
+    })
 
     ZQ_DEFINE_CONST_AND_NON_CONST (const T&, T&, get, (), {
         DEBUG_CHECK (!mIsError);

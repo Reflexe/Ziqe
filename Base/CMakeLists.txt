@@ -2,6 +2,7 @@ zq_add_library(Base LocalProcess LocalThread SystemCalls ProcessManager
                Vector HashTable Memory IteratorTools Callback Checks
                Types LinkedList Mutex FunctionTools
                FieldReader FieldWriter RWLock RedBlackTree
-               SpinLock RangesMap ExtendedVector Logger Socket Optional)
+               SpinLock RangesMap ExtendedVector Logger Socket Optional
+               Expected)
 
 add_subdirectory (Tests)
