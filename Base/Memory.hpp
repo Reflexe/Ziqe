@@ -51,20 +51,26 @@ struct Allocator {
     }
 };
 
-template<class T>
-struct Constructor {
+/**
+  @brief A constructor that can construct a @tparam T on element from
+         StorageType that atleast in sizeof(T).
+ */
+template<class T, class StorageType>
+struct CustomStorageConstructor {
     template<class ...Args>
-    T *constructN(T *pointer, SizeType n, Args ...args)
+    T *constructN(StorageType *pointer, SizeType n, Args ...args)
     {
         return ::new(static_cast<void*>(pointer)) T[n]{Base::forward<Args>(args)...};
     }
 
     template<class ...Args>
-    T *construct(T *pointer, Args&&...args)
+    T *construct(StorageType *pointer, Args&&...args)
     {
         return ::new(static_cast<void*>(pointer)) T{Base::forward<Args>(args)...};
     }
 
+    /// These function receives T* and not StorageType* because of
+    /// strict aliasing rule.
     void destruct(T *pointer, SizeType n) {
         // Destruct in reverse
         while (n--)
@@ -76,6 +82,16 @@ struct Constructor {
         pointer->~T();
     }
 };
+
+/**
+  @brief A default constructor that uses its own type
+         as StorageType.
+
+  In the most case, it should work.
+ */
+template<class T>
+using Constructor=CustomStorageConstructor<T, T>;
+
 
 template<class T>
 struct DefaultDeleter {
@@ -265,7 +281,7 @@ public:
     }
 };
 
-// TODO:  make CountType atomic.
+// TODO:  make CountType atomic: write an atomic API.
 template<class DeleterType>
 struct _SharedPointerReferenceType
 {
