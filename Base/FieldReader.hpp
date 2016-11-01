@@ -116,7 +116,7 @@ public:
 
     bool haveBytes (SizeType length)
     {
-        return mVector.size () >= length;
+        return mVector.hasLength (length);
     }
 
     RawPointer<uint8_t> getCurrent()
@@ -127,7 +127,7 @@ public:
     template<class T, SizeType sByteLength=sizeof (T)>
     bool canReadT() const
     {
-        return mVector.size() <= sByteLength;
+        return haveBytes (sByteLength);
     }
 
     VectorType &getVector ()
