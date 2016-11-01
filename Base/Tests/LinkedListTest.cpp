@@ -20,24 +20,11 @@
 
 #include "Base/LinkedList.hpp"
 #include "Base/IteratorTools.hpp"
-
-#include <cassert>
-#include <cstdio>
+#include "ZiqeAPI/EntryPoints.h"
 
 #define N 20
 
-template<class T>
-void printContainer (const T &obj)
-{
-    for (const auto &o : obj)
-    {
-        printf ("%d ", o);
-    }
-
-    putchar ('\n');
-}
-
-int main ()
+void ZqAPIInit ()
 {
     using Ziqe::Base::LinkedList;
     using Ziqe::Base::next;
@@ -59,7 +46,7 @@ int main ()
         int i = 0;
         for (int n : list)
         {
-            assert (i == n);
+            DEBUG_CHECK (i == n);
 
             ++i;
         }
@@ -67,11 +54,11 @@ int main ()
 
     // copy consturctor
     anotherList = list;
-    assert (list.size () == N);
-    assert (anotherList.size () == N);
+    DEBUG_CHECK (list.size () == N);
+    DEBUG_CHECK (anotherList.size () == N);
 
     // end, before end
-    assert (list.end () == next (list.beforeEnd ()));
+    DEBUG_CHECK (list.end () == next (list.beforeEnd ()));
 
     // erase
     list.erase (list.begin ());
@@ -81,28 +68,26 @@ int main ()
     list.insert (list.cend (), anotherList.beforeEnd (), anotherList.end ());
 
     {
-        printContainer (list);
-
         int i = 0;
         for (int n : list)
         {
-            assert (i == n);
+            DEBUG_CHECK (i == n);
 
             ++i;
         }
     }
 
     {
-        printContainer (list);
-
         int i = 0;
         for (int n : anotherList)
         {
-            assert (i == n);
+            DEBUG_CHECK (i == n);
 
             ++i;
         }
     }
+}
 
-    return 0;
+void ZqAPIExit ()
+{
 }
