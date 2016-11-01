@@ -26,6 +26,13 @@
 namespace Ziqe {
 namespace Base {
 
+/**
+  @brief An template used to extend vector's functionality and support
+         offseted vectors.
+
+  @note Some types implements this functionality by itself and not uses
+        this template.
+ */
 template<class T, class VectorType=Vector<T>,
                   // By default it's the vector's container.
                   class VectorReferenceType=VectorType>
@@ -34,7 +41,7 @@ class ExtendedVector
 public:
     typedef typename VectorType::SizeType SizeType;
 
-    const static DifferenceType kNoIndex = static_cast<DifferenceType>(-1);
+    const static SizeType kNoIndex = static_cast<SizeType>(-1);
 
     ExtendedVector()
         : mIndexBegin{0}, mIndexEnd{0}
@@ -43,29 +50,29 @@ public:
     }
 
     explicit ExtendedVector(VectorReferenceType &&vector)
-        : mVector{Base::move (vector)}, mIndexBegin{0}, mIndexEnd{static_cast<DifferenceType>(getVector().size())}
+        : mVector{Base::move (vector)}, mIndexBegin{0}, mIndexEnd{static_cast<SizeType>(getVector().size())}
     {
     }
 
     explicit ExtendedVector(VectorReferenceType &&vector,
-                            const DifferenceType        indexBegin,
-                            const DifferenceType        indexEnd=kNoIndex)
+                            const SizeType        indexBegin,
+                            const SizeType        indexEnd=kNoIndex)
         : mVector{Base::move (vector)},
           mIndexBegin{indexBegin},
-          mIndexEnd{(indexEnd == kNoIndex) ? static_cast<DifferenceType>(getVector().size()) : indexEnd}
+          mIndexEnd{(indexEnd == kNoIndex) ? static_cast<SizeType>(getVector().size()) : indexEnd}
     {
         DEBUG_CHECK (mIndexEnd > mIndexBegin);
     }
 
     ZQ_ALLOW_COPY_AND_MOVE (ExtendedVector)
 
-    T &operator [](DifferenceType index) {
+    T &operator [](SizeType index) {
         DEBUG_CHECK_ADD_OVERFLOW (index, mIndexBegin);
 
         return (getVector())[static_cast<SizeType>(index + mIndexBegin)];
     }
 
-    const T &operator [](DifferenceType index) const {
+    const T &operator [](SizeType index) const {
         DEBUG_CHECK_ADD_OVERFLOW (index, mIndexBegin);
 
         return (getVector())[static_cast<SizeType>(index + mIndexBegin)];
@@ -95,7 +102,7 @@ public:
         return size();
     }
 
-    void increaseBegin (DifferenceType howMuch = 1) {
+    void increaseBegin (SizeType howMuch = 1) {
         DEBUG_CHECK_ADD_OVERFLOW (howMuch, mIndexBegin);
         DEBUG_CHECK (mIndexBegin + howMuch <= mIndexEnd);
 
@@ -148,8 +155,8 @@ public:
 private:
     VectorReferenceType mVector;
 
-    DifferenceType mIndexBegin;
-    DifferenceType mIndexEnd;
+    SizeType mIndexBegin;
+    SizeType mIndexEnd;
 };
 
 template<class T>
