@@ -46,6 +46,7 @@ typedef struct
 
 typedef struct {
     ZqThreadID threadID;
+    ZqThreadRegisters registers;
 } ZqThreadInfo;
 
 #define ZQ_NO_PROCESS_ID (0)

@@ -24,8 +24,8 @@
 
 ZQ_BEGIN_C_DECL
 
-void ZqAPIInit (void);
-void ZqAPIExit (void);
+extern void ZqAPIInit (void);
+extern void ZqAPIExit (void);
 
 ZQ_END_C_DECL
 

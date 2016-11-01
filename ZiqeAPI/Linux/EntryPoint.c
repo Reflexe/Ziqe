@@ -26,7 +26,7 @@
 
 static int __init linux_init(void)
 {
-        pr_info("in linux_init\n");
+        //pr_info("in linux_init\n");
         ZqAPIInit();
 
         return 0;
@@ -36,7 +36,7 @@ static int __init linux_init(void)
 static void __exit linux_exit(void)
 {
         ZqAPIExit();
-        pr_info("in linux_exit\n");
+        //pr_info("in linux_exit\n");
 }
 
 module_init(linux_init);
