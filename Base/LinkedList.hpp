@@ -149,8 +149,6 @@ public:
         }
     };
 
-    typedef SizeType SizeType;
-
     LinkedList()
         : mBegin{nullptr}, mBeforeEnd{mBegin}, mSize{0}
     {
@@ -339,12 +337,12 @@ public:
 
     void pop_back ()
     {
-        return erase (cBeforeEnd ());
+        erase (cBeforeEnd ());
     }
 
     void pop_front ()
     {
-        return erase (cbegin ());
+        erase (cbegin ());
     }
 
     void swap(LinkedList &other) {
@@ -353,7 +351,7 @@ public:
 
         other.mBegin     = mBegin;
         other.mBeforeEnd = mBeforeEnd;
-        other.size       = mSize;
+        other.mSize       = mSize;
 
         mBegin       = begin;
         mBeforeEnd   = beforeEnd;
