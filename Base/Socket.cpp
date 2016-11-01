@@ -22,35 +22,59 @@
 namespace Ziqe {
 namespace Base {
 
-Socket::Socket(ZqSocketFamily family, ZqSocketType type, ZqSocketProtocol protocol)
+Socket::Socket(Family family, Type type, ZqSocketProtocol protocol)
 {
-    mSocket = ZqSocketOpen (family, type, protocol);
+    mSocket = ZqSocketOpen (static_cast<ZqSocketFamily>(family),
+                            static_cast<ZqSocketType>(type),
+                            protocol);
 }
 
-Socket Socket::Connect(const Socket::SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol) {
-    auto socket = Socket{address.getFamily (), type, protocol};
+Expected<Socket,Socket::ConnectError>
+Socket::Connect(const Socket::SocketAddress &address, Socket::Type type, ZqSocketProtocol protocol) {
+    // first of all, create the socket.
+    Socket socket{static_cast<Family>(address.getFamily ()), type, protocol};
 
-    ZqSocketConnect (socket.mSocket, &address.get ());
+    // If it is not a valid socket, return nullptr.
+    if (! socket.isOpen ())
+        return {ConnectError::Other};
 
-    return socket;
+    if (! socket.connect (address))
+        return {ConnectError::Timeout};
+
+    return {std::move (socket)};
 }
 
-Socket Socket::Listen(const Socket::SocketAddress &address, ZqSocketType type,
-                      ZqSizeType backlog, ZqSocketProtocol protocol) {
-    auto socket = Socket{address.getFamily (), type, protocol};
+Expected<Socket,Socket::ListenError>
+Socket::Listen(const Socket::SocketAddress &address, Socket::Type type,
+               ZqSizeType backlog, ZqSocketProtocol protocol)
+{
+    // We should bind the socket before listening to it.
+    auto bindedSocket = Bind (address, type, protocol);
 
-    ZqSocketBind(socket.mSocket, &address.get ());
-    ZqSocketListen (socket.mSocket, backlog);
+    if (! bindedSocket)
+        return {ListenError::Other};
 
-    return socket;
+    if (! bindedSocket->listen (backlog))
+        return {ListenError::Other};
+
+    return {std::move (bindedSocket.get ())};
 }
 
-Socket Socket::Bind(const Socket::SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol) {
-    auto socket = Socket{address.getFamily (), type, protocol};
+Expected<Socket,Socket::BindError>
+Socket::Bind(const Socket::SocketAddress &address,
+             Socket::Type type, ZqSocketProtocol protocol)
+{
+    // first of all, create the socket.
+    Socket socket{static_cast<Family>(address.getFamily ()), type, protocol};
 
-    ZqSocketBind(socket.mSocket, &address.get ());
+    // If it is not a valid socket, return nullptr.
+    if (! socket.isOpen ())
+        return {BindError::Other};
 
-    return socket;
+    if (! socket.bind (address))
+        return {BindError::Other};
+
+    return {std::move (socket)};
 }
 
 bool Socket::isOpen() const
@@ -81,7 +105,7 @@ void Socket::send(const RawArray<const uint8_t> &array) const{
     }
 }
 
-Vector<uint8_t> Socket::receive() const{
+Expected<Vector<uint8_t>,Socket::ReceiveError> Socket::receive() const{
     Vector<uint8_t> vector;
     ZqSizeType bytesReceived;
 
@@ -92,14 +116,17 @@ Vector<uint8_t> Socket::receive() const{
                                    vector.data (),
                                    vector.size (),
                                    &bytesReceived);
-    DEBUG_CHECK (result);
+    if (! result)
+        return {Socket::ReceiveError::Timeout};
+    else if (bytesReceived == 0)
+        return {Socket::ReceiveError::Disconnected};
 
     // Remove the unrequired bytes from the vector.
     vector.shrinkWithoutFree (vector.size () - bytesReceived);
-    return vector;
+    return {std::move (vector)};
 }
 
-void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const RawArray<uint8_t> &array) const{
+void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const{
     ZqSizeType bytesSent = 0;
 
     while (bytesSent < array.size ()) {
@@ -115,7 +142,8 @@ void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const Raw
     }
 }
 
-Pair<Vector<uint8_t>, Socket::SocketAddress> Socket::receiveWithAddress() const{
+Expected<Pair<Vector<uint8_t>, Socket::SocketAddress>, Socket::ReceiveError>
+Socket::receiveWithAddress() const{
     Vector<uint8_t> vector;
     ZqSizeType bytesReceived;
     SocketAddress socketAddress;
@@ -127,16 +155,36 @@ Pair<Vector<uint8_t>, Socket::SocketAddress> Socket::receiveWithAddress() const{
                                        vector.size (),
                                        &socketAddress.get (),
                                        &bytesReceived);
-    DEBUG_CHECK (result);
+
+    if (! result)
+        return {Socket::ReceiveError::Timeout};
+    else if (bytesReceived == 0)
+        return {Socket::ReceiveError::Disconnected};
 
     // Remove the unrequired bytes from the vector.
     vector.shrinkWithoutFree (vector.size () - bytesReceived);
     return {vector, socketAddress};
 }
 
-Socket::SocketAddress Socket::acceptClient()
-{
-    ZqSocketClose ()
+bool Socket::bind(const SocketAddress &address) {
+    if (! ZqSocketBind (mSocket, &address.get ()))
+        return false;
+
+    return true;
+}
+
+bool Socket::connect(const SocketAddress &address) {
+    if (! ZqSocketConnect (mSocket, &address.get ()))
+       return false;
+
+    return true;
+}
+
+bool Socket::listen(ZqSizeType backlog) {
+    if (! ZqSocketListen (mSocket, backlog))
+        return false;
+
+    return true;
 }
 
 } // namespace Base

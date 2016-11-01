@@ -24,6 +24,7 @@
 
 #include "Base/Memory.hpp"
 #include "Base/Vector.hpp"
+#include "Base/Expected.hpp"
 
 namespace Ziqe {
 namespace Base {
@@ -33,12 +34,48 @@ class Socket
 public:
     static const SizeType ReceiveBufferSize = 512;
 
+    /**
+       @brief   Possible socket option layers.
+     */
+    enum class OptionLevel : ZqSocketOptionLevel {
+        /// SOL_SOCKET
+        Socket = ZQ_LEVEL_SOCKET
+    };
+
+    /**
+       @brief   Possible socket option names.
+     */
+    enum class OptionName : ZqSocketOptionName {
+        /// SO_BROADCAST
+        Broadcast = ZQ_OPTION_BROADCAST
+    };
+
+    enum class Type : ZqSocketType {
+        /// SOCK_STREAM
+        Stream = ZQ_SOCKET_TYPE_STREAM,
+        /// SOCK_DGRAM
+        Datagram = ZQ_SOCKET_TYPE_DGRAM
+    };
+
+    enum class Family : ZqSocketFamily {
+        /// AF_UNSPEC
+        Unsec = ZQ_AF_UNSPEC,
+        /// AF_INET
+        IPv4 = ZQ_AF_INET,
+        /// AF_INET6
+        IPv6 = ZQ_AF_INET6,
+    };
+
+    /**
+       @brief   An creator and container of ZqSocketAddress structs.
+     */
     struct SocketAddress {
         SocketAddress() = default;
 
         static SocketAddress CreateIn6(Zq_in6_addr address, ZqPort port) {
             SocketAddress socketAddress;
 
+            socketAddress.mSocketAddress.socket_family     = ZQ_AF_INET6;
             socketAddress.mSocketAddress.in6.sin6_family   = ZQ_AF_INET6;
             socketAddress.mSocketAddress.in6.sin6_addr     = address;
             socketAddress.mSocketAddress.in6.sin6_port     = port;
@@ -52,7 +89,9 @@ public:
         static SocketAddress CreateIn4(Zq_in_addr address, ZqPort port) {
             SocketAddress socketAddress;
 
-            socketAddress.mSocketAddress.in.sin_family = ZQ_AF_INET;
+            socketAddress.mSocketAddress.socket_family
+                    = socketAddress.mSocketAddress.in.sin_family = ZQ_AF_INET;
+
             socketAddress.mSocketAddress.in.sin_addr   = address;
             socketAddress.mSocketAddress.in.sin_port   = port;
             socketAddress.mSocketAddress.socklen = sizeof(socketAddress.mSocketAddress.in);
@@ -69,16 +108,14 @@ public:
 
     private:
         ZqSocketAddress mSocketAddress;
+
     };
 
-    Socket(ZqSocketFamily family, ZqSocketType type, ZqSocketProtocol protocol);
-    Socket(const SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol=0);
-
-    static Socket Connect(const SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol=0);
-    static Socket Listen(const SocketAddress &address, ZqSocketType type, ZqSizeType backlog=ZQ_NO_BACKLOG, ZqSocketProtocol protocol=0);
-    static Socket Bind(const SocketAddress &address, ZqSocketType type, ZqSocketProtocol protocol=0);
+    Socket(Family family, Type type, ZqSocketProtocol protocol=0);
+    Socket(const SocketAddress &address, Type type, ZqSocketProtocol protocol=0);
 
     ZQ_DISALLOW_COPY(Socket)
+
     Socket(Socket &&socket)
         : mSocket{socket.mSocket}
     {
@@ -94,23 +131,142 @@ public:
         return *this;
     }
 
+    enum class ConnectError {
+        Timeout,
+        Other
+    };
+
+    /**
+       @brief Try to create a socket and connect it.
+       @param address   The socket address to connect to.
+       @param type      The socket type to be created.
+       @param protocol  The socket protocol.
+       @return On success: A pointer to the newly created socket on success.
+               On failure: nullptr.
+     */
+    static Expected<Socket,ConnectError> Connect(const SocketAddress &address, Type type, ZqSocketProtocol protocol=0);
+
+    enum class ListenError{
+        Other
+    };
+
+    /**
+       @brief Try to create a socket and listen for new connections.
+       @param address   The socket address to listen to.
+       @param type      The socket type to be created.
+       @param backlog   The maximum number of waiting clients (ZQ_NO_BACKLOG for no limit).
+       @param protocol  The socket protocol.
+       @return On success: A pointer to the newly created socket on success.
+               On failure: nullptr.
+     */
+    static Expected<Socket, ListenError> Listen(const SocketAddress &address,
+                                                Type type,
+                                                ZqSizeType backlog=ZQ_NO_BACKLOG,
+                                                ZqSocketProtocol protocol=0);
+
+    enum class BindError{
+        Other
+    };
+
+    /**
+       @brief Try to create a socket and bind it.
+       @param address   The socket address to bind this socket to.
+       @param type      The socket type to be created.
+       @param protocol  The socket protocol.
+       @return On success: A pointer to the newly created socket on success.
+               On failure: nullptr.
+     */
+    static Expected<Socket,BindError> Bind(const SocketAddress &address, Type type, ZqSocketProtocol protocol=0);
+
+    /**
+       @brief Check if this socket is open and valid or closed or invalid.
+     */
     bool isOpen() const;
 
+    /**
+       @brief If open, close this socket.
+     */
     void close();
 
+    /**
+       @brief Send an array of bytes to this socket.
+       @param array
+     */
     void send(const RawArray<const uint8_t> &array) const;
 
-    Vector<uint8_t> receive() const;
+    enum class ReceiveError {
+        Disconnected,
+        Timeout,
+        Other
+    };
 
-    SocketAddress acceptClient();
+    /**
+       @brief   Receive an array of bytes from this socket.
+       @return  The received bytes.
+     */
+    Expected<Vector<uint8_t>,ReceiveError> receive() const;
 
-    void sendToAddress(const SocketAddress &socketAddress, const RawArray<uint8_t> &array) const;
+    /**
+       @brief Wait until a new client try to connect.
+       @return a Pair:
+                - first:    the client's socket.
+                - second:   the client's SocketAddress.
+     */
+    Pair<Socket, SocketAddress> acceptClient();
 
-    Pair<Vector<uint8_t>, SocketAddress> receiveWithAddress() const;
+    /**
+       @brief Send a bytes array to @a socketAddress.
+       @param socketAddress
+       @param array
+     */
+    void sendToAddress(const SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const;
+
+    /**
+       @brief   Receive a bytes array and the sender's SocketAddress.
+       @return  a Pair:
+                    - first: The received bytes.
+                    - second: The sender's socket address.
+     */
+    Expected<Pair<Vector<uint8_t>, SocketAddress>, ReceiveError> receiveWithAddress() const;
+
+    /**
+      @brief Type-safely set a socket option.
+
+      @param level  This option's level, one from Z
+
+      A wapper around ZqSocketSetOption that provides type safety.
+     */
+    template<class T>
+    void setSocketOption (OptionLevel level, OptionName name, const T &optionValue) {
+        ZqSocketSetOption (mSocket, static_cast<ZqSocketOptionLevel>(level), static_cast<ZqSocketOptionName>(name),
+                           static_cast<ZqConstKernelAddress> (&optionValue), sizeof (optionValue));
+    }
+
+    /**
+       @brief Bind a SocketAddress to this socket.
+       @param address
+       @return
+     */
+    bool bind(const SocketAddress &address);
+
+    /**
+       @brief Connect a SocketAddress to this socket.
+       @param address
+       @return
+     */
+    bool connect (const SocketAddress &address);
+
+    /**
+       @brief Tell a socket to listen (Hi Jim, LISTEN!)
+       @param address
+       @param backlog
+     */
+    bool listen(ZqSizeType backlog=ZQ_NO_BACKLOG);
 
 private:
-    void bind(const SocketAddress &socketAddress);
-
+    /**
+       @brief  This socket's ZqSocket.
+     */
     ZqSocket mSocket;
 
 };
