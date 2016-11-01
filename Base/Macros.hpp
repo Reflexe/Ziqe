@@ -50,6 +50,14 @@
 namespace Ziqe {
 namespace Base {
 
+/**
+  @brief Safely ignore variables without compiler warnings.
+ */
+template<class... Args>
+constexpr void IgnoreUnused (Args...)
+{
+}
+
 template<class T>
 constexpr const T &max(const T &one, const T &two)
 {
