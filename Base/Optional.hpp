@@ -12,7 +12,6 @@ namespace Base {
 
 /**
   @brief A strict-aliasing-safe boost::optional implementation.
-  @todo Testing.
  */
 template<class T, class _Constructor=CustomStorageConstructor<T, char>>
 class Optional
