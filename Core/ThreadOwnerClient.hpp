@@ -1,8 +1,8 @@
 /**
  * @file ThreadOwnerClient.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,31 +23,30 @@
 #include "Base/Memory.hpp"
 #include "Base/LocalThread.hpp"
 
-#include "Core/ZiqeProtocol/MessageStream.hpp"
+#include "Core/Protocol/MessageStream.hpp"
 
-#include "Core/ZiqeProtocol/ProcessPeersServer.hpp"
-#include "Core/ZiqeProtocol/MemoryRevision.hpp"
+#include "Core/ProcessPeersServer.hpp"
+#include "Core/Protocol/MemoryRevision.hpp"
 
 namespace Ziqe {
-namespace Protocol {
 
 // Local Allocations: Allowed, but the page should be registred by the
 // ProcessOwner first. The method: GetAndAllocateNewPage.
-class ThreadOwnerClient final : implements private MessageStream::Callback
+class ThreadOwnerClient final
 {
 public:
-    ThreadOwnerClient(Base::UniquePointer<MessageStream> &&stream);
+    ThreadOwnerClient(Base::UniquePointer<Protocol::MessageStream> &&stream);
 
     ZqRegisterType doSystemCall(ZqSystemCallIDType id,
                                 const Base::RawArray<ZqRegisterType> parameters,
-                                MemoryRevision &revision);
+                                Protocol::MemoryRevision &revision);
 
     ZqUserAddress getAndReserveMemory (SizeType bytesCount);
 
 private:
-    void onMessageReceived (const Message &type,
-                            MessageFieldReader &fieldReader,
-                            const MessageStream &messageStream) override;
+    void onMessageReceived (const Protocol::Message &type,
+                            Protocol::MessageStream::MessageFieldReader &fieldReader,
+                            const Protocol::MessageStream &messageStream);
 
     struct Task {
         enum class Type {
@@ -71,7 +70,7 @@ private:
         {}
 
         ZqRegisterType result;
-        MemoryRevision newRevision;
+        Protocol::MemoryRevision newRevision;
     };
 
     struct GetAndReserveMemoryTask : Task {
@@ -83,7 +82,7 @@ private:
     };
 
     // Receivers
-    void sendThreadOwnerMessage (const MessageStream::OutputDataType &vector)
+    void sendThreadOwnerMessage (const Protocol::MessageStream::OutputDataType &vector)
     {
         mThreadOwnerStream->sendMessage (vector);
     }
@@ -92,7 +91,7 @@ private:
         mCurrentTaskType = task.mTaskType;
 
         do {
-            mThreadOwnerStream->receiveMessage (*this);
+            mThreadOwnerStream->receiveMessage ();
         } while (task.isComplete == false);
     }
 
@@ -102,10 +101,9 @@ private:
     DoSystemCallTask mSystemCallTask;
     GetAndReserveMemoryTask mGetAndReserveMemoryTask;
 
-    Base::UniquePointer<MessageStream> mThreadOwnerStream;
+    Base::UniquePointer<Protocol::MessageStream> mThreadOwnerStream;
 };
 
 } // namespace Ziqe
-} // namespace Protocol
 
 #endif // ZIQE_THREADOWNERCLIENT_H

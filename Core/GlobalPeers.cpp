@@ -1,8 +1,8 @@
 /**
  * @file GlobalPeers.cpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,26 +19,65 @@
  */
 #include "GlobalPeers.hpp"
 
+#include "ThreadOwnerServer.hpp"
+
 namespace Ziqe {
 
-GlobalPeers::GlobalPeers()
+GlobalPeers::GlobalPeers(Base::UniquePointer<MessageStreamFactoryInterface> &&streamFactory)
+    : mStreamFactory{Base::move (streamFactory)}
 {
 
 }
 
-Base::UniquePointer<GlobalThread> GlobalPeers::runThread(const LocalThread &localThread) {
-    // Choose the next identifer: should be the previous one plus 1.
-    auto messageIdentifer = mNextIdentifer;
-    ++mNextIdentifer;
+Base::Expected<GlobalThread, GlobalPeers::RunThreadError> GlobalPeers::runThread(const LocalThread &localThread,
+                                                         const Base::SharedPointer<GlobalProcess> &globalProcess)
+{
+    // Check if we already have a GlobalProcess for this thread's process.
+    if (! globalProcess) {
+        /**
+            * Create a connection from the factory.
+            * Send a global lookup message.
+            * Receive responses.
+            * Turn the connection to unique, Answer one of them.
+            * DONE.
 
-    mGlobalMessageStream.sendMessage (MessagesGenerator::makeRunThreadPeerLookup (messageIdentifer));
+            Q: Should the server do something about a lookup request?
+            A: No! only send a response if he wants.
+         */
 
-    ProcessPeersServer processPeers;
+        auto globalStream = mStreamFactory->createGlobalMessageStream ();
+        globalStream.sendMessage (Protocol::MessagesGenerator::makeRunThreadPeerLookup ());
+
+        auto globalServer = mStreamFactory->createMessageServerFromStream (Base::move (globalStream));
+
+        waitForCurrentTask (mCurrentThreadSentTask, globalServer);
+
+        // We have received a propose message.
+        mCurrentThreadSentTask.getProposedClient ().sendMessage (Protocol::MessagesGenerator::makeRunThreadPeerAcceptPropose ());
+
+        // Create ProcessPeers{Server,Client} and ThreadOwnerServer
+        // ProcessPeersServer should send hello to the other ProcessPeersServer.
+        auto newProcessPeersServer = ProcessPeersServer{Base::move (globalServer)};
+        auto newThreadOwnerServer = ThreadOwnerServer{mStreamFactory->createMessageServer ()};
+
+
+    } else {
+        // Get this process' ProcessPeers
+
+        // TODO: implementation :D
+    }
+}
+
+void GlobalPeers::runThreadRequestWorker(Protocol::MessageStream &stream) {
+    // Create a process peers
+
+    auto newProcessPeers = ProcessPeersServer::CreateWithPeer (Base::move (stream),
+                                                               static_cast<GlobalThreadID>(localThread.getThreadID ()));
 }
 
 void GlobalPeers::onMessageReceived(const Protocol::Message &type,
-                                    Protocol::MessageStream::Callback::MessageFieldReader &fieldReader,
-                                    const Protocol::MessageStream &messageStream)
+                                    Protocol::MessageStream::MessageFieldReader &fieldReader,
+                                    Protocol::MessageStream &&messageStream)
 {
     using Protocol::Message;
 
@@ -49,6 +88,9 @@ void GlobalPeers::onMessageReceived(const Protocol::Message &type,
     case Message::Type::RunThreadPeerLookupAcceptPropose:
         break;
     case Message::Type::RunThreadPeerLookupPropose:
+        if (! mCurrentThreadSentTask.isComplete ()) {
+            mCurrentThreadSentTask.setProposedClient (Base::move (messageStream));
+        }
         break;
     default:
         return;

@@ -1,8 +1,8 @@
 /**
  * @file Socket
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ ZqSocket ZqSocketOpen(ZqSocketFamily family,
     struct socket *sock;
     int retval;
 
-     retval = sock_create(family, type, protocol, &sock);
+     retval = sock_create_lite (family, type, protocol, &sock);
      if (retval != 0)
          return ZQ_INVALID_SOCKET;
      else
@@ -58,7 +58,7 @@ ZqBool ZqSocketListen(ZqSocket zqsocket,
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
 
-    retval = sock->ops->listen (sock, backlog);
+    retval = kernel_listen (sock, backlog);
     if (retval)
         return ZQ_FALSE;
 
@@ -69,8 +69,8 @@ ZqBool ZqSocketBind(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
 
-    retval = sock->ops->bind(sock, (struct sockaddr *) &sockaddr->in,
-                             sockaddr->socklen);
+    retval = kernel_bind(sock, (struct sockaddr *) &sockaddr->in,
+                         sockaddr->socklen);
     if (retval)
         return ZQ_FALSE;
 
@@ -82,8 +82,8 @@ ZqBool ZqSocketConnect(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
 
-    retval = sock->ops->connect(sock, (struct sockaddr *) &sockaddr->in,
-                                sockaddr->socklen, 0);
+    retval = kernel_connect(sock, (struct sockaddr *) &sockaddr->in,
+                           sockaddr->socklen, 0);
 
     if (retval)
         return ZQ_FALSE;
@@ -214,10 +214,24 @@ ZqBool ZqSocketSetOption(ZqSocket zqsocket,
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int ret;
 
-    ret = sock->ops->setsockopt (sock, level, name, (void*)optionValue, optionSize);
+    ret = kernel_setsockopt(sock, level, name, (void*)optionValue, optionSize);
 
     if (ret)
         return ZQ_FALSE;
     else
         return ZQ_TRUE;
+}
+
+ZqSocket ZqSocketAccept(ZqSocket zqsocket)
+{
+    struct socket *server_sock = zqsocket_to_socket (zqsocket);
+    struct socket *client_socket;
+    int ret;
+
+    ret = kernel_accept (server_sock, &client_socket, 0);
+
+    if (ret)
+        return ZQ_INVALID_SOCKET;
+    else
+        return (ZqSocket)client_socket;
 }

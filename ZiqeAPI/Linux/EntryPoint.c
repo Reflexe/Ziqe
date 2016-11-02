@@ -1,8 +1,8 @@
 /**
  * @file EntryPoint
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Main: copyright (C) 2016 shrek0
+ * Main: copyright (C) 2016 Shmuel Hazan
  *
  * Main is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,5 +43,5 @@ module_init(linux_init);
 module_exit(linux_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("shrek0");
+MODULE_AUTHOR("Shmuel Hazan");
 MODULE_DESCRIPTION("An ZiqeAPI Module");

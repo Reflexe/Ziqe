@@ -1,8 +1,8 @@
 /**
  * @file ProcessPeersClient.cpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,11 +41,16 @@ void ProcessPeersClient::continueRemoteThread(GlobalThreadID threadID) {
 }
 
 Base::UniquePointer<ProcessPeersClient> ProcessPeersClient::runNewRemoteThread(LocalThread &localThread) {
-// TODO: needs memory.
+    // TODO: needs memory.
+}
+
+void ProcessPeersClient::onMessageReceived(const Protocol::Message &type, Protocol::MessageStream::MessageFieldReader &fieldReader)
+{
+
 }
 
 void ProcessPeersClient::killRemoteThread(GlobalThreadID threadID) {
-    if (! sendThreadMessage (threadID, MessagesGenerator::makeKillThread (threadID)))
+    if (! sendThreadMessage (threadID, Protocol::MessagesGenerator::makeKillThread (threadID)))
         return;
 
     mCurrentTask = Task{Task::Type::KillRemoteThread};

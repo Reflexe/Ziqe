@@ -1,8 +1,8 @@
 /**
  * @file GlobalPeers.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,49 +21,122 @@
 #define ZIQE_GLOBALPEERS_H
 
 #include "Base/LocalThread.hpp"
+#include "Base/Optional.hpp"
 
 #include "Core/GlobalThread.hpp"
+#include "Core/GlobalProcess.hpp"
+#include "Core/MessageStreamFactoryInterface.hpp"
+
 #include "Protocol/MessageStream.hpp"
 #include "Protocol/MessagesGenerator.hpp"
+#include "Protocol/MessageServer.hpp"
 
 namespace Ziqe {
 
 /**
- * @brief The GlobalPeers class  A Global manager for other peers lookup and
- *                               creating new threads.
+   @brief The GlobalPeers class  A Global manager for other peers lookup and
+                                 creating new threads.
  */
-class GlobalPeers : private Protocol::MessageStream::Callback
+class GlobalPeers
 {
 public:
-    GlobalPeers();
+    GlobalPeers(Base::UniquePointer<MessageStreamFactoryInterface> &&streamFactory);
+
+    enum class RunThreadError {
+        Other
+    };
 
     /**
-     * @brief runThread  Try to run a thread on other computer.
-     * @param localThread  The local thread to run.
-     * @return The new Thread or null on failure.
-     *
-     * This function will lookup for other machines on the network
-     * that running Ziqe. If there are, it will choose one of them
-     * to run this thread.
-     *
+       @brief runThread     Try to run a thread on other computer.
+       @param localThread   The local thread to run.
+       @param globalProcess The GlobalProcess for this @a localThread 's
+                            process, nullptr if this process doesn't has
+                            a GlobalProcess.
+
+       @return The new Thread or null on failure.
+
+       @todo Thread safety and locks.
+
+       This function will lookup for other machines on the network
+       that running Ziqe. If there are, it will choose one of them
+       to run this thread.
+
      */
-    Base::UniquePointer<GlobalThread> runThread(const LocalThread &localThread,
-                                                const Base::SharedPointer<GlobalProcess>);
+    Base::Expected<GlobalThread, RunThreadError> runThread(const LocalThread &localThread,
+                                                           const Base::SharedPointer<GlobalProcess> &globalProcess = {});
 
 private:
+    void runThreadRequestWorker (Protocol::MessageStream &stream);
+
     /**
-     * @brief onMessageReceived
-     * @param type
-     * @param fieldReader
-     * @param messageStream
+       @brief onMessageReceived
+       @param type
+       @param fieldReader
+       @param messageStream
      */
-    virtual void onMessageReceived (const Protocol::Message &type,
-                                    MessageFieldReader &fieldReader,
-                                    const Protocol::MessageStream &messageStream) override;
+    void onMessageReceived (const Protocol::Message &type,
+                            Protocol::MessageStream::MessageFieldReader &fieldReader,
+                            Protocol::MessageStream &&messageStream);
 
-    Protocol::MessageStream mGlobalMessageStream;
-    Protocol::MessagesGenerator::IdentiferType mNextIdentifer;
+    struct Task {
+        enum class Type {
+            RunThreadSent
+        };
 
+        Task(Type type)
+            : mType{type}, mIsComplete{false}
+        {
+        }
+
+        bool isComplete() const { return mIsComplete; }
+
+        void setComplete ()
+        {
+            mIsComplete = true;
+        }
+
+    private:
+        Type mType;
+        bool mIsComplete;
+    };
+
+    struct RunThreadSentTask : Task {
+        RunThreadSentTask()
+            : Task{Task::Type::RunThreadSent}
+        {
+        }
+
+        void setProposedClient (Protocol::MessageStream &&stream)
+        {
+            mMaybeProposedClient.construct (Base::move (stream));
+            setComplete ();
+        }
+
+        Protocol::MessageStream &getProposedClient() {
+            DEBUG_CHECK (mMaybeProposedClient.isValid ());
+
+            return *mMaybeProposedClient;
+        }
+
+    private:
+        Base::Optional<Protocol::MessageStream> mMaybeProposedClient;
+    };
+
+    void waitForCurrentTask (Task &task, Protocol::MessageServer &server) {
+        while (! task.isComplete ()) {
+            auto client = server.acceptClient ();
+
+            auto maybeMessage = client.receiveMessage ();
+            if (! maybeMessage)
+                continue;
+
+            onMessageReceived (Base::move (maybeMessage->first), maybeMessage->second, Base::move (client));
+        }
+    }
+
+    RunThreadSentTask mCurrentThreadSentTask;
+
+    Base::UniquePointer<MessageStreamFactoryInterface> mStreamFactory;
 };
 
 } // namespace Ziqe

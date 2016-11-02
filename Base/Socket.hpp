@@ -1,8 +1,8 @@
 /**
  * @file Socket.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,6 +71,7 @@ public:
      */
     struct SocketAddress {
         SocketAddress() = default;
+        ZQ_ALLOW_COPY_AND_MOVE (SocketAddress)
 
         static SocketAddress CreateIn6(Zq_in6_addr address, ZqPort port) {
             SocketAddress socketAddress;
@@ -110,9 +111,6 @@ public:
         ZqSocketAddress mSocketAddress;
 
     };
-
-    Socket(Family family, Type type, ZqSocketProtocol protocol=0);
-    Socket(const SocketAddress &address, Type type, ZqSocketProtocol protocol=0);
 
     ZQ_DISALLOW_COPY(Socket)
 
@@ -207,14 +205,6 @@ public:
     Expected<Vector<uint8_t>,ReceiveError> receive() const;
 
     /**
-       @brief Wait until a new client try to connect.
-       @return a Pair:
-                - first:    the client's socket.
-                - second:   the client's SocketAddress.
-     */
-    Pair<Socket, SocketAddress> acceptClient();
-
-    /**
        @brief Send a bytes array to @a socketAddress.
        @param socketAddress
        @param array
@@ -263,7 +253,22 @@ public:
      */
     bool listen(ZqSizeType backlog=ZQ_NO_BACKLOG);
 
-private:
+    enum class AccpetError {
+        Other
+    };
+
+    Expected<Socket, AccpetError> accept () const;
+
+private:    
+    // Allow Base::Excepted to create us :)
+    friend class Base::Expected<Socket,AccpetError>;
+    friend class Base::Expected<Socket,BindError>;
+    friend class Base::Expected<Socket,ListenError>;
+    friend class Base::Expected<Socket,ConnectError>;
+
+    Socket(Family family, Type type, ZqSocketProtocol protocol=0);
+    Socket(ZqSocket socket);
+
     /**
        @brief  This socket's ZqSocket.
      */

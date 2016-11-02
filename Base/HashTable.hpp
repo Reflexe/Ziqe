@@ -1,8 +1,8 @@
 /**
  * @file HashTable.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -180,7 +180,7 @@ public:
         explicit PairType(const KeyType &key,
                           const typename TableType::Iterator &parameterTableIterator,
                            Args&&... args)
-            : RealPairType{key, Base::forward<Args>(args)...},
+            : RealPairType{key, T{Base::forward<Args>(args)...}},
               tableIterator{parameterTableIterator}
         {
         }
@@ -318,77 +318,72 @@ public:
 private:
       // Key & Data iteration functions and type defs.
 
-      // a few helpers for the type defs.
-      static decltype (auto) makeGetConstKeyAction ()
+      // a few helpers for the type defs
+      static const KeyType &GetConstKeyAction (const RealPairType &keyAndData)
       {
-          return [](const RealPairType &keyAndData) -> const KeyType&
-                    { return keyAndData.first; };
+          return keyAndData.first;
       }
 
-      static decltype (auto) makeGetKeyAction ()
+      static KeyType &GetKeyAction (RealPairType &keyAndData)
       {
-          return [](RealPairType &keyAndData) -> KeyType&
-                    { return keyAndData.first; };
+          return keyAndData.first;
       }
 
-      static decltype (auto) makeGetConstDataAction ()
+      static const T &GetConstDataAction (const RealPairType &keyAndData)
       {
-          return [](const RealPairType &keyAndData) -> const T&
-                    { return keyAndData.second; };
+          return keyAndData.second;
       }
 
-      static decltype (auto) makeGetDataAction ()
+      static T &GetDataAction (RealPairType &keyAndData)
       {
-          return [](RealPairType &keyAndData) -> T&
-                    { return keyAndData.second; };
+          return keyAndData.second;
       }
 
 public:
-      // TODO: i think we should use regular functions instead of lambdas;
-      typedef ActionIterator<Iterator, decltype (makeGetKeyAction ())> KeyIterator;
-      typedef ActionIterator<ConstIterator, decltype (makeGetConstKeyAction ())> ConstKeyIterator;
+      typedef ActionIterator<Iterator, decltype (&_HashTableBase::GetKeyAction)> KeyIterator;
+      typedef ActionIterator<ConstIterator, decltype (&_HashTableBase::GetConstKeyAction)> ConstKeyIterator;
 
       KeyIterator keysBegin ()
       {
-          return {begin (), makeGetKeyAction ()};
+          return {begin (), &_HashTableBase::GetKeyAction};
       }
 
       KeyIterator keysEnd ()
       {
-          return KeyIterator{end ()};
+          return KeyIterator{end (), &_HashTableBase::GetKeyAction};
       }
 
       ConstKeyIterator keysBegin () const
       {
-          return ConstKeyIterator{begin (), makeGetConstKeyAction ()};
+          return ConstKeyIterator{begin (), &_HashTableBase::GetConstKeyAction};
       }
 
       ConstKeyIterator keysEnd () const
       {
-          return ConstKeyIterator{end (), makeGetConstKeyAction ()};
+          return ConstKeyIterator{end (), &_HashTableBase::GetConstKeyAction};
       }
 
-      typedef ActionIterator<Iterator, decltype (makeGetDataAction ())> DataIterator;
-      typedef ActionIterator<ConstIterator, decltype (makeGetConstDataAction ())> ConstDataIterator;
+      typedef ActionIterator<Iterator, decltype (&_HashTableBase::GetDataAction)> DataIterator;
+      typedef ActionIterator<ConstIterator, decltype (&_HashTableBase::GetConstDataAction)> ConstDataIterator;
 
       DataIterator dataBegin ()
       {
-          return {begin (), makeGetDataAction ()};
+          return {begin (), &_HashTableBase::GetDataAction};
       }
 
       DataIterator dataEnd ()
       {
-          return {end ()};
+          return {end (), &_HashTableBase::GetDataAction};
       }
 
       ConstDataIterator dataBegin () const
       {
-          return {begin (), makeGetConstDataAction ()};
+          return {begin (), &_HashTableBase::GetConstDataAction};
       }
 
       ConstDataIterator dataEnd () const
       {
-          return KeyIterator{end ()};
+          return KeyIterator{end (), &_HashTableBase::GetConstDataAction};
       }
 
 protected:
@@ -563,7 +558,7 @@ public:
                                 Args&&... args)
     {
         // The hash entry in the table.
-        typename TableType::Iterator    tableEntryIterator = getTableIterator (hash (key));
+        typename TableType::Iterator    tableEntryIterator = this->getTableIterator (this->hash (key));
         // The hash's first key entry: listEnd if empty.
         typename KeysListType::Iterator firstKeyEntry = *tableEntryIterator;
         typename KeysListType::Iterator listEnd       = this->mKeysList.end();
@@ -571,7 +566,7 @@ public:
 
         if (! isEmptyHashEntry) {
             // Check if there's an entry with the same key.
-            auto entry = lookupKeyInKeyList (firstKeyEntry, key);
+            auto entry = this->lookupKeyInKeyList (firstKeyEntry, key);
             if (entry != listEnd)
                 return {false, entry};
         }

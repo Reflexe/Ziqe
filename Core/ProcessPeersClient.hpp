@@ -1,8 +1,8 @@
 /**
  * @file ProcessPeersClient.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 
 namespace Ziqe {
 
-class ProcessPeersClient : private Protocol::MessageStream::Callback
+class ProcessPeersClient
 {
 public:
     ProcessPeersClient(ProcessPeersServer &localServer);
@@ -99,15 +99,18 @@ private:
         bool mIsComplete;
     };
 
-    void waitUntilCurrentTaskComplete (const Protocol::MessageStream &messageStream) {
+    void waitUntilCurrentTaskComplete () {
         do {
-            messageStream.receiveMessage(*this);
+            auto message = mReceiveStream.receiveMessage ();
+            if (! message)
+                continue;
+
+            onMessageReceived (message->first, message->second);
         } while (! mCurrentTask.isComplete ());
     }
 
     void onMessageReceived (const Protocol::Message &type,
-                            MessageFieldReader &fieldReader,
-                            const Protocol::MessageStream &messageStream);
+                            Protocol::MessageStream::MessageFieldReader &fieldReader);
     void onRunThreadOKReceived ();
 
     /**
@@ -130,6 +133,8 @@ private:
      *                      that lists all the current peers for this process.
      */
     ProcessPeersServer::ConnectionsType mConnections;
+
+    Protocol::MessageStream mReceiveStream;
 };
 
 } // namespace Ziqe

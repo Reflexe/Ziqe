@@ -1,8 +1,8 @@
 /**
  * @file ThreadOwnerServer.h
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,27 +23,20 @@
 #include "Base/Types.hpp"
 #include "Base/LocalThread.hpp"
 
-#include "Protocol/MessageStream.hpp"
+#include "Protocol/MessageServer.hpp"
 
 namespace Ziqe {
-class ThreadOwnerServer final
+
+class ThreadOwnerServer
 {
 public:
-    ThreadOwnerServer();
-    void run();
+    ThreadOwnerServer(Base::UniquePointer<Protocol::MessageServer> &&server);
+
+    void run ();
 
 private:
-    void onDoSystemCall(const ZqSystemCallIDType systemCallID,
-                        Base::RawPointer<const ZqRegisterType> parameters,
-                        const SizeType parametersLength, Protocol::MemoryRevision &remoteRevision,
-                        Protocol::MemoryRevision::ID previousRemoteRevisionID);
+    Base::UniquePointer<Protocol::MessageServer> mServer;
 
-    void onMessageReceived(const Protocol::Message &type,
-                           Protocol::MessageStream::Callback::MessageFieldReader &fieldReader,
-                           const Protocol::MessageStream &messageStream);
-
-
-    LocalThread mLocalThread;
 };
 } // namespace Ziqe
 #endif // ZIQE_THREADOWNERSERVER_H

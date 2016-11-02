@@ -1,8 +1,8 @@
 /**
  * @file ProcessPeersServer.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,18 +30,24 @@
 #include "Core/Types.hpp"
 #include "Core/Protocol/ThreadState.hpp"
 #include "Core/Protocol/MemoryMap.hpp"
-#include "Core/Protocol/MessageStream.hpp"
+#include "Protocol/MessageServer.hpp"
 
 namespace Ziqe {
 
-class ProcessPeersServer final : implements private Protocol::MessageStream::Callback
+class ProcessPeersServer final
 {
 public:
     struct OtherServers {
         void addThreads(const Base::RawArray<GlobalThreadID> &threadsToAdd,
                         Base::UniquePointer<Protocol::MessageStream> &&stream)
         {
+            mConnectionsList.emplace_back (Base::move (*stream));
+            auto beforeEnd = mConnectionsList.beforeEnd ();
 
+            for (const auto &threadID : threadsToAdd)
+            {
+                mThreadIDToStream[threadID] = beforeEnd;
+            }
         }
 
         void removeThreads (const Base::RawArray<GlobalThreadID> &threadsToRemove) {
@@ -83,15 +89,11 @@ public:
     typedef Base::RWLocked<OtherServers>        LockedConnections;
     typedef Base::RawPointer<LockedConnections> ConnectionsType;
 
-    ProcessPeersServer();
+    ProcessPeersServer(Protocol::MessageServer &&messageServer);
     ~ProcessPeersServer();
 
-    /**
-     * @brief createNewProcessInstance  Create a new server instance: port, server thread, etc and choose
-     *                                  a peer to run the first thread.
-     * @return
-     */
-    static Base::UniquePointer<ProcessPeersServer> createNewProcessInstance ();
+    static ProcessPeersServer CreateWithPeer (Protocol::MessageServer &&server, Protocol::MessageStream &&messageStream,
+                                              GlobalThreadID peerThreadID);
 
     ZQ_ALLOW_MOVE (ProcessPeersServer)
     ZQ_DISALLOW_COPY (ProcessPeersServer)
@@ -113,8 +115,8 @@ private:
 
     // Main message processor.
     void onMessageReceived (const Protocol::Message &type,
-                            MessageFieldReader &fieldReader,
-                            const Protocol::MessageStream &messageStream) override;
+                            Protocol::MessageStream::MessageFieldReader &fieldReader,
+                            const Protocol::MessageStream &messageStream) ;
 
     // Messages processors.
     void onStopThreadReceived (Protocol::MessageStream &stream, GlobalThreadID threadID);
@@ -141,7 +143,8 @@ private:
     // Stream Specific Senders.
     void sendRunThreadPropose (Net::Stream &protocol);
 
-private:
+    Protocol::MessageServer mServer;
+
     /// "Global" remote process instances in the same process.
     /// Access Rules: Lock: mConnectionsTableLock; When: Result Usage, Read, Write.
     LockedConnections mOtherServers;

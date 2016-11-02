@@ -1,8 +1,8 @@
 /**
  * @file RedBlackTree.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #include "Base/Macros.hpp"
 #include "Base/Memory.hpp"
+#include "Base/IteratorTools.hpp"
 #include "Base/Checks.hpp"
 
 namespace Ziqe {
@@ -30,6 +31,12 @@ namespace Base {
 template<class KeyType, class T>
 struct BinaryTreeNode {
     typedef BinaryTreeNode Node;
+
+    template<class...Args>
+    BinaryTreeNode(Node *parent, Node *right, Node *left, const KeyType &key, Args&&...args)
+        : mKeyAndValue{std::move (key), {Base::forward<Args>(args)...}}, mParent{parent}, mRight{right}, mLeft{left}
+    {
+    }
 
     ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRight, (), { return mRight; })
     ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeft, (), { return mLeft; })
@@ -189,14 +196,9 @@ struct BinaryTreeNode {
         return mKeyAndValue.first;
     }
 
+    Node *mParent;
     Node *mRight;
     Node *mLeft;
-    Node *mParent;
-
-//    int getKey () const
-//    {
-        // SHOULD BE IMPLEMENTED by a BinaryTree Implementation.
-//    }
 };
 
 template<class KeyType,
@@ -390,7 +392,8 @@ public:
 
     template<class...Args>
     Pair<Iterator, bool> insert (const KeyType &key, Args&&... args) {
-        ZQ_UNUSED (key);
+        Base::IgnoreUnused (key);
+        Base::IgnoreUnused (args...);
 
         NOT_IMPLEMENTED ();
     }
@@ -416,14 +419,8 @@ public:
         if (findNodeResult.second == false)
             return {iterator, end()};
         else
-            return {Base::previous(iterator), iterator};
+            return {Base::prev(iterator), iterator};
     })
-
-    Pair<Iterator, Iterator>
-    findAfter(const KeyType &key);
-
-    Pair<ConstIterator, ConstIterator>
-    findAfter(const KeyType &key) const;
 
     void erase (Node *node)
     {
@@ -443,6 +440,12 @@ public:
 
     })
 
+protected:
+    /**
+        @brief  Try to find a node with key == @a key.
+        @param key
+        @return 
+    */
     Pair<Node*, bool> findNode(const KeyType &key) {
         if (mHead == nullptr)
             return {nullptr, false};
@@ -480,27 +483,39 @@ public:
 
 template<class T, class KeyType>
 struct RedBlackTreeNode : BinaryTreeNode<T, KeyType> {
+    typedef BinaryTreeNode<T, KeyType> BinaryTreeNode;
+    typedef RedBlackTreeNode Node;
+
     enum class Color : bool{
         Red = true,
         Black = false
     };
-    enum class RightOrLeft : bool{
+    enum class Direction : bool{
         Right = true,
         Left = false
     };
 
-    /**
-     * @brief color  Describes this node's color.
-     */
-    Color color;
+    template<class...Args>
+    RedBlackTreeNode(Color color, Direction direction,
+                     Node *parent, Node *right, Node *left,
+                     const KeyType &key, Args&&... args)
+        : BinaryTreeNode{parent, right, left, key, Base::forward<Args>(args)...},
+          mColor{color}, mDirection{direction}
+    {
+    }
 
     /**
-     * @brief rightOrLeft  Describes this node's direction: Right or Left.
+     * @brief mColor  Describes this node's color.
      */
-    RightOrLeft rightOrLeft;
+    Color mColor;
+
+    /**
+     * @brief mDirection  Describes this node's direction: Right or Left.
+     */
+    Direction mDirection;
 };
 
-// a very BIG TODO
+// TODO: a very BIG TODO
 template<class KeyType,
          class T,
          class CompareType=IsLessThan<KeyType>,
@@ -534,7 +549,7 @@ public:
 
     template<class...Args>
     Pair<Iterator, bool> insert (const KeyType &key, Args&&... args) {
-
+        // It is an empty tree, insert a black one in the head.
     }
 
     Iterator remove(const KeyType &key)

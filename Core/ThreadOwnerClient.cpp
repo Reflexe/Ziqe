@@ -1,8 +1,8 @@
 /**
  * @file ThreadOwnerClient.cpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,12 +19,11 @@
  */
 #include "ThreadOwnerClient.hpp"
 
-#include "MessagesGenerator.hpp"
+#include "Protocol/MessagesGenerator.hpp"
 
 namespace Ziqe {
-namespace Protocol {
 
-ThreadOwnerClient::ThreadOwnerClient(Base::UniquePointer<MessageStream> &&stream)
+ThreadOwnerClient::ThreadOwnerClient(Base::UniquePointer<Protocol::MessageStream> &&stream)
     : mThreadOwnerStream{Base::move (stream)}
 {
 
@@ -32,27 +31,27 @@ ThreadOwnerClient::ThreadOwnerClient(Base::UniquePointer<MessageStream> &&stream
 
 ZqRegisterType ThreadOwnerClient::doSystemCall(ZqSystemCallIDType id,
                                                const Base::RawArray<ZqRegisterType> parameters,
-                                               MemoryRevision &revision)
+                                               Protocol::MemoryRevision &revision)
 {
-    sendThreadOwnerMessage (MessagesGenerator::makeDoSystemCall (id,
-                                                                 parameters,
-                                                                 revision));
+    sendThreadOwnerMessage (Protocol::MessagesGenerator::makeDoSystemCall (id,
+                                                                           parameters,
+                                                                           revision));
     waitUntilTaskComplete (mSystemCallTask);
 
     return mSystemCallTask.result;
 }
 
 ZqUserAddress ThreadOwnerClient::getAndReserveMemory(SizeType bytesCount) {
-    sendThreadOwnerMessage (MessagesGenerator::makeGetAndReserveMemory (bytesCount));
+    sendThreadOwnerMessage (Protocol::MessagesGenerator::makeGetAndReserveMemory (bytesCount));
 
     waitUntilTaskComplete (mGetAndReserveMemoryTask);
 
     return mGetAndReserveMemoryTask.address;
 }
 
-void ThreadOwnerClient::onMessageReceived(const Message &type,
-                                          MessageStream::MessageFieldReader &fieldReader,
-                                          const Net::Stream &stream)
+void ThreadOwnerClient::onMessageReceived(const Protocol::Message &type,
+                                          Protocol::MessageStream::MessageFieldReader &fieldReader,
+                                          const Protocol::MessageStream &messageStream)
 {
     if (mCurrentTaskType == Task::Type::DoSystemCall) {
         // TODO: memory revision
@@ -63,4 +62,3 @@ void ThreadOwnerClient::onMessageReceived(const Message &type,
 }
 
 } // namespace Ziqe
-} // namespace Protocol

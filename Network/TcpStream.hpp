@@ -1,8 +1,8 @@
 /**
  * @file TcpStream.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,29 +30,33 @@ namespace Net {
 class TcpStream final : implements public Stream
 {
 public:
-    typedef Zq_in6_addr Address;
-    typedef ZqPort Port;
-
     ZQ_ALLOW_COPY_AND_MOVE (TcpStream)
 
-    static TcpStream Connect(const Address &address, Port port);
-    static TcpStream Listen(Port port, SizeType backlog=0, const Address &address=ZQ_INADDR6_ANY);
+    typedef Base::Socket::ListenError ListenError;
+    typedef Base::Socket::ConnectError ConnectError;
 
-    virtual DataType receive() const override ;
+    static Base::Expected<TcpStream,ConnectError> Connect(const Address &address, const Port &port);
 
-    virtual void send(const DataType &data) const override ;
+    virtual Base::Expected<DataType, ReceiveError> receive() const override;
 
-    TcpStream acceptConnection();
+    virtual void send(const DataType &data) const override;
+
+    TcpStream(Base::Socket &&readySocket);
 
 private:
-    // connect constructor.
-    TcpStream(Port port, const Address &address);
+    static ReceiveError socketReceiveErrorToError(const Base::Socket::ReceiveError &receiveError) {
+        using SocketReceiveError=Base::Socket::ReceiveError;
 
-    // listen constructor.
-    TcpStream(const Address &address, Port port, SizeType backlog);
+        switch (receiveError) {
+        case SocketReceiveError::Disconnected:
+        case SocketReceiveError::Other:
+            return ReceiveError::Other;
+        case SocketReceiveError::Timeout:
+            return ReceiveError::Timeout;
+        }
+    }
 
     Base::Socket mSocket;
-
 };
 
 } // namespace Net

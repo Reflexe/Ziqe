@@ -1,8 +1,8 @@
 /**
  * @file IteratorTools.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,8 +80,13 @@ private:
     FunctionType mFunction;
 
 public:
-    explicit ActionIterator(const InputIterator &iterator, FunctionType &&function)
+    ActionIterator(const InputIterator &iterator, FunctionType &&function)
         : mInput{iterator}, mFunction{Base::move (function)}
+    {
+    }
+
+    ActionIterator(const InputIterator &iterator, const FunctionType &function)
+        : mInput{iterator}, mFunction{function}
     {
     }
 

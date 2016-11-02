@@ -1,8 +1,8 @@
 /**
  * @file MessageStream.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,8 @@
 
 #include "Base/FieldReader.hpp"
 
-#include "Network/Stream.hpp"
+#include "Network/UdpStream.hpp"
+#include "Network/TcpStream.hpp"
 
 #include "Core/Types.hpp"
 #include "Core/Protocol/Message.hpp"
@@ -31,11 +32,35 @@
 namespace Ziqe {
 namespace Protocol {
 
+/**
+   @brief  A stream to send and receive Ziqe protocol messages.
+ */
 class MessageStream
 {
 public:
+    typedef typename Net::Stream::Port Port;
+    typedef typename Net::Stream::Address Address;
+
+    enum class CreateError {
+        Other
+    };
+
     MessageStream(Base::UniquePointer<Net::Stream> &&stream);
+
+    static Base::Expected<MessageStream,CreateError>
+    CreateTCPConnection(const Address &address, const Port &port);
+
+    static Base::Expected<MessageStream,CreateError>
+    CreateGlobalTCPConnection(const Address &address, const Port &port);
+
+    static Base::Expected<MessageStream,CreateError>
+    CreateUDPConnection (const Address &address, const Port &port);
+
+    static Base::Expected<MessageStream,CreateError>
+    CreateGlobalUDPConnection (const Address &broadcastAddress, const Port &port);
+
     ZQ_ALLOW_COPY_AND_MOVE (MessageStream)
+    virtual ~MessageStream();
 
     /**
     * @brief DataType  The type used to transform received data.
@@ -52,43 +77,27 @@ public:
      */
     typedef Base::LittleEndianFieldReader<InputDataType> MessageFieldReader;
 
-    struct Callback {
-        Callback() = default;
-        virtual ~Callback() = default;
-        ZQ_ALLOW_COPY_AND_MOVE (Callback)
-
-        typedef MessageFieldReader MessageFieldReader;
-
-        virtual void onMessageReceived (const Message &type,
-                                        MessageFieldReader &fieldReader,
-                                        const MessageStream &messageStream) = 0;
-    };
-
     /**
      * @brief receiveMessage  Receive one message and call the callback.
      * @param stream
      */
-    void receiveMessage (Callback &callback) const{
-        auto vector = mStream->getStreamVector ();
-        MessageFieldReader reader{Base::move(vector)};
-        Message::Type type = static_cast<Message::Type>(reader.readT <uint16_t> ());
-
-        if (! Message::isValidMessageType (type)) {
-            // TODO: logging - Log this incident.
-
-            return;
-        }
-
-        return callback.onMessageReceived (type, reader, *this);
-    }
+    Base::Expected<Base::Pair<Message, MessageFieldReader>, int> receiveMessage() const;
 
     void sendMessage(const OutputDataType &messageData) const
     {
         mStream->send (messageData);
     }
 
+    void retransmitLastMessage()
+    {
+        mStream->send (mLastOutput);
+    }
+
 private:
+    OutputDataType mLastOutput;
+
     Base::UniquePointer<Net::Stream> mStream;
+
 };
 
 } // namespace Ziqe

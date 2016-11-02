@@ -1,8 +1,8 @@
 /**
  * @file UdpStream.cpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +22,59 @@
 namespace Ziqe {
 namespace Net {
 
-UdpStream::UdpStream(const UdpStream::Address &address, ZqPort port)
-    : mSocket{Base::Socket::SocketAddress::CreateIn6 (address, port), ZQ_SOCKET_TYPE_DGRAM}
+void UdpStream::send(const Stream::DataType &data) const
 {
+    mSocket.send (data.toRawArray ());
+}
+
+Base::Expected<Stream::DataType, Stream::ReceiveError> UdpStream::receive() const{
+    auto maybeData = mSocket.receive ();
+
+    if (! maybeData)
+        return {socketReceiveErrorToError (maybeData.getError ())};
+
+    return {std::move (*maybeData)};
+}
+
+UdpStream::UdpStream(Base::Socket &&socket)
+    : mSocket{Base::move (socket)}
+{
+}
+
+UdpStream::~UdpStream()
+{
+}
+
+void UdpStream::setBroadcast(bool isBroadcast)
+{
+    int integerIsBroadcast = isBroadcast;
+
+    // Make this socket a broadcast socket.
+    mSocket.setSocketOption(Base::Socket::OptionLevel::Socket,
+                            Base::Socket::OptionName::Broadcast,
+                            integerIsBroadcast);
+}
+
+Base::Expected<UdpStream, UdpStream::CreateError>
+UdpStream::Connect(const UdpStream::Address &address, UdpStream::Port port) {
+    auto maybeUdpSocket = Base::Socket::Connect (Base::Socket::SocketAddress::CreateIn6 (address, port),
+                                                 Base::Socket::Type::Datagram);
+
+    if (! maybeUdpSocket)
+        return {CreateError::Other};
+
+    return {Base::move (*maybeUdpSocket)};
+}
+
+Base::Expected<UdpStream, UdpStream::CreateError> UdpStream::CreateBroadcast(const Stream::Address &address, const Stream::Port &port) {
+    auto maybeUdpStream = Connect (address, port);
+
+    if (! maybeUdpStream)
+        return maybeUdpStream;
+
+    maybeUdpStream->setBroadcast (true);
+
+    return maybeUdpStream;
 }
 
 } // namespace Net

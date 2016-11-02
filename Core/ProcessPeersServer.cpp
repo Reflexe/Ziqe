@@ -1,8 +1,8 @@
 /**
  * @file ProcessPeersServer.cpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@
 
 namespace Ziqe {
 
-ProcessPeersServer::ProcessPeersServer()
+ProcessPeersServer::ProcessPeersServer(Protocol::MessageServer &&messageServer)
+    : mServer{Base::move (messageServer)}
 {
     sendHello ();
 }
@@ -33,15 +34,19 @@ ProcessPeersServer::~ProcessPeersServer()
     sendGoodbye ();
 }
 
-Base::UniquePointer<ProcessPeersServer> ProcessPeersServer::createNewProcessInstance() {
-    Net::Stream stream;
+ProcessPeersServer ProcessPeersServer::CreateWithPeer(Protocol::MessageServer &&server,
+                                                      Protocol::MessageStream &&messageStream,
+                                                      GlobalThreadID peerThreadID)
+{
+    ProcessPeersServer server{Base::move (server)};
+    server.mOtherServers.getWrite ().first.addThreads (Base::RawArray{&peerThreadID, 1}, Base::move (messageStream));
 
-    stream.send (MessagesGenerator::makeRunThreadPeerLookup ());
+    return server;
 }
 
 void ProcessPeersServer::onMessageReceived(const Protocol::Message &type,
                                            Protocol::MessageStream::Callback::MessageFieldReader &fieldReader,
-                                           const Net::Stream &stream)
+                                           const Protocol::MessageStream &messageStream)
 {
     using Protocol::Message;
 
@@ -67,36 +72,36 @@ void ProcessPeersServer::onStopThreadReceived(Protocol::MessageStream &stream, G
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
-        DEBUG_CHECK_REPORT (thread);
-        stream.sendMessage (MessagesGenerator::makeStopThreadOK ());
+        DEBUG_CHECK_REPORT (thread, "Invalid Thread ID");
+        stream.sendMessage (Protocol::MessagesGenerator::makeStopThreadOK ());
     }
 
     thread->stop ();
-    stream.sendMessage (MessagesGenerator::makeStopThreadOK ());
+    stream.sendMessage (Protocol::MessagesGenerator::makeStopThreadOK ());
 }
 
 void ProcessPeersServer::onContinueThread(Protocol::MessageStream &stream, GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
-        DEBUG_CHECK_REPORT (thread);
-        stream.sendMessage (MessagesGenerator::makeContinueThreadOK ());
+        DEBUG_CHECK_REPORT (thread, "Invalid Thread ID");
+        stream.sendMessage (Protocol::MessagesGenerator::makeContinueThreadOK ());
     }
 
     thread->cont ();
-    stream.sendMessage (MessagesGenerator::makeContinueThreadOK ());
+    stream.sendMessage (Protocol::MessagesGenerator::makeContinueThreadOK ());
 }
 
 void ProcessPeersServer::onKillThreadReceived(Protocol::MessageStream &stream, GlobalThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
-        DEBUG_CHECK_REPORT (thread);
-        stream.sendMessage (MessagesGenerator::makeKillThreadOK ());
+        DEBUG_CHECK_REPORT (thread, "Invalid Thread ID");
+        stream.sendMessage (Protocol::MessagesGenerator::makeKillThreadOK ());
     }
 
     thread->kill ();
-    stream.sendMessage (MessagesGenerator::makeKillThreadOK ());
+    stream.sendMessage (Protocol::MessagesGenerator::makeKillThreadOK ());
 }
 
 void ProcessPeersServer::onRunThreadReceived(Protocol::MessageStream &stream, GlobalThreadID newThreadID,
@@ -108,22 +113,22 @@ void ProcessPeersServer::onRunThreadReceived(Protocol::MessageStream &stream, Gl
 
 void ProcessPeersServer::onHelloReceived(Protocol::MessageStream &stream, const Base::RawArray<GlobalThreadID> &newThreads)
 {
-    mOtherServers.getWrite ().first->addThreads (newThreads, stream);
+    mOtherServers.getWrite ().first.addThreads (newThreads, stream);
 }
 
 void ProcessPeersServer::onGoodbyeReceived(Protocol::MessageStream &stream, const Base::RawArray<GlobalThreadID> &leavingThreads)
 {
-    mOtherServers.getWrite ().first->removeThreads (leavingThreads);
+    mOtherServers.getWrite ().first.removeThreads (leavingThreads);
 }
 
 void ProcessPeersServer::sendHello()
 {
-    mOtherServers.getRead ().first->sendMessageToProcessPeers (Protocol::MessagesGenerator::makeProcessPeerHello (getProcessThreadIDs ().toRawArray ()));
+    mOtherServers.getRead ().first.sendMessageToProcessPeers (Protocol::MessagesGenerator::makeProcessPeerHello (getProcessThreadIDs ().toRawArray ()));
 }
 
 void ProcessPeersServer::sendGoodbye()
 {
-    mOtherServers.getRead ().first->sendMessageToProcessPeers (Protocol::MessagesGenerator::makeProcessPeerGoodbye (getProcessThreadIDs ().toRawArray ()));
+    mOtherServers.getRead ().first.sendMessageToProcessPeers (Protocol::MessagesGenerator::makeProcessPeerGoodbye (getProcessThreadIDs ().toRawArray ()));
 }
 
 } // namespace Ziqe

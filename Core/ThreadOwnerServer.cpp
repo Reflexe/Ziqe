@@ -1,8 +1,8 @@
 /**
  * @file ThreadOwnerServer.cpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@
 
 namespace Ziqe {
 
-ThreadOwnerServer::ThreadOwnerServer(Protocol::MessageStream &&messageStream)
-    : mMessageStream{Base::move (messageStream)}
+ThreadOwnerServer::ThreadOwnerServer(Base::UniquePointer<Protocol::MessageServer> &&server)
 {
 }
 
+#if 0
 void ThreadOwnerServer::run()
 {
 
@@ -60,5 +60,7 @@ void ThreadOwnerServer::onDoSystemCall(const ZqSystemCallIDType systemCallID,
 //    updateCurrentRevisionFromLocalMemory ();
 //    newRevision = mRevisionTree.getRead ().first.diff (previousRemoteRevisionID);
 }
+
+#endif
 
 } // namespace Ziqe

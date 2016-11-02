@@ -1,8 +1,8 @@
 /**
  * @file Types.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,21 +32,7 @@ typedef ZqDifferenceType DifferenceType;
 
 typedef decltype (nullptr) NullptrType;
 
-template<class T1, class T2>
-struct Pair
-{
-    T1 first;
-    T2 second;
-};
-
-template<class T1, class T2, class T3>
-struct Triple
-{
-    T1 first;
-    T2 second;
-    T3 third;
-};
-
+struct InitializerDelimeter { };
 } // namespace Ziqe
 
 #endif // ZIQE_TYPES_H

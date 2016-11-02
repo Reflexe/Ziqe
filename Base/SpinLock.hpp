@@ -1,8 +1,8 @@
 /**
  * @file SpinLock.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Main: copyright (C) 2016 shrek0
+ * Main: copyright (C) 2016 Shmuel Hazan
  *
  * Main is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,9 +107,9 @@ public:
     ZQ_ALLOW_COPY_AND_MOVE (SpinLocked)
     ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (SpinLocked, mValue)
 
-    const Pair<T&, SpinLock::ScopedLock> get () {
-        return Pair<T&, SpinLock::ScopedLock>{mValue,
-                                              *mLock};
+    const Base::Pair<T&, SpinLock::ScopedLock> get () {
+        return Base::Pair<T&, SpinLock::ScopedLock>{mValue,
+                    *mLock};
     }
 
 private:

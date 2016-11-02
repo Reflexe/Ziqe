@@ -1,3 +1,4 @@
 zq_add_library (ZiqeProtocol Message
                 MessagesGenerator MessagesParser MemoryMap
-                MachineInfo ThreadState MessageStream MemoryRevision)
+                MachineInfo ThreadState MessageStream MemoryRevision Object
+                MessageServer)

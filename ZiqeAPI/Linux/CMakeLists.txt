@@ -6,8 +6,7 @@ endmacro ()
 # Linux's version; by default, the current.
 # Will be used to find Linux's headers.
 #set (zq_linux_version "")
-zq_get_current_linux_version (zq_linux_version)
-set(zq_linux_version "${zq_linux_version}" CACHE STRING "Linux version for drivers")
+set(zq_linux_version "${CMAKE_SYSTEM_VERSION}" CACHE STRING "Linux version for drivers")
 
 set(zq_linux_here ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 
@@ -23,7 +22,7 @@ macro(zq_linux_get_library_path current_target output_name zq_current_bin_to_roo
 endmacro ()
 
 
-set(SOURCES Linux.c SystemCalls.c Process.c Memory.c
+set(SOURCES SystemCalls.c Process.c Memory.c
     SpinLock.c Mutex.c EntryPoint.c Socket.c Logging.c )
 
 set(SOURCES ${SOURCES} CACHE INTERNAL "The ZiqeAPI's Linux module's files")

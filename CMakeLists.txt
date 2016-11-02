@@ -20,7 +20,7 @@ set(zq_cpp_compiler_arguments -std=c++14 -Weverything -Wno-old-style-cast -Wno-c
 
 
 if (zq_test_build)
-    set(zq_compiler_arguments ${zq_cpp_compiler_arguments} -DZQ_TEST_BUILD)
+    set(zq_cpp_compiler_arguments ${zq_cpp_compiler_arguments} -DZQ_TEST_BUILD)
     enable_testing()
 endif()
 

@@ -1,8 +1,8 @@
 /**
  * @file UdpStream.hpp
- * @author shrek0 (shrek0.tk@gmail.com)
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 shrek0
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,17 +27,53 @@
 namespace Ziqe {
 namespace Net {
 
-class UdpStream
+class UdpStream : implements public Stream
 {
 public:
-    typedef Zq_in6_addr Address;
+    enum class CreateError {
+        Other
+    };
 
-    UdpStream(const Address &address, ZqPort port);
+    UdpStream(Base::Socket &&socket);
+    virtual ~UdpStream() override;
 
-private:
-    Base::Socket::SocketAddress mLastReceivedSocketAddress;
+    ZQ_ALLOW_COPY_AND_MOVE (UdpStream)
 
-    Base::Socket::SocketAddress mSocketAddress;
+    static Base::Expected<UdpStream,CreateError> Connect (const Address &address, Port port);
+
+    static Base::Expected<UdpStream,CreateError> CreateBroadcast (const Address &address, const Port &port);
+
+    virtual void send (const DataType &data) const override;
+
+    virtual Base::Expected<DataType,ReceiveError> receive () const override;
+
+    /**
+       @brief Set whether this Stream is a broadcast stream or not.
+     */
+    void setBroadcast (bool isBroadcast);
+
+    /**
+       @brief Turn a server socket into a client.
+       @param otherSideAddress
+       @param otherSidePort
+     */
+    bool turnToClient(const Address &otherSideAddress, const Port &otherSidePort);
+
+private:    
+    friend class UdpServer;
+
+    static ReceiveError socketReceiveErrorToError(const Base::Socket::ReceiveError &receiveError) {
+        using SocketReceiveError=Base::Socket::ReceiveError;
+
+        switch (receiveError) {
+        case SocketReceiveError::Disconnected:
+        case SocketReceiveError::Other:
+            return ReceiveError::Other;
+        case SocketReceiveError::Timeout:
+            return ReceiveError::Timeout;
+        }
+    }
+
     Base::Socket mSocket;
 };
 
