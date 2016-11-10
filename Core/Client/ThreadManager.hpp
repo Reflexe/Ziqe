@@ -1,5 +1,5 @@
 /**
- * @file TcpServer.cpp
+ * @file ThreadManager.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,35 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_NET_TCPSERVER_HPP
-#define ZIQE_NET_TCPSERVER_HPP
+#ifndef THREADMANAGER_HPP
+#define THREADMANAGER_HPP
 
-#include "Base/Socket.hpp"
-
-#include "Network/Server.hpp"
 
 namespace Ziqe {
-namespace Net {
+namespace Client {
 
-class TcpServer final : public Server
+class ThreadManager
 {
 public:
-    TcpServer(Base::Socket &&socket);
-
-    enum class ListenError {
-        Other
-    };
-
-    static Base::Expected<TcpServer, ListenError> Listen (const Address &address,
-                                                          const Port &port);
-
-    Base::UniquePointer<Stream> acceptClient () override;
-
-private:
-    Base::Socket mSocket;
+    ThreadManager();
 };
 
-} // namespace Net
+} // namespace Client
 } // namespace Ziqe
 
-#endif // ZIQE_NET_TCPSERVER_HPP
+#endif // THREADMANAGER_HPP

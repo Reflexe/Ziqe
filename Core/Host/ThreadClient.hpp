@@ -1,5 +1,5 @@
 /**
- * @file ThreadOwnerClient.hpp
+ * @file ThreadClient.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,25 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_THREADOWNERCLIENT_H
-#define ZIQE_THREADOWNERCLIENT_H
+#ifndef THREADCLIENT_HPP
+#define THREADCLIENT_HPP
 
-#include "Base/Memory.hpp"
-#include "Base/LocalThread.hpp"
-
-#include "Core/Protocol/MessageStream.hpp"
-
-#include "Core/ProcessPeersServer.hpp"
-#include "Core/Protocol/MemoryRevision.hpp"
+#include "Protocol/MessageStream.hpp"
 
 namespace Ziqe {
+namespace Host {
 
-// Local Allocations: Allowed, but the page should be registred by the
-// ProcessOwner first. The method: GetAndAllocateNewPage.
-class ThreadOwnerClient final
+class ThreadClient
 {
 public:
-    ThreadOwnerClient(Base::UniquePointer<Protocol::MessageStream> &&stream);
+    ThreadClient(Base::UniquePointer<Protocol::MessageStream> &&stream);
 
     ZqRegisterType doSystemCall(ZqSystemCallIDType id,
                                 const Base::RawArray<ZqRegisterType> parameters,
@@ -104,6 +97,7 @@ private:
     Base::UniquePointer<Protocol::MessageStream> mThreadOwnerStream;
 };
 
+} // namespace Host
 } // namespace Ziqe
 
-#endif // ZIQE_THREADOWNERCLIENT_H
+#endif // THREADCLIENT_HPP

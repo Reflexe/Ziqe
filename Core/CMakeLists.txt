@@ -1,8 +1,8 @@
-add_subdirectory (Protocol)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-zq_add_library(Core ThreadOwnerServer ThreadOwnerClient
-                    ProcessMemory GlobalProcess GlobalThread
-                    GlobalThreadManager GlobalProcessManager Types
-                    ProcessPeersServer
-                    GlobalPeers ProcessPeersClient MemoryRevisionTree
-                    MessageStreamFactoryInterface)
+add_subdirectory (Protocol)
+add_subdirectory (Common)
+add_subdirectory (Host)
+add_subdirectory (Client)
+
+#zq_add_depend_modules(Core Protocol)

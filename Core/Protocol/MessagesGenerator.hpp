@@ -20,10 +20,10 @@
 #ifndef ZIQE_MESSAGESGENERATOR_H
 #define ZIQE_MESSAGESGENERATOR_H
 
-#include "Core/Protocol/Message.hpp"
-#include "Core/Protocol/MemoryRevision.hpp"
+#include "Protocol/Message.hpp"
+#include "Protocol/MemoryRevision.hpp"
 
-#include "Core/GlobalThread.hpp"
+#include "Common/Types.hpp"
 
 #include "Base/FieldWriter.hpp"
 
@@ -50,7 +50,7 @@ public:
     }
 
     /// Stop Thread
-    static MessageContainer makeStopThread (GlobalThread::ID threadID)
+    static MessageContainer makeStopThread (HostedThreadID threadID)
     {
         return makeVector(Message::Type::StopThread,
                           static_cast<uint64_t>(threadID));
@@ -62,7 +62,7 @@ public:
     }
 
     /// Cont Thread
-    static MessageContainer makeContinueThread (GlobalThread::ID threadID)
+    static MessageContainer makeContinueThread (HostedThreadID threadID)
     {
         return makeVector(Message::Type::ContinueThread,
                           static_cast<uint64_t>(threadID));
@@ -74,7 +74,7 @@ public:
     }
 
     /// Kill Thread
-    static MessageContainer makeKillThread (GlobalThread::ID threadID)
+    static MessageContainer makeKillThread (HostedThreadID threadID)
     {
         return makeVector(Message::Type::KillThread,
                           static_cast<uint64_t>(threadID));
@@ -87,14 +87,14 @@ public:
 
     /// Hello
     /// Send the new IDs.
-    static MessageContainer makeProcessPeerHello (const Base::RawArray<GlobalThreadID> &threads)
+    static MessageContainer makeProcessPeerHello (const Base::RawArray<HostedThreadID> &threads)
     {
         return makeVector(Message::Type::ProcessPeerHello,
                           threads);
     }
 
     /// Goodbye
-    static MessageContainer makeProcessPeerGoodbye (const Base::RawArray<GlobalThreadID> &threadsID)
+    static MessageContainer makeProcessPeerGoodbye (const Base::RawArray<HostedThreadID> &threadsID)
     {
         return makeVector(Message::Type::ProcessPeerGoodbye,
                           threadsID);

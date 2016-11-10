@@ -1,0 +1,3 @@
+zq_add_library(CoreClient ThreadManager Thread Process ThreadServer PeerLookupClient)
+
+zq_add_depend_modules(CoreClient CoreCommon)

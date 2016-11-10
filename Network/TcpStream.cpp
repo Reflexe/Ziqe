@@ -22,8 +22,8 @@
 namespace Ziqe {
 namespace Net {
 
-TcpStream::TcpStream(Base::Socket &&readySocket)
-    : mSocket{std::move (readySocket)}
+TcpStream::TcpStream(Base::Socket &&readySocket, Base::Pair<Address, Port> &&addressAndPort)
+    : mSocket{std::move (readySocket)}, mStreamAddressAndPort{addressAndPort}
 {
 }
 
@@ -34,7 +34,7 @@ TcpStream::Connect(const TcpStream::Address &address, const Port &port) {
     if (! maybeConnectedSocket)
         return {Base::move (maybeConnectedSocket.getError ())};
 
-    return {std::move (maybeConnectedSocket.get ())};
+    return {std::move (maybeConnectedSocket.get ()), Base::Pair<Address, Port>{address, port}};
 }
 
 Base::Expected<Stream::DataType, Stream::ReceiveError> TcpStream::receive() const{
@@ -50,6 +50,11 @@ Base::Expected<Stream::DataType, Stream::ReceiveError> TcpStream::receive() cons
 void TcpStream::send(const Stream::DataType &data) const
 {
     mSocket.send (data.toRawArray ());
+}
+
+Base::Pair<Stream::Address, Stream::Port> TcpStream::getStreamInfo() const
+{
+    return mStreamAddressAndPort;
 }
 
 } // namespace Net

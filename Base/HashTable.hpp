@@ -202,8 +202,10 @@ public:
     }
 
     ZQ_ALLOW_MOVE (_HashTableBase)
-    // FIXME: Copy shouldn't work because that the Iterators in the vector
+
+    // TODO: Trivial copy would not work because that the Iterators in the vector
     // would still be owned by the first owner.
+    ZQ_DISALLOW_COPY (_HashTableBase)
 
     ZQ_DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, begin, (), { return mKeysList.begin (); })
     ZQ_DEFINE_CONST_AND_NON_CONST (ConstIterator, Iterator, end, (), { return mKeysList.end (); })

@@ -1,5 +1,5 @@
 /**
- * @file GlobalThread.hpp
+ * @file Process.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,39 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_GLOBALTHREAD_H
-#define ZIQE_GLOBALTHREAD_H
-
-#include "Base/Types.hpp"
-#include "Base/LocalThread.hpp"
-#include "Base/LocalProcess.hpp"
-
-#include "Core/ProcessPeersClient.hpp"
-#include "Core/ThreadOwnerClient.hpp"
+#include "Process.hpp"
 
 namespace Ziqe {
+namespace Host {
 
-class GlobalThread
+Process::Process()
 {
-public:
-    GlobalThread(LocalThread &localThread);
 
-    typedef GlobalThreadID ID;
+}
 
-    // An handler for the system call hook.
-    ZqRegisterType onSystemCall(ZqSystemCallIDType systemCallID,
-                                const Base::RawArray<const ZqRegisterType> &parameters);
-
-
-private:
-    // TODO: finish ProcessPeersClient and ThreadOwnerClient
-#if 0
-    ProcessPeersClient mProcessPeersClient;
-
-    ThreadOwnerClient mThreadOwnerClient;
-#endif
-};
-
+} // namespace Host
 } // namespace Ziqe
-
-#endif // ZIQE_GLOBALTHREAD_H

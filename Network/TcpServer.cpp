@@ -46,8 +46,12 @@ Base::UniquePointer<Stream> TcpServer::acceptClient() {
 
     if (! maybeNewSocket)
         return {};
-    else
-        return Base::makeUnique<TcpStream>(Base::move (*maybeNewSocket));
+
+    DEBUG_CHECK (maybeNewSocket->second.getFamily () == ZQ_AF_INET6);
+
+    return Base::makeUnique<TcpStream>(Base::move (maybeNewSocket->first),
+                                       Base::Pair<Address, Port>{maybeNewSocket->second.get ().in6.sin6_addr,
+                                                                 maybeNewSocket->second.get ().in6.sin6_port});
 }
 
 } // namespace Net

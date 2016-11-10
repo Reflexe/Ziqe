@@ -187,13 +187,14 @@ bool Socket::listen(ZqSizeType backlog) {
     return true;
 }
 
-Expected<Socket, Socket::AccpetError> Socket::accept() const {
-    auto maybeNewSocket = ZqSocketAccept (mSocket);
+Expected<Base::Pair<Socket, Socket::SocketAddress>, Socket::AccpetError> Socket::accept() const {
+    ZqSocketAddress sockaddr;
+    auto maybeNewSocket = ZqSocketAccept (mSocket, &sockaddr);
 
     if (maybeNewSocket == ZQ_INVALID_SOCKET)
         return {AccpetError::Other};
     else
-        return {maybeNewSocket};
+        return {maybeNewSocket, SocketAddress::CreateFromSockaddr (sockaddr)};
 }
 
 Socket::Socket(ZqSocket socket)

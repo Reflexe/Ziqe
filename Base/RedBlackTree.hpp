@@ -38,11 +38,11 @@ struct BinaryTreeNode {
     {
     }
 
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRight, (), { return mRight; })
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeft, (), { return mLeft; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*&, getRight, (), { return mRight; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*&, getLeft, (), { return mLeft; })
 
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightOrLeft, (), { return (mRight == nullptr) ? mLeft : mRight; })
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftOrRight, (), { return (mLeft == nullptr) ? mRight : mLeft; })
+//    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightOrLeft, (), { return (mRight == nullptr) ? mLeft : mRight; })
+//    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftOrRight, (), { return (mLeft == nullptr) ? mRight : mLeft; })
 
     ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getUncle, (),
     {
@@ -390,12 +390,42 @@ public:
         return mSize;
     }
 
+    // Node *parent, Node *right, Node *left, const KeyType &key, Args&&...args
     template<class...Args>
     Pair<Iterator, bool> insert (const KeyType &key, Args&&... args) {
-        Base::IgnoreUnused (key);
-        Base::IgnoreUnused (args...);
+        auto result = findNode (key);
 
-        NOT_IMPLEMENTED ();
+        // If this tree doesn't have an head.
+        if (result.resultParent == nullptr) {
+            mHead = mRightest = mLeftest = new Node{nullptr, nullptr, nullptr,
+                                                    key, std::forward<Args>(args)...};
+
+            return {mHead, true};
+        }
+
+        DEBUG_CHECK (result.pResultAtParent != nullptr);
+
+        // If there is a node with the same key already.
+        if (*(result.pResultAtParent) != nullptr)
+            return {*(result.pResultAtParent), false};
+
+
+        auto newNode = new Node{result.resultParent, nullptr, nullptr,
+                                key, std::forward<Args>(args)...};
+
+        *(result.pResultAtParent) = newNode;
+
+        if (newNode->_isLeft ()) {
+            if (mLeftest == newNode->getParent()) {
+                mLeftest = newNode;
+            }
+        } else {
+            if (mRightest == newNode->getParent()) {
+                mRightest = newNode;
+            }
+        }
+
+        return {newNode, true};
     }
 
     Pair<Iterator, Iterator>
@@ -446,33 +476,38 @@ protected:
         @param key
         @return 
     */
-    Pair<Node*, bool> findNode(const KeyType &key) {
-        if (mHead == nullptr)
-            return {nullptr, false};
+    struct FindNodeResult {
+        Node *resultParent;
+        Node **pResultAtParent;
+    };
 
-        Node *currentNode = mHead;
-        Node *nextNode    = mHead;
+    FindNodeResult findNode(const KeyType &key) {
+        Node *nextNodeParent  = nullptr;
+        Node **nextNode       = &mHead;
 
-        do {
-            currentNode = nextNode;
+        while (*nextNode != nullptr) {
+            auto compareResult = mCompare(key, nextNode->getKey ());
 
-            auto compareResult = mCompare(key, currentNode->getKey ());
-
+            // Check if we have found the right node.
             if (compareResult == CompareType::Equal)
-                return {currentNode, true};
-            else if (compareResult == CompareType::GreaterThan)
-                nextNode = currentNode->getLeft ();
+                return {nextNodeParent, nextNode};
+
+            // If not, move to the next node.
+            nextNodeParent = *nextNode;
+
+            if (compareResult == CompareType::GreaterThan)
+                nextNode = &(nextNodeParent->getRight());
             else
-                nextNode = currentNode->getRight ();
-        } while(nextNode != nullptr);
+                nextNode = &(nextNodeParent->getLeft ());
+        }
 
         // We have reached the end and didn't found the
-        // required key.
-        return {currentNode, false};
+        // required key. nextNode would be a pointer to nullptr.
+        return {nextNode, nextNodeParent};
     }
 
     Node *mHead;
-    Node *mLeftest;
+    Node *mLeftest; /* The smallest element in the tree */
     Node *mRightest;
 
     SizeType mSize;
@@ -550,6 +585,13 @@ public:
     template<class...Args>
     Pair<Iterator, bool> insert (const KeyType &key, Args&&... args) {
         // It is an empty tree, insert a black one in the head.
+
+        auto iteratorAndIsSucceed = BinaryTreeType::insert (key, Base::forward<Args>(args)...);
+
+        if (! iteratorAndIsSucceed->second)
+            return iteratorAndIsSucceed;
+
+        // TODO:
     }
 
     Iterator remove(const KeyType &key)

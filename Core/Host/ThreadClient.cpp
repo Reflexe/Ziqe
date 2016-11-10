@@ -1,5 +1,5 @@
 /**
- * @file ThreadOwnerClient.cpp
+ * @file ThreadClient.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,19 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "ThreadOwnerClient.hpp"
-
-#include "Protocol/MessagesGenerator.hpp"
+#include "ThreadClient.hpp"
 
 namespace Ziqe {
+namespace Host {
 
-ThreadOwnerClient::ThreadOwnerClient(Base::UniquePointer<Protocol::MessageStream> &&stream)
+ThreadClient::ThreadClient(Base::UniquePointer<Protocol::MessageStream> &&stream)
     : mThreadOwnerStream{Base::move (stream)}
 {
 
 }
 
-ZqRegisterType ThreadOwnerClient::doSystemCall(ZqSystemCallIDType id,
+ZqRegisterType ThreadClient::doSystemCall(ZqSystemCallIDType id,
                                                const Base::RawArray<ZqRegisterType> parameters,
                                                Protocol::MemoryRevision &revision)
 {
@@ -41,7 +40,7 @@ ZqRegisterType ThreadOwnerClient::doSystemCall(ZqSystemCallIDType id,
     return mSystemCallTask.result;
 }
 
-ZqUserAddress ThreadOwnerClient::getAndReserveMemory(SizeType bytesCount) {
+ZqUserAddress ThreadClient::getAndReserveMemory(SizeType bytesCount) {
     sendThreadOwnerMessage (Protocol::MessagesGenerator::makeGetAndReserveMemory (bytesCount));
 
     waitUntilTaskComplete (mGetAndReserveMemoryTask);
@@ -49,7 +48,7 @@ ZqUserAddress ThreadOwnerClient::getAndReserveMemory(SizeType bytesCount) {
     return mGetAndReserveMemoryTask.address;
 }
 
-void ThreadOwnerClient::onMessageReceived(const Protocol::Message &type,
+void ThreadClient::onMessageReceived(const Protocol::Message &type,
                                           Protocol::MessageStream::MessageFieldReader &fieldReader,
                                           const Protocol::MessageStream &messageStream)
 {
@@ -61,4 +60,5 @@ void ThreadOwnerClient::onMessageReceived(const Protocol::Message &type,
     }
 }
 
+} // namespace Host
 } // namespace Ziqe

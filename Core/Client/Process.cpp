@@ -1,5 +1,5 @@
 /**
- * @file GlobalProcess.hpp
+ * @file Process.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,30 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_GLOBALPROCESS_H
-#define ZIQE_GLOBALPROCESS_H
-
-#include "Base/Types.hpp"
-#include "Base/LinkedList.hpp"
-#include "Base/RWLock.hpp"
-
-#include "Core/MemoryRevisionTree.hpp"
-
-#include "Core/ProcessPeersServer.hpp"
+#include "Process.hpp"
 
 namespace Ziqe {
+namespace Client {
 
-class GlobalProcess
+Process::Process()
 {
-public:
-    GlobalProcess();
 
-private:
-    Base::SharedPointer<ProcessPeersServer> mProcessServer;
+}
 
-
-};
-
+} // namespace Client
 } // namespace Ziqe
-
-#endif // ZIQE_GLOBALPROCESS_H

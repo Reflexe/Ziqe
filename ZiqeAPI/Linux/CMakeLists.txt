@@ -32,10 +32,18 @@ function(zq_add_driver name)
         set(FULL_SOURCES ${FULL_SOURCES} "${zq_linux_here}/${file}")
     endforeach()
 
+    # Convert these libraries to valid targets.
     zq_library_to_target(libraries ${ARGN})
+
+    # Get all of these libraries' dependencies.
+    foreach(library ${libraries})
+        zq_get_target_dependencies(library_dependencies ${library})
+        list(APPEND libraries ${library_dependencies})
+    endforeach()
 
     file(RELATIVE_PATH zq_current_binary_to_root "${CMAKE_CURRENT_BINARY_DIR}/Output" /)
 
+    # Convert all of the libraries to valid linux module paths.
     foreach(library ${libraries})
         zq_linux_get_library_path (${library} library_path "${zq_current_binary_to_root}")
         set(ZQ_OBJECTS ${ZQ_OBJECTS} ${library_path})

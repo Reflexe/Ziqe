@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.3)
 set(zq_root ${CMAKE_CURRENT_SOURCE_DIR})
 set(zq_library_type STATIC)
 set(zq_cpp_ext cpp)
-set(zq_target_prefix zq_)
+set(zq_target_prefix Ziqe_)
 set(zq_h_ext hpp)
 
 set(zq_debug ON)
@@ -32,31 +32,56 @@ else()
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-function(__zq_add_module caller_name target_path)
-    get_filename_component(target_name ${target_path} NAME)
-    set(target_name "${zq_target_prefix}${target_path}")
+macro(zq_library_to_target output_name)
+    set(${output_name} "")
 
-    if(NOT IS_DIRECTORY "${target_path}/")
-       message(FATAL_ERROR "${target_path} is not exist!")
-    endif(NOT IS_DIRECTORY "${target_path}/")
+    foreach(library_name ${ARGN})
+        set(${output_name} ${${output_name}} "${zq_target_prefix}${library_name}")
+    endforeach()
+endmacro()
+
+function(zq_get_target_dependencies output_var target)
+    get_target_property(dependencies ${target} LINK_LIBRARIES)
+
+    # If this target doesn't has any dependencies, leave this function.
+    if (${dependencies} STREQUAL dependencies-NOTFOUND)
+        set(${output_var} "")
+        return()
+    endif()
+
+    foreach(dependency ${dependencies})
+        zq_get_target_dependencies(more_dependencies ${dependency})
+        set(dependencies ${more_dependencies} ${dependencies})
+    endforeach()
+
+    set(${output_var} ${dependencies} PARENT_SCOPE)
+endfunction()
+
+function(zq_get_module_dependencies output_var target)
+    zq_library_to_target(target ${target})
+
+    zq_get_target_dependencies(${output_var} ${target})
+
+    # Update the parent scope's output_var.
+    set(${output_var} ${${output_var}} PARENT_SCOPE)
+endfunction()
+
+function(zq_add_one_depend_module caller_name target_name)
+    zq_library_to_target(caller_name ${caller_name})
+    zq_library_to_target(target_name ${target_name})
 
     if(NOT TARGET ${target_name})
         message(FATAL_ERROR "${target_name} is not a valid target!")
     endif(NOT TARGET ${target_name})
 
-    #target_include_directories(${caller_name} PUBLIC "${zq_root}/${target_path}/")
     target_link_libraries(${caller_name} ${target_name})
 endfunction()
 
-function(zq_add_module caller_name)
-    foreach(target_path ${ARGN})
-        __zq_add_module(${caller_name} ${target_path})
+function(zq_add_depend_modules caller_name)
+    foreach(target ${ARGN})
+        zq_add_one_depend_module(${caller_name} ${target})
     endforeach()
 endfunction()
-
-macro(zq_add_module_auto_caller)
-    zq_add_module(${PROJECT_NAME} ${ARGN})
-endmacro()
 
 macro(zq_add_library library_name)
 #    project(${library_name})
@@ -68,14 +93,6 @@ macro(zq_add_library library_name)
     add_library("${zq_target_prefix}${library_name}" ${zq_library_type} ${files_list})
     target_compile_options("${zq_target_prefix}${library_name}" PUBLIC ${zq_cpp_compiler_arguments})
     target_include_directories ("${zq_target_prefix}${library_name}" PUBLIC ${zq_include_directories})
-endmacro()
-
-macro(zq_library_to_target output_name)
-    set(${output_name} "")
-
-    foreach(library_name ${ARGN})
-        set(${output_name} ${${output_name}} "${zq_target_prefix}${library_name}")
-    endforeach()
 endmacro()
 
 macro (zq_add_test name)
@@ -107,4 +124,4 @@ add_subdirectory (Core)
 
 # Build Ziqe's main driver
 zq_add_library(MainLibrary main)
-zq_add_driver (MainDriver Base Core ZiqeProtocol Network MainLibrary)
+zq_add_driver (MainDriver CoreHost CoreClient MainLibrary)

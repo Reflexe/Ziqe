@@ -36,6 +36,11 @@ Base::Expected<Stream::DataType, Stream::ReceiveError> UdpStream::receive() cons
     return {std::move (*maybeData)};
 }
 
+Base::Pair<Stream::Address, Stream::Port> UdpStream::getStreamInfo() const
+{
+    return mAddressAndPort;
+}
+
 UdpStream::UdpStream(Base::Socket &&socket)
     : mSocket{Base::move (socket)}
 {

@@ -1,5 +1,5 @@
 /**
- * @file ThreadOwnerServer.h
+ * @file ThreadManager.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,26 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_THREADOWNERSERVER_H
-#define ZIQE_THREADOWNERSERVER_H
-
-#include "Base/Types.hpp"
-#include "Base/LocalThread.hpp"
-
-#include "Protocol/MessageServer.hpp"
+#ifndef THREADMANAGER_HPP
+#define THREADMANAGER_HPP
 
 namespace Ziqe {
+namespace Host {
 
-class ThreadOwnerServer
+// TODO
+class ThreadManager
 {
 public:
-    ThreadOwnerServer(Base::UniquePointer<Protocol::MessageServer> &&server);
-
-    void run ();
-
-private:
-    Base::UniquePointer<Protocol::MessageServer> mServer;
-
+    ThreadManager();
 };
+
+} // namespace Host
 } // namespace Ziqe
-#endif // ZIQE_THREADOWNERSERVER_H
+
+#endif // THREADMANAGER_HPP

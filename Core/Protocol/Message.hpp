@@ -46,7 +46,8 @@ namespace Protocol {
      *   TODO . Sill not stable.
  *
  * - The Global Peers Service
- *
+
+
  * -- Create a new process instance
  *  The Global Peers Service is responsible for creating a new global process instance.
  *  To create one, a global peers client should send a lookup request to the rest of

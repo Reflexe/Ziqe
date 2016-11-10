@@ -27,9 +27,9 @@
 #include "Base/LinkedList.hpp"
 #include "Base/HashTable.hpp"
 
-#include "Core/Types.hpp"
-#include "Core/Protocol/ThreadState.hpp"
-#include "Core/Protocol/MemoryMap.hpp"
+#include "Common/Types.hpp"
+#include "Protocol/ThreadState.hpp"
+#include "Protocol/MemoryMap.hpp"
 #include "Protocol/MessageServer.hpp"
 
 namespace Ziqe {
@@ -38,7 +38,7 @@ class ProcessPeersServer final
 {
 public:
     struct OtherServers {
-        void addThreads(const Base::RawArray<GlobalThreadID> &threadsToAdd,
+        void addThreads(const Base::RawArray<HostedThreadID> &threadsToAdd,
                         Base::UniquePointer<Protocol::MessageStream> &&stream)
         {
             mConnectionsList.emplace_back (Base::move (*stream));
@@ -50,7 +50,7 @@ public:
             }
         }
 
-        void removeThreads (const Base::RawArray<GlobalThreadID> &threadsToRemove) {
+        void removeThreads (const Base::RawArray<HostedThreadID> &threadsToRemove) {
             for (const auto &threadID : threadsToRemove)
             {
                 mThreadIDToStream.erase (threadID);
@@ -64,7 +64,7 @@ public:
             }
         }
 
-        bool sendThreadMessage (GlobalThreadID threadID, const Protocol::MessageStream::OutputDataType &vector) const{
+        bool sendThreadMessage (HostedThreadID threadID, const Protocol::MessageStream::OutputDataType &vector) const{
             auto iterator = mThreadIDToStream.find (threadID);
 
             if (iterator == mThreadIDToStream.end()) {
@@ -80,7 +80,7 @@ public:
         typedef Base::LinkedList<Protocol::MessageStream> ConnectionListType;
 
         ConnectionListType mConnectionsList;
-        Base::HashTable<GlobalThreadID, typename ConnectionListType::Iterator> mThreadIDToStream;
+        Base::HashTable<HostedThreadID, typename ConnectionListType::Iterator> mThreadIDToStream;
     };
 
     /**
@@ -92,9 +92,6 @@ public:
     ProcessPeersServer(Protocol::MessageServer &&messageServer);
     ~ProcessPeersServer();
 
-    static ProcessPeersServer CreateWithPeer (Protocol::MessageServer &&server, Protocol::MessageStream &&messageStream,
-                                              GlobalThreadID peerThreadID);
-
     ZQ_ALLOW_MOVE (ProcessPeersServer)
     ZQ_DISALLOW_COPY (ProcessPeersServer)
 
@@ -104,7 +101,7 @@ public:
     }
 
 private:
-    LocalThread *globalToLocalThread (GlobalThreadID threadID) {
+    LocalThread *globalToLocalThread (HostedThreadID threadID) {
         auto iterator = mProcessLocalThreads.find (threadID);
 
         if (iterator == mProcessLocalThreads.end ())
@@ -119,19 +116,19 @@ private:
                             const Protocol::MessageStream &messageStream) ;
 
     // Messages processors.
-    void onStopThreadReceived (Protocol::MessageStream &stream, GlobalThreadID threadID);
-    void onContinueThread     (Protocol::MessageStream &stream, GlobalThreadID threadID);
-    void onKillThreadReceived (Protocol::MessageStream &stream, GlobalThreadID threadID);
+    void onStopThreadReceived (Protocol::MessageStream &stream, HostedThreadID threadID);
+    void onContinueThread     (Protocol::MessageStream &stream, HostedThreadID threadID);
+    void onKillThreadReceived (Protocol::MessageStream &stream, HostedThreadID threadID);
 
     void onRunThreadReceived (Protocol::MessageStream &stream,
-                              GlobalThreadID newThreadID,
+                              HostedThreadID newThreadID,
                               Protocol::MemoryMap &currentMemoryMap,
                               Protocol::ThreadState &state);
 
-    void onHelloReceived (Protocol::MessageStream &stream, const Base::RawArray<GlobalThreadID> &newThreads);
-    void onGoodbyeReceived (Protocol::MessageStream &stream, const Base::RawArray<GlobalThreadID> &leavingThreads);
+    void onHelloReceived (Protocol::MessageStream &stream, const Base::RawArray<HostedThreadID> &newThreads);
+    void onGoodbyeReceived (Protocol::MessageStream &stream, const Base::RawArray<HostedThreadID> &leavingThreads);
 
-    Base::Vector<GlobalThreadID> getProcessThreadIDs () const
+    Base::Vector<HostedThreadID> getProcessThreadIDs () const
     {
         return {mProcessLocalThreads.keysBegin (), mProcessLocalThreads.keysEnd ()};
     }
@@ -150,7 +147,7 @@ private:
     LockedConnections mOtherServers;
 
     /// "Global" local threads in the same process.
-    Base::HashTable<GlobalThreadID, LocalThread> mProcessLocalThreads;
+    Base::HashTable<HostedThreadID, LocalThread> mProcessLocalThreads;
 };
 
 } // namespace Ziqe

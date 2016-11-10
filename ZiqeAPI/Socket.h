@@ -28,10 +28,12 @@
 
 #define ZQ_NO_BACKLOG (0)
 
+/**
+  A POD type for holding socket address.
+  */
 typedef struct {
-    // The size of the current active sockaddr.
+    /* The size of the current active sockaddr. */
     ZqSizeType socklen;
-
     ZqSocketFamily socket_family;
 
     union {
@@ -134,6 +136,15 @@ ZqBool ZqSocketSendTo(ZqSocket zqsocket,
                       const ZqSocketAddress *sockaddr,
                       ZqSizeType *bytesSent);
 
+/**
+   @brief Set a socket option.
+   @param zqsocket  The Socket.
+   @param level     The socket option level.
+   @param name      The socket option name (ID).
+   @param optionValue   The option value.
+   @param optionSize    The size (in bytes) of the option value.
+   @return ZQ_TRUE on success.
+ */
 ZqBool ZqSocketSetOption (ZqSocket zqsocket,
                           ZqSocketOptionLevel level,
                           ZqSocketOptionName name,
@@ -141,7 +152,15 @@ ZqBool ZqSocketSetOption (ZqSocket zqsocket,
                           ZqSizeType optionSize);
 
 
-ZqSocket ZqSocketAccept (ZqSocket zqsocket);
+/**
+   @brief Accept a client.
+   @param zqsocket  A server socket.
+   @param maybeSocketAddress    NULL, or a pointer to a socket address to be filled with the new client's
+                                socket address.
+   @return The new client socket on success, ZQ_INVALID_SOCKET on failure.
+ */
+ZqSocket ZqSocketAccept (ZqSocket zqsocket,
+                         ZqSocketAddress *maybeSocketAddress);
 
 ZQ_END_C_DECL
 

@@ -22,11 +22,6 @@
 #include "Base/SystemCalls.hpp"
 #include "Base/ProcessManager.hpp"
 
-#include "Core/GlobalPeers.hpp"
-
-#include "Core/GlobalThreadManager.hpp"
-#include "Core/GlobalProcessManager.hpp"
-
 #include "ZiqeAPI/EntryPoints.h"
 
 /**
@@ -43,7 +38,6 @@ public:
     {
     }
 private:
-    Ziqe::GlobalThreadManager mThreadManager;
 };
 
 namespace {
@@ -65,27 +59,26 @@ ZqBool systemCallHook (const ZqSystemCallIDType id,
                        ZqRegisterType *result);
 
 namespace {
-Ziqe::GlobalThreadManager *gThreadManager;
-Ziqe::GlobalProcessManager *gProcessManager;
+
 }
 
-ZqBool systemCallHook (const ZqSystemCallIDType id,
-                       const ZqRegisterType *params,
-                       ZqRegisterType *result)
-{
-    auto localThread = Ziqe::ProcessManager::getCurrentThread ();
+//ZqBool systemCallHook (const ZqSystemCallIDType id,
+//                       const ZqRegisterType *params,
+//                       ZqRegisterType *result)
+//{
+//    auto localThread = Ziqe::ProcessManager::getCurrentThread ();
 
-    auto globalThread = gThreadManager->localToGlobalThread (localThread);
+//    auto globalThread = gThreadManager->localToGlobalThread (localThread);
 
-    // Don't hook this thread.
-    if (! globalThread)
-        return ZQ_FALSE;
+//    // Don't hook this thread.
+//    if (! globalThread)
+//        return ZQ_FALSE;
 
-    // Compare the current memory map with the previous, and send it to the owner.
-    // We can use the "changed pages" as an hint.
+//    // Compare the current memory map with the previous, and send it to the owner.
+//    // We can use the "changed pages" as an hint.
 
-    return ZQ_TRUE;
-}
+//    return ZQ_TRUE;
+//}
 
 
 

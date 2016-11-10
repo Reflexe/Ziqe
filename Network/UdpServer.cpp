@@ -19,6 +19,8 @@
  */
 #include "UdpServer.hpp"
 
+#include "Base/Optional.hpp"
+
 namespace Ziqe {
 namespace Net {
 
@@ -44,6 +46,14 @@ UdpServer UdpServer::CreateFromStream(UdpStream &&udpStream)
     return UdpServer{Base::move (udpStream.mSocket)};
 }
 
+/**
+   @brief  A class simulates a udp stream.
+
+   We have a problem with UDP servers' `accept` method: the only way
+   to "accept" a new client is by receiving a new packet. In order
+   to solve it, we'll receive a packet and hold it in a special
+   stream container that will give it to the user on `receive`.
+ */
 class ServerToClientUdpStream : public Stream
 {
 public:
@@ -54,6 +64,8 @@ public:
     virtual Base::Expected<DataType, ReceiveError> receive () const override;
 
     virtual void send(const DataType &data) const override;
+
+    virtual Base::Pair<Address,Port> getStreamInfo () const override;
 
 private:
     Base::Socket::SocketAddress mDestSocketAddress;
@@ -77,6 +89,13 @@ Base::UniquePointer<Stream> UdpServer::acceptClient() {
 void ServerToClientUdpStream::send(const Stream::DataType &data) const
 {
     mSharedSocket->sendToAddress (mDestSocketAddress, data.toRawArray ());
+}
+
+Base::Pair<Stream::Address, Stream::Port> ServerToClientUdpStream::getStreamInfo() const{
+    ZQ_ASSERT (mDestSocketAddress.get ().socket_family == ZQ_AF_INET6);
+
+    return {mDestSocketAddress.get ().in6.sin6_addr,
+            mDestSocketAddress.get ().in6.sin6_port};
 }
 
 ServerToClientUdpStream::ServerToClientUdpStream(const Base::SharedPointer<Base::Socket> &serverSocket, Stream::DataType &&data,

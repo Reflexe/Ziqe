@@ -100,6 +100,21 @@ public:
             return socketAddress;
         }
 
+        static SocketAddress CreateFromSockaddr (const ZqSocketAddress &sockaddr) {
+            // Make sure size and family are valid.
+            // ZQ_AF_UNSPEC is invalid in this situation.
+            DEBUG_CHECK (sockaddr.socket_family == ZQ_AF_INET ||
+                         sockaddr.socket_family == ZQ_AF_INET6);
+
+            DEBUG_CHECK (sockaddr.socklen == sizeof (sockaddr.in)
+                         || sockaddr.socklen == sizeof (sockaddr.in6));
+
+            SocketAddress socketAddress;
+            socketAddress.mSocketAddress = sockaddr;
+
+            return socketAddress;
+        }
+
         ZQ_DEFINE_CONST_AND_NON_CONST (const ZqSocketAddress &, ZqSocketAddress &, get, (), { return mSocketAddress; })
 
         ZqSocketFamily getFamily() const
@@ -257,14 +272,12 @@ public:
         Other
     };
 
-    Expected<Socket, AccpetError> accept () const;
+    Expected<Base::Pair<Socket, Socket::SocketAddress>, AccpetError> accept() const;
 
-private:    
+private:
     // Allow Base::Excepted to create us :)
-    friend class Base::Expected<Socket,AccpetError>;
-    friend class Base::Expected<Socket,BindError>;
-    friend class Base::Expected<Socket,ListenError>;
-    friend class Base::Expected<Socket,ConnectError>;
+    template<class T, class Error>
+    friend class Base::Expected;
 
     Socket(Family family, Type type, ZqSocketProtocol protocol=0);
     Socket(ZqSocket socket);

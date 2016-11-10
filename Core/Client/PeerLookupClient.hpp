@@ -1,5 +1,5 @@
 /**
- * @file TcpServer.cpp
+ * @file PeerLookupClient.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,35 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_NET_TCPSERVER_HPP
-#define ZIQE_NET_TCPSERVER_HPP
+#ifndef PEERLOOKUPCLIENT_HPP
+#define PEERLOOKUPCLIENT_HPP
 
-#include "Base/Socket.hpp"
+#include "Base/Expected.hpp"
 
-#include "Network/Server.hpp"
+#include "Client/Thread.hpp"
+#include "Client/Process.hpp"
+
+#include "Common/MessageStreamFactoryInterface.hpp"
 
 namespace Ziqe {
-namespace Net {
+namespace Client {
 
-class TcpServer final : public Server
+class PeerLookupClient
 {
 public:
-    TcpServer(Base::Socket &&socket);
+    PeerLookupClient(Base::UniquePointer<MessageStreamFactoryInterface> &&factory);
 
-    enum class ListenError {
+    enum class RunThreadError {
         Other
     };
 
-    static Base::Expected<TcpServer, ListenError> Listen (const Address &address,
-                                                          const Port &port);
+    Base::Expected<Base::Pair<Thread, Process>, RunThreadError> runThread(const LocalThread &localThread);
 
-    Base::UniquePointer<Stream> acceptClient () override;
 
 private:
-    Base::Socket mSocket;
+    Base::UniquePointer<MessageStreamFactoryInterface> mStreamFactory;
+
 };
 
-} // namespace Net
+} // namespace Client
 } // namespace Ziqe
 
-#endif // ZIQE_NET_TCPSERVER_HPP
+#endif // PEERLOOKUPCLIENT_HPP

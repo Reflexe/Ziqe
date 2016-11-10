@@ -114,9 +114,9 @@ public:
         mVector.increaseBegin (length);
     }
 
-    bool haveBytes (SizeType length)
+    bool haveBytes (SizeType length) const
     {
-        return mVector.hasLength (length);
+        return mVector.size () >= length;
     }
 
     RawPointer<uint8_t> getCurrent()

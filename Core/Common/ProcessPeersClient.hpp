@@ -24,10 +24,10 @@
 #include "Base/RWLock.hpp"
 #include "Base/LocalThread.hpp"
 
-#include "Core/ProcessPeersServer.hpp"
-#include "Core/Protocol/MemoryRevision.hpp"
+#include "Common/ProcessPeersServer.hpp"
+#include "Protocol/MemoryRevision.hpp"
 
-#include "Core/Protocol/MessageStream.hpp"
+#include "Protocol/MessageStream.hpp"
 
 namespace Ziqe {
 
@@ -46,19 +46,19 @@ public:
      * This method send a continue thread message wait until an 'continued'
      * method received.
      */
-    void continueRemoteThread (GlobalThreadID threadID);
+    void continueRemoteThread (HostedThreadID threadID);
 
     /**
      * @brief Stop a remote thread [blocking]
      * @param threadID
      */
-    void stopRemoteThread(GlobalThreadID threadID);
+    void stopRemoteThread(HostedThreadID threadID);
 
     /**
      * @brief Kill a remote thread [blocking]
      * @param threadID
      */
-    void killRemoteThread(GlobalThreadID threadID);
+    void killRemoteThread(HostedThreadID threadID);
 
     /**
      * @brief Run a new thread [blocking].
@@ -118,7 +118,7 @@ private:
      * @param threadID
      * @param vector
      */
-    bool sendThreadMessage (GlobalThreadID threadID, Protocol::MessageStream::OutputDataType &&vector)
+    bool sendThreadMessage (HostedThreadID threadID, Protocol::MessageStream::OutputDataType &&vector)
     {
         return mConnections->getRead ().first.sendThreadMessage (threadID, Base::move (vector));
     }
@@ -134,7 +134,8 @@ private:
      */
     ProcessPeersServer::ConnectionsType mConnections;
 
-    Protocol::MessageStream mReceiveStream;
+
+    // FIXME: how to receive answers?
 };
 
 } // namespace Ziqe

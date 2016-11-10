@@ -33,6 +33,8 @@
 
 #define ZQ_ALLOW_COPY_AND_MOVE(name) ZQ_ALLOW_COPY(name) ZQ_ALLOW_MOVE(name)
 
+#define ZQ_ALLOW_MAKE_UNIQUE() template<class T, class ...Args> friend ::Ziqe::Base::UniquePointer<T> makeUnique(Args&&...)
+
 #define ZQ_DISALLOW_COPY(name) name(const name &) = delete; name &operator= (const name &) = delete;
 #define ZQ_DISALLOW_MOVE(name) name(name &&)      = delete; name & operator= (name &&)     = delete;
 

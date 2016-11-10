@@ -41,7 +41,9 @@ public:
 
     virtual void send(const DataType &data) const override;
 
-    TcpStream(Base::Socket &&readySocket);
+    virtual Base::Pair<Address, Port> getStreamInfo () const override;
+
+    TcpStream(Base::Socket &&readySocket, Base::Pair<Address, Port> &&addressAndPort);
 
 private:
     static ReceiveError socketReceiveErrorToError(const Base::Socket::ReceiveError &receiveError) {
@@ -57,6 +59,8 @@ private:
     }
 
     Base::Socket mSocket;
+
+    Base::Pair<Address, Port> mStreamAddressAndPort;
 };
 
 } // namespace Net

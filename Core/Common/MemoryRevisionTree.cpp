@@ -28,7 +28,7 @@ MemoryRevisionTree::MemoryRevisionTree()
 
 }
 
-MemoryRevision MemoryRevisionTree::diff(const MemoryRevision::ID &first) const{
+Protocol::MemoryRevision MemoryRevisionTree::diff(const MemoryRevision::ID &first) const{
     // First phase: check which data should we have in the new revision.
     // Second phase: actually prepare the new revision.
     // TODO redblack tree
@@ -47,7 +47,7 @@ MemoryRevision MemoryRevisionTree::diff(const MemoryRevision::ID &first) const{
 //    }
 }
 
-const MemoryRevision &MemoryRevisionTree::currentRevision() const
+const Protocol::MemoryRevision &MemoryRevisionTree::currentRevision() const
 {
 //    return mIDtoRevision.before_end ();
 }

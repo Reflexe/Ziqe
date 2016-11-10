@@ -29,6 +29,18 @@ MessageStream::MessageStream(Base::UniquePointer<Net::Stream> &&stream)
 {
 }
 
+Base::Expected<MessageStream, MessageStream::CreateError> MessageStream::CreateTCPConnection(const MessageStream::Address &address,
+                                                                                             const MessageStream::Port &port)
+{
+
+}
+
+Base::Expected<MessageStream, MessageStream::CreateError> MessageStream::CreateGlobalTCPConnection(const MessageStream::Address &address,
+                                                                                                   const MessageStream::Port &port)
+{
+
+}
+
 Base::Expected<MessageStream, MessageStream::CreateError>
 MessageStream::CreateUDPConnection(const MessageStream::Address &address,
                                    const MessageStream::Port &port)
@@ -51,6 +63,8 @@ MessageStream::CreateGlobalUDPConnection(const MessageStream::Address &broadcast
         return {Base::makeUnique<Net::UdpStream>(Base::move (*maybeUdpStream))};
 }
 
+// OLD factory functions
+#if 0
 Base::Expected<MessageStream,MessageStream::CreateError>
 MessageStream::CreateConnection(const Address &address, const Port &port)
 {
@@ -61,7 +75,6 @@ MessageStream::CreateConnection(const Address &address, const Port &port)
     else
         return {Base::move (*maybeStream)};
 }
-
 Base::Expected<MessageStream, MessageStream::CreateError>
 MessageStream::CreateGlobalConnection(const Address &croadcastAddress,
                                       const Port &port) {
@@ -72,18 +85,20 @@ MessageStream::CreateGlobalConnection(const Address &croadcastAddress,
     else
         return {Base::move (*maybeBroadcastStream)};
 }
+#endif
 
 MessageStream::~MessageStream()
 {
 }
 
-Base::Expected<Base::Pair<Message, MessageStream::MessageFieldReader>, int> MessageStream::receiveMessage() const{
+Base::Expected<Base::Pair<Message, MessageStream::MessageFieldReader>, MessageStream::ReceiveMessageError>
+MessageStream::receiveMessage() const{
     auto vector = mStream->getStreamVector ();
 
     MessageFieldReader reader{Base::move(vector)};
     if (! reader.canReadT<Message::Type>()) {
         DEBUG_CHECK_REPORT_NOT_REACHED ("Message too short");
-        return;
+        return {ReceiveMessageError::Other};
     }
 
     Message::Type type = static_cast<Message::Type>(reader.readT <uint16_t> ());
@@ -91,10 +106,10 @@ Base::Expected<Base::Pair<Message, MessageStream::MessageFieldReader>, int> Mess
     if (! Message::isValidMessageType (type)) {
         DEBUG_CHECK_REPORT_NOT_REACHED ("Invalid message type received");
 
-        return;
+        return {ReceiveMessageError::Other};
     }
 
-    return {Message{type}, InitializerDelimeter{}, Base::move (reader)};
+    return {Message{type}, Base::move (reader)};
 }
 
 } // namespace Ziqe

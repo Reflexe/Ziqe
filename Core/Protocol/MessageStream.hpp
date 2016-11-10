@@ -25,9 +25,9 @@
 #include "Network/UdpStream.hpp"
 #include "Network/TcpStream.hpp"
 
-#include "Core/Types.hpp"
-#include "Core/Protocol/Message.hpp"
-#include "Core/Protocol/MemoryRevision.hpp"
+#include "Common/Types.hpp"
+#include "Protocol/Message.hpp"
+#include "Protocol/MemoryRevision.hpp"
 
 namespace Ziqe {
 namespace Protocol {
@@ -47,6 +47,7 @@ public:
 
     MessageStream(Base::UniquePointer<Net::Stream> &&stream);
 
+    // TODO: move these functions to a factory class ({Tcp,Udp}MessageStreamFactory)
     static Base::Expected<MessageStream,CreateError>
     CreateTCPConnection(const Address &address, const Port &port);
 
@@ -77,11 +78,11 @@ public:
      */
     typedef Base::LittleEndianFieldReader<InputDataType> MessageFieldReader;
 
-    /**
-     * @brief receiveMessage  Receive one message and call the callback.
-     * @param stream
-     */
-    Base::Expected<Base::Pair<Message, MessageFieldReader>, int> receiveMessage() const;
+    enum class ReceiveMessageError {
+        Other
+    };
+
+    Base::Expected<Base::Pair<Message, MessageFieldReader>, ReceiveMessageError> receiveMessage() const;
 
     void sendMessage(const OutputDataType &messageData) const
     {

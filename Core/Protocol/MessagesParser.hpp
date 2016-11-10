@@ -21,10 +21,9 @@
 #define ZIQE_MESSAGESPARSER_H
 
 #include "Base/Vector.hpp"
-
 #include "Base/FieldReader.hpp"
 
-#include "Core/ZiqeProtocol/Message.hpp"
+#include "Protocol/Message.hpp"
 
 namespace Ziqe {
 namespace Protocol {

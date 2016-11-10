@@ -32,7 +32,7 @@ ProcessPeersClient::~ProcessPeersClient()
 {
 }
 
-void ProcessPeersClient::continueRemoteThread(GlobalThreadID threadID) {
+void ProcessPeersClient::continueRemoteThread(HostedThreadID threadID) {
     if (! sendThreadMessage (threadID, Protocol::MessagesGenerator::makeContinueThread (threadID)))
         return;
 
@@ -49,7 +49,7 @@ void ProcessPeersClient::onMessageReceived(const Protocol::Message &type, Protoc
 
 }
 
-void ProcessPeersClient::killRemoteThread(GlobalThreadID threadID) {
+void ProcessPeersClient::killRemoteThread(HostedThreadID threadID) {
     if (! sendThreadMessage (threadID, Protocol::MessagesGenerator::makeKillThread (threadID)))
         return;
 
@@ -57,7 +57,7 @@ void ProcessPeersClient::killRemoteThread(GlobalThreadID threadID) {
     waitUntilCurrentTaskComplete ();
 }
 
-void ProcessPeersClient::stopRemoteThread(GlobalThreadID threadID) {
+void ProcessPeersClient::stopRemoteThread(HostedThreadID threadID) {
     if (! sendThreadMessage (threadID, Protocol::MessagesGenerator::makeStopThread (threadID)))
         return;
 

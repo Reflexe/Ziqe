@@ -29,8 +29,10 @@
 namespace Ziqe {
 namespace Base {
 
+// TODO: assert instead of CHECK
 #ifdef ZQ_TEST_BUILD
 # define DEBUG_CHECK(expr) ZQ_SGMT_BEGIN if (expr) {} else { ::Ziqe::Logger::logError (#expr " Failed"); } ZQ_SGMT_END
+# define ZQ_ASSERT(expr) DEBUG_CHECK(expr)
 
 # define DEBUG_CHECK_REPORT(expr, msg) ZQ_SGMT_BEGIN if (expr) {} else { ::Ziqe::Logger::logWarning (#expr " Failed"); } ZQ_SGMT_END
 # define DEBUG_CHECK_REPORT_NOT_REACHED(msg) ::Ziqe::Logger::logWarning (msg)

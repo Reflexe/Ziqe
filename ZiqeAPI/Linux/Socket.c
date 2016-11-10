@@ -222,8 +222,7 @@ ZqBool ZqSocketSetOption(ZqSocket zqsocket,
         return ZQ_TRUE;
 }
 
-ZqSocket ZqSocketAccept(ZqSocket zqsocket)
-{
+ZqSocket ZqSocketAccept(ZqSocket zqsocket, ZqSocketAddress *maybeSocketAddress) {
     struct socket *server_sock = zqsocket_to_socket (zqsocket);
     struct socket *client_socket;
     int ret;
@@ -232,6 +231,16 @@ ZqSocket ZqSocketAccept(ZqSocket zqsocket)
 
     if (ret)
         return ZQ_INVALID_SOCKET;
-    else
-        return (ZqSocket)client_socket;
+
+    // The user want this socket's address.
+    if (maybeSocketAddress != NULL) {
+        int socklen = 0;
+
+        kernel_getsockname (client_socket, (struct sockaddr *) &maybeSocketAddress->in, &socklen);
+
+        maybeSocketAddress->socklen = (ZqSizeType) socklen;
+        maybeSocketAddress->socket_family = ((struct sockaddr *)&maybeSocketAddress->in)->sa_family;
+    }
+
+    return (ZqSocket)client_socket;
 }

@@ -41,6 +41,11 @@ public:
 
     static UdpServer CreateFromStream (UdpStream &&udpStream);
 
+    /**
+       @brief
+       @return
+       @note Doesn't return a UdpStream!
+     */
     virtual Base::UniquePointer<Stream> acceptClient () override;
 
 private:

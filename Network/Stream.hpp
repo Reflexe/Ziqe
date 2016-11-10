@@ -52,6 +52,8 @@ public:
 
     virtual void send(const DataType &data) const = 0;
 
+    virtual Base::Pair<Address, Port> getStreamInfo () const = 0;
+
     /**
      * @brief The StreamVector struct
      */
@@ -101,7 +103,7 @@ public:
             }
         }
 
-        bool hasLength(const SizeType length) {
+        bool makeSureHasLength (const SizeType length) {
             while (mVectorsSize < length) {
                 bool result = receiveNewData ();
 
@@ -110,6 +112,11 @@ public:
             }
 
             return true;
+        }
+
+        SizeType size () const
+        {
+            return mVectorsSize;
         }
 
     private:

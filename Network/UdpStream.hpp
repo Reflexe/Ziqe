@@ -27,7 +27,7 @@
 namespace Ziqe {
 namespace Net {
 
-class UdpStream : implements public Stream
+class UdpStream final : implements public Stream
 {
 public:
     enum class CreateError {
@@ -47,19 +47,14 @@ public:
 
     virtual Base::Expected<DataType,ReceiveError> receive () const override;
 
+    virtual Base::Pair<Address, Port> getStreamInfo () const override;
+
     /**
        @brief Set whether this Stream is a broadcast stream or not.
      */
     void setBroadcast (bool isBroadcast);
 
-    /**
-       @brief Turn a server socket into a client.
-       @param otherSideAddress
-       @param otherSidePort
-     */
-    bool turnToClient(const Address &otherSideAddress, const Port &otherSidePort);
-
-private:    
+private:
     friend class UdpServer;
 
     static ReceiveError socketReceiveErrorToError(const Base::Socket::ReceiveError &receiveError) {
@@ -73,6 +68,8 @@ private:
             return ReceiveError::Timeout;
         }
     }
+
+    Base::Pair<Address, Port> mAddressAndPort;
 
     Base::Socket mSocket;
 };
