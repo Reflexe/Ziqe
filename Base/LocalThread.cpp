@@ -31,7 +31,7 @@ LocalThread::LocalThread(ThreadID threadID)
 
 ZqThreadInfo &LocalThread::getThreadInfo() const{
     if (! mIsThreadInfoUpdated) {
-        DEBUG_CHECK (ZqGetThreadInfo (mThreadID, &mThreadInfo) == ZQ_TRUE);
+        ZQ_ASSERT (ZqGetThreadInfo (mThreadID, &mThreadInfo) == ZQ_TRUE);
         mIsThreadInfoUpdated = true;
     }
 

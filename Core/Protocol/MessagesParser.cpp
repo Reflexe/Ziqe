@@ -22,10 +22,5 @@
 namespace Ziqe {
 namespace Protocol {
 
-MessagesParser::MessagesParser()
-{
-
-}
-
 } // namespace Ziqe
 } // namespace Protocol

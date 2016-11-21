@@ -50,7 +50,7 @@ public:
     }
 
     explicit ExtendedVector(VectorReferenceType &&vector)
-        : mVector{Base::move (vector)}, mIndexBegin{0}, mIndexEnd{static_cast<SizeType>(getVector().size())}
+        : mVector{Base::forward<VectorReferenceType> (vector)}, mIndexBegin{0}, mIndexEnd{static_cast<SizeType>(getVector().size())}
     {
     }
 
@@ -61,7 +61,7 @@ public:
           mIndexBegin{indexBegin},
           mIndexEnd{(indexEnd == kNoIndex) ? static_cast<SizeType>(getVector().size()) : indexEnd}
     {
-        DEBUG_CHECK (mIndexEnd > mIndexBegin);
+        ZQ_ASSERT (mIndexEnd > mIndexBegin);
     }
 
     ZQ_ALLOW_COPY_AND_MOVE (ExtendedVector)
@@ -80,7 +80,7 @@ public:
 
     template<class _VectorType>
     void insertVectorAtBegin (const _VectorType &vector) {
-        DEBUG_CHECK (vector.size () <= size ());
+        ZQ_ASSERT (vector.size () <= size ());
 
         SizeType i = 0;
 
@@ -102,16 +102,26 @@ public:
         return size();
     }
 
+    bool hasLength (const SizeType length) const
+    {
+        return size () >= length;
+    }
+
     void increaseBegin (SizeType howMuch = 1) {
         DEBUG_CHECK_ADD_OVERFLOW (howMuch, mIndexBegin);
-        DEBUG_CHECK (mIndexBegin + howMuch <= mIndexEnd);
+        ZQ_ASSERT (mIndexBegin + howMuch <= mIndexEnd);
 
         mIndexBegin += howMuch;
     }
 
     void setEnd (SizeType newEnd) {
-        DEBUG_CHECK (mIndexBegin <= newEnd);
+        ZQ_ASSERT (mIndexBegin <= newEnd);
         mIndexEnd = newEnd;
+    }
+
+    void setBegin (SizeType newBegin) {
+        ZQ_ASSERT (mIndexEnd >= newBegin);
+        mIndexBegin = newBegin;
     }
 
     T &front ()
@@ -127,6 +137,26 @@ public:
     VectorType &getVector ()
     {
         return mVector;
+    }
+
+    void expand (SizeType howMuch) {
+        auto newSize = size() + howMuch;
+        auto currentUnderlyingVectorSize = getVector ().size();
+
+        // If the underlying vector has more element at the end,
+        // "expand" the vector to them.
+        if (mIndexEnd != currentUnderlyingVectorSize) {
+            auto sizeVaildableForVirtualExpand = (currentUnderlyingVectorSize - mIndexEnd);
+            auto virtualExpandSize = min (howMuch, sizeVaildableForVirtualExpand);
+
+            newSize -= virtualExpandSize;
+            mIndexEnd = sizeVaildableForVirtualExpand-virtualExpandSize;
+        }
+
+        // If we need to expand more elements, do it.
+        if (newSize > 0) {
+            getVector ().expand (howMuch);
+        }
     }
 
     typedef typename VectorType::Iterator Iterator;
@@ -151,6 +181,15 @@ public:
         return getVector().begin () + mIndexEnd;
     }
 
+    SizeType getIndexBegin () const
+    {
+        return mIndexBegin;
+    }
+
+    SizeType getIndexEnd () const
+    {
+        return mIndexEnd;
+    }
 
 private:
     VectorReferenceType mVector;
@@ -163,6 +202,11 @@ template<class T>
 using SharedExtendedVector=ExtendedVector<T,
                                           Vector<T>,
                                           SharedPointer<Vector<T>>>;
+
+template<class T>
+using ReferenceExtendedVector=ExtendedVector<T,
+                                            Vector<T>,
+                                            Vector<T>&>;
 
 } // namespace Base
 } // namespace Ziqe

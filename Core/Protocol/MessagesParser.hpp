@@ -28,53 +28,41 @@
 namespace Ziqe {
 namespace Protocol {
 
+template<class FieldReaderType>
 class MessagesParser
 {
+    FieldReaderType mFieldReader;
+
 public:
-    MessagesParser();
-
-    // TOOD: parsering - should MessageStream do it?
-#if 0
-    typedef Base::Vector<uint8_t> MessageContainer;
-    typedef uint64_t IdentiferType;
-
-    template<class Arg>
-    static bool readArg (FieldReader &reader)
+    // Stupid C++ strandard doesn't allow partical specialization for functions.
+    // C++17 allows infering of templates argument from constructors, so here we
+    // in the same problem.
+    template<class T>
+    struct MessageParser
     {
-        return true;
+    };
+
+    enum class ParseError {
+        TooShort,
+        InvalidType,
+        Other
+    };
+
+    template<Message::Type type>
+    struct MessageParser<MessageWithThreadID<type>>
+    {
+
+    };
+
+    MessagesParser(FieldReaderType &&fieldReader)
+        : mFieldReader{Base::move (fieldReader)}
+    {
     }
 
-    template<class Arg, class... Args>
-    static bool readArg (FieldReader &reader, Arg &arg, Args&... args) {
-        if (! reader.canReadT<Arg> ())
-            return false;
+    Base::Expected<ContiniueThreadMessage, ParseError> parseContiniueThread ()
+    {
 
-        arg = reader.readT<Arg> ();
-
-        return readArg (reader, args...);
     }
-
-    template<class...Args>
-    static bool readVector (FieldReader &reader, Args&&...args) {
-
-        if (! readArg (reader, args...))
-            return false;
-
-        return true;
-    }
-
-    static bool readMessageType (FieldReader &reader, Message::Type &messageType) {
-        DWord dwordMessageType;
-
-        if (! reader.canReadT<DWord>())
-            return false;
-
-        dwordMessageType = reader.readT<DWord>();
-        messageType = static_cast<Message::Type>(dwordMessageType);
-
-        return true;
-    }
-#endif
 };
 
 } // namespace Ziqe

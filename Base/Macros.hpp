@@ -26,6 +26,8 @@
 
 #include <utility>
 
+#define ZQ_FUNCTION_STR __PRETTY_FUNCTION__
+
 #define implements
 
 #define ZQ_ALLOW_COPY(name) name(const name &) = default; name &operator= (const name &) = default;
@@ -158,14 +160,40 @@ ResultType plusArgs (const Arg &arg, const Args&&... args)
     return arg + plusArgs<ResultType>(std::forward<Args>(args)...);
 }
 
-template<bool value>
+template<bool value, class T=void>
 struct EnableIf
 {
 };
-template<>
-struct EnableIf<true>
+
+template<class T>
+struct EnableIf<true, T>
 {
-    typedef bool type;
+    typedef T type;
+};
+
+template<class T1, class T2>
+struct IsSame
+{
+    static constexpr bool value = false;
+};
+
+template<class T>
+struct IsSame<T, T>
+{
+    static constexpr bool value = true;
+};
+
+template<class T>
+struct RemoveConst
+{
+    typedef T type;
+};
+
+
+template<class T>
+struct RemoveConst<const T>
+{
+    typedef T type;
 };
 
 /**

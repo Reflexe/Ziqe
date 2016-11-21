@@ -140,7 +140,7 @@ public:
     ZQ_ALLOW_COPY_AND_MOVE (RWLocked)
     ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (RWLocked, mValue)
 
-    const Pair<const T&, RWLock::ScopedReadLock> getRead () {
+    Pair<const T&, RWLock::ScopedReadLock> getRead () {
         return Pair<const T&, RWLock::ScopedReadLock>{mValue,
                     *mLock};
     }

@@ -37,123 +37,118 @@ public:
     typedef Zq_in6_addr Address;
 
     typedef Base::Vector<uint8_t> DataType;
+    typedef Base::Vector<uint8_t> OutputType;
 
     enum class ReceiveError {
         Timeout,
+        ParseError,
         Other
     };
 
-    Stream() = default;
-    virtual ~Stream();
-    ZQ_ALLOW_COPY_AND_MOVE (Stream)
-
-
-    virtual Base::Expected<DataType, ReceiveError> receive() const = 0;
-
-    virtual void send(const DataType &data) const = 0;
-
-    virtual Base::Pair<Address, Port> getStreamInfo () const = 0;
-
-    /**
-     * @brief The StreamVector struct
-     */
-    struct StreamVector {
-        StreamVector(const Stream &stream)
-            : mStream{&stream}, mCurrentVector{}, mVectorsSize{0}
+    struct InputStreamVector {
+        InputStreamVector()
+            : mCurrentVector{}, mVectorsSize{0}
         {
-            receiveNewData ();
         }
 
-        void increaseBegin(SizeType howMuch) {
-            DEBUG_CHECK (howMuch <= mVectorsSize);
+        virtual ~InputStreamVector();
 
-            // We should remove one or more vectors.
-            while (howMuch >= mCurrentVector.size ()) {
-                mVectorsSize -= mCurrentVector.size ();
-                howMuch -= mCurrentVector.size ();
-                switchToNextVector ();
-            }
+        void increaseBegin(SizeType howMuch);
 
-            // Move the required offset in the next vector.
-            mCurrentVector.increaseBegin (howMuch);
-            mVectorsSize -= howMuch;
-        }
+        uint8_t operator[] (SizeType index);
 
-        uint8_t operator[] (SizeType index) {
-            DEBUG_CHECK (index >= 0);
-            DEBUG_CHECK (mVectorsSize > index);
-
-            // Out of range of the current vector, we need to find the one for this index.
-            if (mCurrentVector.getSize () <= index) {
-                index -= mCurrentVector.size ();
-
-                for (auto &vector : mVectors) {
-                    if (vector.size () > index) {
-                        return vector[index];
-                    }
-
-                    index -= vector.size ();
-                }
-
-                // Should not happen.
-                DEBUG_CHECK_NOT_REACHED ();
-                return 0;
-            } else {
-                return mCurrentVector[index];
-            }
-        }
-
-        bool makeSureHasLength (const SizeType length) {
-            while (mVectorsSize < length) {
-                bool result = receiveNewData ();
-
-                if (! result)
-                    return false;
-            }
-
-            return true;
-        }
+        bool hasLength (const SizeType length);
 
         SizeType size () const
         {
             return mVectorsSize;
         }
 
-    private:
+    protected:
+        virtual Base::Expected<DataType, ReceiveError>
+        receiveData () const = 0;
+
         /**
            @brief Try to receive a new data vector and add it to mVectors.
            @return true if a vector added, false if not (receive error).
          */
-        bool receiveNewData() {
-            auto newData = mStream->receive();
-            if (newData) {
-                mVectorsSize += newData->size ();
-                mVectors.emplace_back(Base::move (newData.get ()));
-                return true;
-            } else {
-                return false;
-            }
-        }
+        bool receiveNewData();
 
         /**
            @brief Remove the current vector and get a new one from mVectors.
          */
-        void switchToNextVector () {
-            mCurrentVector = Base::ExtendedVector<uint8_t>{Base::move (mVectors.front ())};
-            mVectors.pop_front ();
-        }
-
-        Base::RawPointer<const Stream> mStream;
+        void switchToNextVector ();
 
         Base::ExtendedVector<uint8_t> mCurrentVector;
         Base::LinkedList<Base::Vector<uint8_t>> mVectors;
         SizeType mVectorsSize;
     };
 
-    StreamVector getStreamVector() const
-    {
-        return StreamVector{*this};
-    }
+
+    struct OutputStreamVector {
+    public:
+        void sync ()
+        {
+            sendCurrentSegment ();
+        }
+
+        SizeType size() const
+        {
+            return mVector.size ();
+        }
+
+        ZQ_ALLOW_COPY_AND_MOVE (OutputStreamVector)
+        virtual ~OutputStreamVector();
+
+        void expand (SizeType howMuch) {
+            // If index is OOB,
+            if (isAutoSendSizePassed ())
+                sync ();
+            else
+                mVector.expand (howMuch);
+        }
+
+        void increaseBegin (SizeType howMuch)
+        {
+            mVector.increaseBegin (howMuch);
+        }
+
+        uint8_t &operator [] (SizeType index)
+        {
+            return mVector[index];
+        }
+
+    protected:
+        OutputStreamVector(SizeType autoSendSize);
+        OutputStreamVector(DataType &&vectorInitilizer, SizeType autoSendSize);
+
+    private:
+        bool isAutoSendSizePassed () const
+        {
+            return mVector.size () >= mAutoSendDataSize;
+        }
+
+        virtual void sendCurrentSegment () = 0;
+
+    protected:
+        Base::ExtendedVector<uint8_t> mVector;
+
+        /**
+           @brief On TCP, MSS-TCP-Header len.
+                  On UDP, MSS.
+         */
+        SizeType mAutoSendDataSize;
+    };
+
+    Stream() = default;
+    virtual ~Stream();
+    ZQ_ALLOW_COPY_AND_MOVE (Stream)
+
+    virtual Base::Pair<Address, Port> getStreamInfo () const = 0;
+
+    virtual Base::UniquePointer<InputStreamVector> getInputStreamVector() const = 0;
+
+    virtual Base::UniquePointer<OutputStreamVector> getOutputStreamVector() const = 0;
 };
 
 } // namespace Net

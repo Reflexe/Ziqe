@@ -21,6 +21,7 @@
 #define ZIQE_LOGGER_H
 
 #include "ZiqeAPI/Logging.h"
+#include "Macros.hpp"
 
 namespace Ziqe {
 
@@ -61,6 +62,10 @@ private:
     Logger();
 
 };
+
+#define ZQ_LOG(msg) Logger::logMessage (": \"" msg "\"")
+#define ZQ_WARNING(msg) Logger::logWarning (": \"" msg "\"")
+#define ZQ_ERROR(msg) Logger::logError (": \"" msg "\"")
 
 } // namespace Ziqe
 

@@ -34,7 +34,7 @@ Socket::Connect(const Socket::SocketAddress &address, Socket::Type type, ZqSocke
     // first of all, create the socket.
     Socket socket{static_cast<Family>(address.getFamily ()), type, protocol};
 
-    // If it is not a valid socket, return nullptr.
+    // If it is not a valid socket, return an error.
     if (! socket.isOpen ())
         return {ConnectError::Other};
 
@@ -90,7 +90,7 @@ void Socket::close() {
     mSocket = ZQ_INVALID_SOCKET;
 }
 
-void Socket::send(const RawArray<const uint8_t> &array) const{
+void Socket::sendAll(const RawArray<const uint8_t> &array) const{
     ZqSizeType bytesSent = 0;
 
     while (bytesSent < array.size ()) {
@@ -99,34 +99,32 @@ void Socket::send(const RawArray<const uint8_t> &array) const{
         auto result = ZqSocketSend (mSocket,
                                     static_cast<ZqConstKernelAddress>(array.get () + bytesSent),
                                     array.size () - bytesSent, &lastBytesSent);
-        DEBUG_CHECK (result);
+        ZQ_ASSERT (result);
 
         bytesSent += lastBytesSent;
     }
 }
 
 Expected<Vector<uint8_t>,Socket::ReceiveError> Socket::receive() const{
-    Vector<uint8_t> vector;
     ZqSizeType bytesReceived;
-
-    vector.resize(ReceiveBufferSize);
-
+    ZqKernelAddress bufferAddress;
 
     auto result = ZqSocketReceive (mSocket,
-                                   vector.data (),
-                                   vector.size (),
+                                   &bufferAddress,
                                    &bytesReceived);
-    if (! result)
+
+    if (result == ZQ_E_AGAIN)
         return {Socket::ReceiveError::Timeout};
+    else if (result != ZQ_E_OK)
+        return {Socket::ReceiveError::Other};
     else if (bytesReceived == 0)
         return {Socket::ReceiveError::Disconnected};
 
-    // Remove the unrequired bytes from the vector.
-    vector.shrinkWithoutFree (vector.size () - bytesReceived);
-    return {std::move (vector)};
+    return {Vector<uint8_t>::TakeRawArray (RawArray<uint8_t>(static_cast<uint8_t*>(bufferAddress),
+                                                             bytesReceived))};
 }
 
-void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const{
+void Socket::sendAllToAddress(const Socket::SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const{
     ZqSizeType bytesSent = 0;
 
     while (bytesSent < array.size ()) {
@@ -136,7 +134,7 @@ void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const Raw
                                       array.size () - bytesSent,
                                       &socketAddress.get (),
                                       &lastBytesSent);
-        DEBUG_CHECK (result);
+        ZQ_ASSERT (result == ZQ_E_OK);
 
         bytesSent += lastBytesSent;
     }
@@ -144,50 +142,48 @@ void Socket::sendToAddress(const Socket::SocketAddress &socketAddress, const Raw
 
 Expected<Pair<Vector<uint8_t>, Socket::SocketAddress>, Socket::ReceiveError>
 Socket::receiveWithAddress() const{
-    Vector<uint8_t> vector;
+    ZqKernelAddress bufferAddress;
     ZqSizeType bytesReceived;
     SocketAddress socketAddress;
 
-    vector.resize(ReceiveBufferSize);
-
     auto result = ZqSocketReceiveFrom (mSocket,
-                                       vector.data (),
-                                       vector.size (),
+                                       &bufferAddress,
                                        &socketAddress.get (),
                                        &bytesReceived);
 
-    if (! result)
+    if (result == ZQ_E_AGAIN)
         return {Socket::ReceiveError::Timeout};
+    else if (result != ZQ_E_OK)
+        return {Socket::ReceiveError::Other};
     else if (bytesReceived == 0)
         return {Socket::ReceiveError::Disconnected};
 
-    // Remove the unrequired bytes from the vector.
-    vector.shrinkWithoutFree (vector.size () - bytesReceived);
-    return {Base::move (vector), Base::move (socketAddress)};
+    return {Vector<uint8_t>::TakeRawArray (RawArray<uint8_t>(static_cast<uint8_t*>(bufferAddress), bytesReceived)),
+            Base::move (socketAddress)};
 }
 
 bool Socket::bind(const SocketAddress &address) {
-    if (! ZqSocketBind (mSocket, &address.get ()))
+    if (ZqSocketBind (mSocket, &address.get ()) != ZQ_E_OK)
         return false;
 
     return true;
 }
 
 bool Socket::connect(const SocketAddress &address) {
-    if (! ZqSocketConnect (mSocket, &address.get ()))
+    if (ZqSocketConnect (mSocket, &address.get ()) != ZQ_E_OK)
        return false;
 
     return true;
 }
 
 bool Socket::listen(ZqSizeType backlog) {
-    if (! ZqSocketListen (mSocket, backlog))
+    if (ZqSocketListen (mSocket, backlog) != ZQ_E_OK)
         return false;
 
     return true;
 }
 
-Expected<Base::Pair<Socket, Socket::SocketAddress>, Socket::AccpetError> Socket::accept() const {
+Expected<Base::Pair<Socket, Socket::SocketAddress>, Socket::AccpetError> Socket::accept() {
     ZqSocketAddress sockaddr;
     auto maybeNewSocket = ZqSocketAccept (mSocket, &sockaddr);
 
@@ -200,6 +196,30 @@ Expected<Base::Pair<Socket, Socket::SocketAddress>, Socket::AccpetError> Socket:
 Socket::Socket(ZqSocket socket)
     : mSocket{socket}
 {
+}
+
+SizeType Socket::sendToAddress(const SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const{
+    ZqSizeType bytesSent = 0;
+
+    auto result = ZqSocketSendTo (mSocket, array.get (),
+                                  array.size (),
+                                  &socketAddress.get (),
+                                  &bytesSent);
+    ZQ_ASSERT (result == ZQ_E_OK);
+
+    return bytesSent;
+}
+
+Expected<ZqSizeType, Socket::SendError> Socket::send(const RawArray<const uint8_t> &array) const{
+    ZqSizeType bytesSent = 0;
+
+    auto result = ZqSocketSend (mSocket,
+                                array.get (),
+                                array.size (),
+                                &bytesSent);
+    ZQ_ASSERT (result == ZQ_E_OK);
+
+    return {bytesSent};
 }
 
 } // namespace Base

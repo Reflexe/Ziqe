@@ -1,5 +1,5 @@
 /**
- * @file MessagesGenerator.hpp
+ * @file MessagesWriter.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,8 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_MESSAGESGENERATOR_H
-#define ZIQE_MESSAGESGENERATOR_H
+#ifndef MESSAGESWRITER_HPP
+#define MESSAGESWRITER_HPP
 
 #include "Protocol/Message.hpp"
 #include "Protocol/MemoryRevision.hpp"
@@ -30,13 +30,14 @@
 namespace Ziqe {
 namespace Protocol {
 
+
 template<class FieldWriter>
-class MessagesGenerator
+class MessagesWriter
 {
     FieldWriter &mFieldWriter;
 
 public:
-    MessagesGenerator(FieldWriter &fieldWriter)
+    MessagesWriter(FieldWriter &fieldWriter)
         : mFieldWriter{fieldWriter}
     {
     }
@@ -55,9 +56,11 @@ public:
         return Base::move (writer.getVector().getVector ());
     }
 
-    void writeMessage (const Message &message)
+    template<class ...Args>
+    void writeMessage (const Message &message, Args&&...args)
     {
-        mFieldWriter.writeT (static_cast<Message::MessageTypeInteger>(message.getType ()));
+        mFieldWriter.writeT (static_cast<Message::MessageTypeInteger>(message.getType ()),
+                             Base::forward<Args>(args)...);
     }
 
     template<class MessageType>
@@ -71,16 +74,13 @@ public:
 
     template<Message::Type type>
     void write(MessageWithThreadID<type> &message) {
-        // TODO: think about a way to allocate all the buffer at once.
-        writeMessage (message);
-        mFieldWriter.writeT (message.getThreadID ());
-
+        writeMessage (message, message.getThreadID ());
     }
 
 
     template<Message::Type type>
     void write(MessageWithThreadIDs<type> &message) {
-        mFieldWriter.writeT (message.getThreadIDs ());
+        writeMessage (message, message.getThreadIDs ());
     }
 
     /// Stop Thread
@@ -172,7 +172,8 @@ public:
     static MessageContainer makeRunThreadPeerAcceptPropose ();
 };
 
-} // namespace Ziqe
-} // namespace Protocol
 
-#endif // ZIQE_MESSAGESGENERATOR_H
+} // namespace Protocol
+} // namespace Ziqe
+
+#endif // MESSAGESWRITER_HPP

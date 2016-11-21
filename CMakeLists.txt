@@ -15,7 +15,7 @@ set(zq_test_build ON)
 # Linux | Posix
 set(zq_platform Linux)
 
-set(zq_cpp_compiler_arguments -std=c++14 -Weverything -Wno-old-style-cast -Wno-c++98-compat -Wno-documentation -Wno-padded
+set(zq_cpp_compiler_arguments -std=c++14 -Wno-old-style-cast -Wno-c++98-compat -Wno-documentation -Wno-padded
                                -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -fno-rtti -fno-exceptions)
 
 

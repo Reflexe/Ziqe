@@ -38,8 +38,7 @@ public:
        @brief Create a regular message stream to @a address and @a port.
        @return
      */
-    virtual Protocol::MessageStream createMessageStream (const Address &address,
-                                                         const Port    &port) = 0;
+    virtual Protocol::MessageStream createMessageStream (Address address, Port port) = 0;
 
     /**
        @brief   Create a global (broadcast) message stream.

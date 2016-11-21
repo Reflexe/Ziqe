@@ -70,8 +70,8 @@ void ZqSocketClose (ZqSocket socket);
  * On supported streams, this function will try to create
  * a server that can accept connections.
  */
-ZqBool ZqSocketListen (ZqSocket socket,
-                           ZqSizeType backlog);
+ZqError ZqSocketListen (ZqSocket socket,
+                        ZqSizeType backlog);
 
 /**
  * @brief Bind a client / connectionless socket.
@@ -79,11 +79,11 @@ ZqBool ZqSocketListen (ZqSocket socket,
  * @param sockaddr
  * @return
  */
-ZqBool ZqSocketConnect (ZqSocket zqsocket,
-                            const ZqSocketAddress *sockaddr);
+ZqError ZqSocketConnect (ZqSocket zqsocket,
+                         const ZqSocketAddress *sockaddr);
 
-ZqBool ZqSocketBind(ZqSocket zqsocket,
-                    const ZqSocketAddress *sockaddr);
+ZqError ZqSocketBind(ZqSocket zqsocket,
+                     const ZqSocketAddress *sockaddr);
 
 /**
  * @brief Receive data from a socket.
@@ -91,10 +91,12 @@ ZqBool ZqSocketBind(ZqSocket zqsocket,
  * @param buffer
  * @param bufferSize
  * @return
+   @todo The receive functions should return a pair of bytesReceived,buffer
+         (instead of allocating a buffer).
+   NOT thread safe.
  */
-ZqBool ZqSocketReceive(ZqSocket zqsocket,
-                       ZqKernelAddress buffer,
-                       ZqSizeType bufferSize,
+ZqError ZqSocketReceive(ZqSocket zqsocket,
+                        ZqKernelAddress *pbuffer,
                        ZqSizeType *bytesReceived);
 
 /**
@@ -104,10 +106,10 @@ ZqBool ZqSocketReceive(ZqSocket zqsocket,
  * @param bufferSize
  * @return
  */
-ZqBool ZqSocketSend(ZqSocket zqsocket,
-                    ZqConstKernelAddress buffer,
-                    ZqSizeType bufferSize,
-                    ZqSizeType *bytesSent);
+ZqError ZqSocketSend(ZqSocket zqsocket,
+                     ZqConstKernelAddress buffer,
+                     ZqSizeType bufferSize,
+                     ZqSizeType *bytesSent);
 
 
 /**
@@ -117,11 +119,10 @@ ZqBool ZqSocketSend(ZqSocket zqsocket,
  * @param bufferSize
  * @return
  */
-ZqBool ZqSocketReceiveFrom(ZqSocket zqsocket,
-                           ZqKernelAddress buffer,
-                           ZqSizeType bufferSize,
-                           ZqSocketAddress *sockaddr,
-                           ZqSizeType *bytesReceived);
+ZqError ZqSocketReceiveFrom(ZqSocket zqsocket,
+                            ZqKernelAddress *pbuffer,
+                            ZqSocketAddress *sockaddr,
+                            ZqSizeType *bytesReceived);
 
 /**
  * @brief Send data to a socket.
@@ -130,11 +131,11 @@ ZqBool ZqSocketReceiveFrom(ZqSocket zqsocket,
  * @param bufferSize
  * @return
  */
-ZqBool ZqSocketSendTo(ZqSocket zqsocket,
-                      ZqConstKernelAddress buffer,
-                      ZqSizeType bufferSize,
-                      const ZqSocketAddress *sockaddr,
-                      ZqSizeType *bytesSent);
+ZqError ZqSocketSendTo(ZqSocket zqsocket,
+                       ZqConstKernelAddress buffer,
+                       ZqSizeType bufferSize,
+                       const ZqSocketAddress *sockaddr,
+                       ZqSizeType *bytesSent);
 
 /**
    @brief Set a socket option.
@@ -143,13 +144,13 @@ ZqBool ZqSocketSendTo(ZqSocket zqsocket,
    @param name      The socket option name (ID).
    @param optionValue   The option value.
    @param optionSize    The size (in bytes) of the option value.
-   @return ZQ_TRUE on success.
+   @return ZQ_E_OK on success.
  */
-ZqBool ZqSocketSetOption (ZqSocket zqsocket,
-                          ZqSocketOptionLevel level,
-                          ZqSocketOptionName name,
-                          ZqConstKernelAddress optionValue,
-                          ZqSizeType optionSize);
+ZqError ZqSocketSetOption (ZqSocket zqsocket,
+                           ZqSocketOptionLevel level,
+                           ZqSocketOptionName name,
+                           ZqConstKernelAddress optionValue,
+                           ZqSizeType optionSize);
 
 
 /**

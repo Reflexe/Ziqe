@@ -52,7 +52,7 @@ struct BigEndianWriter {
         vector[4] = static_cast<uint8_t>((value & 0x00000000ff000000u) >> 24);
         vector[5] = static_cast<uint8_t>((value & 0x0000000000ff0000u) >> 16);
         vector[6] = static_cast<uint8_t>((value & 0x000000000000ff00u) >> 8);
-        vector[7] = static_cast<uint8_t>((value & 0xff00000000000000u));
+        vector[7] = static_cast<uint8_t>((value & 0x00000000000000ffu));
     }
 };
 
@@ -83,16 +83,16 @@ struct LittleEndianWriter {
         vector[3] = static_cast<uint8_t>((value & 0x00000000ff000000u) >> 24);
         vector[2] = static_cast<uint8_t>((value & 0x0000000000ff0000u) >> 16);
         vector[1] = static_cast<uint8_t>((value & 0x000000000000ff00u) >> 8);
-        vector[0] = static_cast<uint8_t>((value & 0xff00000000000000u));
+        vector[0] = static_cast<uint8_t>((value & 0x00000000000000ffu));
     }
 };
 
-template<class WriterType, class VectorType=ExtendedVector<uint8_t>>
+template<class WriterType, class VectorType=ExtendedVector<uint8_t>, class ReferenceType=VectorType>
 class FieldWriter
 {
 public:
-    FieldWriter(VectorType &&vector)
-        : mVector{Base::move (vector)}
+    FieldWriter(ReferenceType &&vector)
+        : mVector{Base::forward<ReferenceType> (vector)}
     {
 
     }
@@ -102,30 +102,30 @@ public:
     /// Like sizeOfArgs but with an overload for Vector<uint8_t> and SharedVector<uint8_t>.
     template<class T, class ...Args>
     static constexpr SizeType mySizeOfArgs (const T &,
-                                     const Args &...args)
+                                            const Args &...args)
     {
         return sizeof (T) + mySizeOfArgs (args...);
     }
 
-    template<class ...Args>
-    static SizeType mySizeOfArgs (const Vector<uint8_t> &v,
-                                            const Args &...args)
-    {
-        return v.size () + mySizeOfArgs (args...);
-    }
-
-    template<class ...Args>
-    static SizeType mySizeOfArgs (const RawArray<uint8_t> &v,
+    template<class T, class ...Args>
+    static SizeType mySizeOfArgs (const Vector<T> &v,
                                   const Args &...args)
     {
-        return v.size () + mySizeOfArgs (args...);
+        return (v.size () * sizeof (T)) + mySizeOfArgs (args...);
     }
 
-    template<class A, class B, class ...Args>
-    static SizeType mySizeOfArgs (const ExtendedVector<uint8_t,A,B> &v,
+    template<class T, class ...Args>
+    static SizeType mySizeOfArgs (const RawArray<T> &v,
                                   const Args &...args)
     {
-        return v.size () + mySizeOfArgs (args...);
+        return (v.size () * sizeof (T)) + mySizeOfArgs (args...);
+    }
+
+    template<class T, class A, class B, class ...Args>
+    static SizeType mySizeOfArgs (const ExtendedVector<T,A,B> &v,
+                                  const Args &...args)
+    {
+        return (v.size () * sizeof (T)) + mySizeOfArgs (args...);
     }
 
     static constexpr SizeType mySizeOfArgs ()
@@ -134,11 +134,15 @@ public:
     }
 
     template<class ...Args>
-    void writeT (Args... args) {
-        mVector.getVector ().expand (mySizeOfArgs (args...));
+    void writeT (Args&&... args) {
+        auto argsSize = mySizeOfArgs (args...);
 
-        pack_foreach ([this](auto arg) {
-                          writeOneT (arg);
+        // Make sure we have enough bytes in the vector for args.
+        if (getVector().size () < argsSize)
+            getVector().expand (argsSize - getVector().size());
+
+        pack_foreach ([this](const auto &arg) {
+                          this->writeOneT (arg);
                       }, Base::forward<Args>(args)...);
     }
 
@@ -150,19 +154,19 @@ public:
 private:
     template<class T>
     void writeOneT (T value) {
-        mWriter.write (value, mVector);
-        mVector.increaseBegin (sizeof (T));
+        mWriter.write (value, getVector());
+        getVector().increaseBegin (sizeof (T));
     }
 
     void writeOneT (const Vector<uint8_t> &vector)
     {
-        mVector.insertVectorAtBegin (vector);
+        getVector().insertVectorAtBegin (vector);
     }
 
     template<class A, class B>
     void writeOneT (const ExtendedVector<uint8_t, A, B> &vector)
     {
-        mVector.insertVectorAtBegin (vector);
+        getVector().insertVectorAtBegin (vector);
     }
 
     template<class T>
@@ -173,17 +177,31 @@ private:
         }
     }
 
-    WriterType mWriter;
+    template<class T>
+    void writeOneT (const Vector<T> &array) {
+        for (SizeType i = 0; i < array.size (); ++i)
+        {
+            writeOneT (array[i]);
+        }
+    }
 
-    VectorType mVector;
+    template<class T, class A, class B>
+    void writeOneT (const ExtendedVector<T, A, B> &array) {
+        for (SizeType i = 0; i < array.size (); ++i)
+        {
+            writeOneT (array[i]);
+        }
+    }
+
+
+    WriterType mWriter;
+    ReferenceType mVector;
 };
 
-template<class VectorType=ExtendedVector<uint8_t>>
-using BigEndianFieldWriter=FieldWriter<BigEndianWriter<VectorType>,
-                                       VectorType> ;
-template<class VectorType=ExtendedVector<uint8_t>>
-using LittleEndianFieldWriter=FieldWriter<BigEndianWriter<VectorType>,
-                                          VectorType> ;
+template<class VectorType=ExtendedVector<uint8_t>, class ReferenceType=VectorType>
+using BigEndianFieldWriter=FieldWriter<BigEndianWriter<VectorType>, VectorType, ReferenceType>;
+template<class VectorType=ExtendedVector<uint8_t>, class ReferenceType=VectorType>
+using LittleEndianFieldWriter=FieldWriter<BigEndianWriter<VectorType>, VectorType, ReferenceType>;
 
 } // namespace Base
 } // namespace Ziqe

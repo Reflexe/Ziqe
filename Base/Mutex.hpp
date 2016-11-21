@@ -40,7 +40,7 @@ public:
             return;
 
         // Make sure this mutex isn't locked.
-        DEBUG_CHECK (ZqMutexTryLock (&mMutex) == ZQ_TRUE);
+        ZQ_ASSERT (ZqMutexTryLock (&mMutex) == ZQ_TRUE);
         ZqMutexDeinit (&mMutex);
     }
 
@@ -54,7 +54,7 @@ public:
 
     Mutex &operator= (Mutex &&other) {
         // Make sure this mutex isn't locked.
-        DEBUG_CHECK (ZqMutexTryLock (&mMutex) == ZQ_TRUE);
+        ZQ_ASSERT (ZqMutexTryLock (&mMutex) == ZQ_TRUE);
 
         ZqMutexDeinit (&mMutex);
 

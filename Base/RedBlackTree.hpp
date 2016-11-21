@@ -28,192 +28,191 @@
 namespace Ziqe {
 namespace Base {
 
-template<class KeyType, class T>
-struct BinaryTreeNode {
-    typedef BinaryTreeNode Node;
-
-    template<class...Args>
-    BinaryTreeNode(Node *parent, Node *right, Node *left, const KeyType &key, Args&&...args)
-        : mKeyAndValue{std::move (key), {Base::forward<Args>(args)...}}, mParent{parent}, mRight{right}, mLeft{left}
-    {
-    }
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*&, getRight, (), { return mRight; })
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*&, getLeft, (), { return mLeft; })
-
-//    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightOrLeft, (), { return (mRight == nullptr) ? mLeft : mRight; })
-//    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftOrRight, (), { return (mLeft == nullptr) ? mRight : mLeft; })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getUncle, (),
-    {
-        if (! hasParent ())
-            return nullptr;
-
-        return _getUncle ();
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getBrother, (),
-    {
-        if (! hasParent ())
-            return nullptr;
-
-        return _getBrother ();
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightBrother, (),
-    {
-        if (! hasParent ())
-            return nullptr;
-
-        return _getRightBrother ();
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftBrother, (),
-    {
-        if (! hasParent ())
-            return nullptr;
-
-        return _getLeftBrother ();
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getGrandparent, (),
-    {
-        if (! hasParent ())
-            return nullptr;
-
-        return mParent->mParent;
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getParent, (),
-    {
-        return mParent;
-    })
-
-
-    bool isRight() const{
-        if (! hasParent ())
-            return false;
-
-        return _isRight ();
-    }
-
-    bool isLeft() const{
-        if (! hasParent ())
-            return false;
-
-        return _isLeft ();
-    }
-
-    bool hasParent() const
-    {
-        return mParent != nullptr;
-    }
-
-    bool hasRight () const
-    {
-        return mRight != nullptr;
-    }
-
-    bool hasLeft () const
-    {
-        return mLeft != nullptr;
-    }
-
-    // Other version for some functions that doesn't do
-    // the "parent check".
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getUncle, (),
-    {
-        return mParent->getBrother ();
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getBrother, (),
-    {
-        if (mParent->mLeft == this)
-            return mParent->mRight;
-        else
-            return mParent->mLeft;
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getRightBrother, (),
-    {
-        return  mParent->mRight;
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getLeftBrother, (),
-    {
-        return  mParent->mRight;
-    })
-
-    bool _isRight () const
-    {
-        return (mParent->mRight == this);
-    }
-
-    bool _isLeft () const
-    {
-        return (mParent->mRight == this);
-    }
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getGrandparent, (),
-    {
-        return  mParent->mParent;
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftestNode, (),
-    {
-        // Node*
-        auto node = mLeft;
-        if (node == nullptr)
-            return this;
-
-        while (node->getLeft () != nullptr)
-        {
-            node = node->getLeft ();
-        }
-
-        return node;
-    })
-
-    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightestNode, (),
-    {
-        // Node*
-        auto node = mRight;
-        if (node == nullptr)
-            return this;
-
-        while (node->getRight () != nullptr)
-        {
-            node = node->getRight ();
-        }
-
-        return node;
-    })
-
-    Pair<KeyType, T> mKeyAndValue;
-
-    const KeyType &getKey () const
-    {
-        return mKeyAndValue.first;
-    }
-
-    Node *mParent;
-    Node *mRight;
-    Node *mLeft;
+struct BinaryTreeNodeData {
 };
 
 template<class KeyType,
          class T,
-         class NodeType=BinaryTreeNode<KeyType, T>,
+         class NodeDataType=BinaryTreeNodeData,
          class CompareType=IsLessThan<KeyType>,
          class IsEqualType=IsEqual<KeyType>>
 class BinaryTree
 {
 public:
-    typedef NodeType Node;
+    struct Node {
+        template<class...Args>
+        Node(Node *parent, Node *right, Node *left, const KeyType &key, Args&&...args)
+            : mKeyAndValue{std::move (key), {Base::forward<Args>(args)...}}, mParent{parent}, mRight{right}, mLeft{left}
+        {
+        }
 
-    template<class IteratorNodeType>
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*&, getRight, (), { return mRight; })
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*&, getLeft, (), { return mLeft; })
+
+    //    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightOrLeft, (), { return (mRight == nullptr) ? mLeft : mRight; })
+    //    ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftOrRight, (), { return (mLeft == nullptr) ? mRight : mLeft; })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getUncle, (),
+        {
+            if (! hasParent ())
+                return nullptr;
+
+            return _getUncle ();
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getBrother, (),
+        {
+            if (! hasParent ())
+                return nullptr;
+
+            return _getBrother ();
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightBrother, (),
+        {
+            if (! hasParent ())
+                return nullptr;
+
+            return _getRightBrother ();
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftBrother, (),
+        {
+            if (! hasParent ())
+                return nullptr;
+
+            return _getLeftBrother ();
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getGrandparent, (),
+        {
+            if (! hasParent ())
+                return nullptr;
+
+            return mParent->mParent;
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getParent, (),
+        {
+            return mParent;
+        })
+
+
+        bool isRight() const{
+            if (! hasParent ())
+                return false;
+
+            return _isRight ();
+        }
+
+        bool isLeft() const{
+            if (! hasParent ())
+                return false;
+
+            return _isLeft ();
+        }
+
+        bool hasParent() const
+        {
+            return mParent != nullptr;
+        }
+
+        bool hasRight () const
+        {
+            return mRight != nullptr;
+        }
+
+        bool hasLeft () const
+        {
+            return mLeft != nullptr;
+        }
+
+        // Other version for some functions that doesn't do
+        // the "parent check".
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getUncle, (),
+        {
+            return mParent->getBrother ();
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getBrother, (),
+        {
+            if (mParent->mLeft == this)
+                return mParent->mRight;
+            else
+                return mParent->mLeft;
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getRightBrother, (),
+        {
+            return  mParent->mRight;
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getLeftBrother, (),
+        {
+            return  mParent->mRight;
+        })
+
+        bool _isRight () const
+        {
+            return (mParent->mRight == this);
+        }
+
+        bool _isLeft () const
+        {
+            return (mParent->mRight == this);
+        }
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, _getGrandparent, (),
+        {
+            return  mParent->mParent;
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getLeftestNode, (),
+        {
+            // Node*
+            auto node = mLeft;
+            if (node == nullptr)
+                return this;
+
+            while (node->getLeft () != nullptr)
+            {
+                node = node->getLeft ();
+            }
+
+            return node;
+        })
+
+        ZQ_DEFINE_CONST_AND_NON_CONST (const Node*, Node*, getRightestNode, (),
+        {
+            // Node*
+            auto node = mRight;
+            if (node == nullptr)
+                return this;
+
+            while (node->getRight () != nullptr)
+            {
+                node = node->getRight ();
+            }
+
+            return node;
+        })
+
+        Pair<KeyType, T> mKeyAndValue;
+
+        const KeyType &getKey () const
+        {
+            return mKeyAndValue.first;
+        }
+
+        Node *mParent;
+        Node *mRight;
+        Node *mLeft;
+
+        NodeDataType mFields;
+    };
+
     struct _IteratorBase {
-        explicit _IteratorBase(IteratorNodeType *node)
+        explicit _IteratorBase(Node *node)
             : mCurrentNode{node}
         {
         }
@@ -224,22 +223,22 @@ public:
         void next () {
             // First, let's try the simplest case.
             if (! mCurrentNode->hasParent ()) {
-                mCurrentNode = static_cast<IteratorNodeType*>(mCurrentNode->getRight ());
+                mCurrentNode = mCurrentNode->getRight ();
 
             // We have a parent, therefore we can safely use the _* functions.
             } else if (mCurrentNode->_isLeft ()) {
                 // If we're a left node, we should switch to our
                 // left brother's most left node. If we have no right
                 // brother we should switch to our parent.
-                auto rightBrother = static_cast<IteratorNodeType*>(mCurrentNode->_getRightBrother());
+                auto rightBrother = mCurrentNode->_getRightBrother();
                 if (rightBrother != nullptr)
-                    mCurrentNode = static_cast<IteratorNodeType*>(rightBrother->getLeftestNode ());
+                    mCurrentNode = rightBrother->getLeftestNode ();
                 else
-                    mCurrentNode = static_cast<IteratorNodeType*>(mCurrentNode->getParent ());
+                    mCurrentNode = mCurrentNode->getParent ();
             } else {
                 // If we have a parent and we are a right node,
                 // we should switch to our parent.
-                mCurrentNode = static_cast<IteratorNodeType*>(mCurrentNode->getParent ());
+                mCurrentNode = mCurrentNode->getParent ();
             }
         }
 
@@ -247,7 +246,7 @@ public:
         void previous () {
             // First, let's try the simplest case.
             if (! mCurrentNode->hasParent ()) {
-                mCurrentNode = static_cast<IteratorNodeType*>(mCurrentNode->getLeft ());
+                mCurrentNode = mCurrentNode->getLeft ();
 
             // We have a parent, therefore we can safely use the _* functions.
             } else if (mCurrentNode->_isRight ()) {
@@ -255,15 +254,15 @@ public:
                 // left brother's most right node (sound like a very sad
                 // story). If we have no left brother, we should switch
                 // to our parent.
-                auto leftBrother = static_cast<IteratorNodeType*>(mCurrentNode->_getLeftBrother());
+                auto leftBrother = mCurrentNode->_getLeftBrother();
                 if (leftBrother != nullptr)
-                    mCurrentNode = static_cast<IteratorNodeType*>(leftBrother->getRightestNode ());
+                    mCurrentNode = leftBrother->getRightestNode ();
                 else
-                    mCurrentNode = static_cast<IteratorNodeType*>(mCurrentNode->getParent ());
+                    mCurrentNode = mCurrentNode->getParent ();
             } else {
                 // If we have a parent and we are left node,
                 // we should switch to our parent.
-                mCurrentNode = static_cast<IteratorNodeType*>(mCurrentNode->getParent ());
+                mCurrentNode = mCurrentNode->getParent ();
             }
         }
 
@@ -282,13 +281,11 @@ public:
         ZQ_DEFINE_EQUAL_AND_NOT_EQUAL_BY_MEMBER (_IteratorBase, mCurrentNode)
 
     protected:
-        IteratorNodeType *mCurrentNode;
+        Node *mCurrentNode;
     };
 
-    struct Iterator : _IteratorBase<Node> {
-        typedef _IteratorBase<Node> _IteratorBase;
-
-        using _IteratorBase::_IteratorBase;
+    struct Iterator : _IteratorBase {
+        using _IteratorBase::_IteratorBaseType;
         using _IteratorBase::operator ++;
         using _IteratorBase::operator --;
         using _IteratorBase::operator =;
@@ -305,9 +302,7 @@ public:
         }
     };
 
-    struct ConstIterator : _IteratorBase<const Node> {
-        typedef _IteratorBase<const Node> _IteratorBase;
-
+    struct ConstIterator : _IteratorBase {
         using _IteratorBase::_IteratorBase;
         using _IteratorBase::operator ++;
         using _IteratorBase::operator --;
@@ -403,7 +398,7 @@ public:
             return {mHead, true};
         }
 
-        DEBUG_CHECK (result.pResultAtParent != nullptr);
+        ZQ_ASSERT (result.pResultAtParent != nullptr);
 
         // If there is a node with the same key already.
         if (*(result.pResultAtParent) != nullptr)
@@ -455,7 +450,7 @@ public:
     void erase (Node *node)
     {
         ZQ_UNUSED (node);
-        NOT_IMPLEMENTED ();
+        ZQ_NOT_IMPLEMENTED ();
     }
 
     ZQ_DEFINE_CONST_AND_NON_CONST (ZQ_ARG(Triple<ConstIterator, ConstIterator, ConstIterator>),
@@ -474,7 +469,7 @@ protected:
     /**
         @brief  Try to find a node with key == @a key.
         @param key
-        @return 
+        @return
     */
     struct FindNodeResult {
         Node *resultParent;
@@ -516,11 +511,7 @@ protected:
     IsEqualType    pIsEqual;
 };
 
-template<class T, class KeyType>
-struct RedBlackTreeNode : BinaryTreeNode<T, KeyType> {
-    typedef BinaryTreeNode<T, KeyType> BinaryTreeNode;
-    typedef RedBlackTreeNode Node;
-
+struct RedBlackTreeNodeData {
     enum class Color : bool{
         Red = true,
         Black = false
@@ -529,15 +520,6 @@ struct RedBlackTreeNode : BinaryTreeNode<T, KeyType> {
         Right = true,
         Left = false
     };
-
-    template<class...Args>
-    RedBlackTreeNode(Color color, Direction direction,
-                     Node *parent, Node *right, Node *left,
-                     const KeyType &key, Args&&... args)
-        : BinaryTreeNode{parent, right, left, key, Base::forward<Args>(args)...},
-          mColor{color}, mDirection{direction}
-    {
-    }
 
     /**
      * @brief mColor  Describes this node's color.
@@ -555,12 +537,13 @@ template<class KeyType,
          class T,
          class CompareType=IsLessThan<KeyType>,
          class IsEqualType=IsEqual<KeyType>>
-class RedBlackTree : private BinaryTree<KeyType, T, RedBlackTreeNode<KeyType, T>, CompareType, IsEqualType>
+class RedBlackTree : private BinaryTree<KeyType, T, RedBlackTreeNodeData, CompareType, IsEqualType>
 {
-public:
-    using Node=RedBlackTreeNode<KeyType, T>;
 private:
-    typedef BinaryTree<KeyType, T, Node, CompareType, IsEqualType> BinaryTreeType;
+    typedef BinaryTree<KeyType, T, RedBlackTreeNodeData, CompareType, IsEqualType> BinaryTreeType;
+
+    using Color=RedBlackTreeNodeData::Color;
+    using Node=typename BinaryTreeType::Node;
 
 public:
     using Iterator=typename BinaryTreeType::Iterator;
@@ -582,6 +565,49 @@ public:
     using BinaryTreeType::isExist;
     using BinaryTreeType::find;
 
+    void rotateLeft (Node *node, Node *grandparent) {
+        grandparent->mRight = node->getLeft ();
+
+        if (grandparent->hasLeft ())
+            grandparent->mRight->mParent = grandparent;
+        // We'll update the node right in the next line
+        // no need to NULL it here.
+
+        node->mLeft       = grandparent;
+
+        // Update grandfather's previous parent's link.
+        if (grandparent->isLeft ())
+            grandparent->getParent ()->mLeft = node;
+        else
+            grandparent->getParent ()->mRight = node;
+
+        grandparent->mParent = node;
+    }
+
+    void rotateRight (Node *node, Node *grandparent) {
+        // In every time we change node's ownership, we
+        // need to modify tree pointers:
+        // * The old node's parent's [left|right] pointer -> NULL.
+        // * The new parent's [left|right] pointer        -> node.
+        // * The node's parent field.                     -> new parent.
+
+        grandparent->mLeft = node->getRight ();
+        if (grandparent->hasRight ())
+            grandparent->mRight->mParent = grandparent;
+        // We'll update the node right in the next line
+        // no need to NULL it here.
+
+        node->mRight       = grandparent;
+
+        // Update grandfather's previous parent's link.
+        if (grandparent->isLeft ())
+            grandparent->getParent ()->mLeft = node;
+        else
+            grandparent->getParent ()->mRight = node;
+
+        grandparent->mParent = node;
+    }
+
     template<class...Args>
     Pair<Iterator, bool> insert (const KeyType &key, Args&&... args) {
         // It is an empty tree, insert a black one in the head.
@@ -591,16 +617,58 @@ public:
         if (! iteratorAndIsSucceed->second)
             return iteratorAndIsSucceed;
 
-        // TODO:
+        const auto &iterator = iteratorAndIsSucceed.first;
+        auto *currentNode = iterator.mCurrentNode;
+
+        while (true) {
+            if (! currentNode->hasParent ()) {
+                currentNode->mColor = Color::Black;
+                break;
+            } else if (currentNode->getParent ()->mFields.mColor != Color::Black) {
+                auto uncle = currentNode->_getUncle ();
+                auto parent = currentNode->getParent ();
+                auto grandparent = parent->getParent ();
+
+                if (uncle != nullptr && uncle.mFields.mColor == Color::Red) {
+                    parent->mFields.mColor = Color::Black;
+                    uncle->mFields.mColor = Color::Black;
+
+                    grandparent->mFields.mColor = Color::Red;
+
+                    currentNode = grandparent;
+                    continue;
+                } else if (currentNode->_isRight () && grandparent->_isLeft ()) {
+                    rotateRight (currentNode->getParent(), grandparent);
+
+                    currentNode = currentNode->getRight ();
+                } else if (currentNode->_isLeft() && currentNode->_isRight ()) {
+                    rotateLeft (currentNode->getParent(), grandparent);
+
+                    currentNode = currentNode->getRight ();
+                }
+
+                currentNode->mParent->mFields.mColor = Color::Black;
+                grandparent->mFields.mColor          = Color::Red;
+
+                if (currentNode->_isLeft ()) {
+                    rotateRight (grandparent, grandparent->getParent ());
+                } else {
+                    rotateLeft (grandparent, grandparent->getParent ());
+                }
+
+                break;
+            }
+        }
     }
 
     Iterator remove(const KeyType &key)
     {
-
+        IgnoreUnused (key);
     }
 
     Iterator erase(ConstIterator iterator)
     {
+        IgnoreUnused (iterator);
 
     }
 };

@@ -1,5 +1,5 @@
 /**
- * @file MessagesGenerator.cpp
+ * @file ExtendedVectorWritable.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "MessagesGenerator.hpp"
+#include "ExtendedVectorWritable.hpp"
 
 namespace Ziqe {
-namespace Protocol {
+namespace Base {
 
+} // namespace Base
 } // namespace Ziqe
-} // namespace Protocol

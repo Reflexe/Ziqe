@@ -1,5 +1,5 @@
 /**
- * @file PeerLookupServer.hpp
+ * @file ExtendedVectorWritable.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,34 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PEERLOOKUPSERVER_HPP
-#define PEERLOOKUPSERVER_HPP
+#ifndef ZIQE_BASE_EXTENDEDVECTORWRITABLE_HPP
+#define ZIQE_BASE_EXTENDEDVECTORWRITABLE_HPP
 
-#include "Protocol/MessageServer.hpp"
-#include "Common/MessageStreamFactoryInterface.hpp"
-
-#include "Host/Thread.hpp"
+#include "ExtendedVector.hpp"
 
 namespace Ziqe {
-namespace Host {
+namespace Base {
 
-class PeerLookupServer
+template<class _InputExtendedVectorType, class _OutputExtendedVectorType=_InputExtendedVectorType>
+class ExtendedVectorWritable
 {
 public:
-    PeerLookupServer(Base::UniquePointer<MessageStreamFactoryInterface> &&factory, Protocol::MessageStream::Port listenPort);
+    typedef _InputExtendedVectorType InputExtendedVectorType;
+    typedef _OutputExtendedVectorType OutputExtendedVectorType;
 
-    void run();
+    ExtendedVectorWritable() = default;
+    virtual ~ExtendedVectorWritable() = default;
 
-private:
-    void handleMessage (const Protocol::MessageStream &clientStream, const Protocol::Message &message,
-                        const Protocol::MessageStream::MessageFieldReader &reader);
+    ZQ_ALLOW_COPY_AND_MOVE (ExtendedVectorWritable)
 
-    Base::UniquePointer<MessageStreamFactoryInterface> mStreamFactory;
+    static void ReadFrom (InputExtendedVectorType &) = delete;
 
-    Protocol::MessageServer mServer;
+    virtual void writeTo (OutputExtendedVectorType &vector) const = 0;
 };
 
-} // namespace Host
+} // namespace Base
 } // namespace Ziqe
 
-#endif // PEERLOOKUPSERVER_HPP
+#endif // ZIQE_BASE_EXTENDEDVECTORWRITABLE_HPP

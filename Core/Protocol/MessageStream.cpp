@@ -25,7 +25,9 @@ namespace Ziqe {
 namespace Protocol {
 
 MessageStream::MessageStream(Base::UniquePointer<Net::Stream> &&stream)
-    : mStream{Base::move(stream)}
+    : mStream{Base::move(stream)},
+      mReader{mStream->getInputStreamVector ()},
+      mWriter{mStream->getOutputStreamVector ()}
 {
 }
 
@@ -91,25 +93,22 @@ MessageStream::~MessageStream()
 {
 }
 
-Base::Expected<Base::Pair<Message, MessageStream::MessageFieldReader>, MessageStream::ReceiveMessageError>
-MessageStream::receiveMessage() const{
-    auto vector = mStream->getStreamVector ();
-
-    MessageFieldReader reader{Base::move(vector)};
-    if (! reader.canReadT<Message::Type>()) {
-        DEBUG_CHECK_REPORT_NOT_REACHED ("Message too short");
+Base::Expected<Base::Pair<Message::Type, Base::RawPointer<MessageStream::MessageFieldReader> >, MessageStream::ReceiveMessageError> MessageStream::receiveMessage() {
+    if (! mReader.canReadT<Message::Type>()) {
+        ZQ_ASSERT_REPORT_NOT_REACHED ("Message too short");
         return {ReceiveMessageError::Other};
     }
 
-    Message::Type type = static_cast<Message::Type>(reader.readT <uint16_t> ());
+    Message::Type type = static_cast<Message::Type>(mReader.readT <Message::MessageTypeInteger> ());
 
-    if (! Message::isValidMessageType (type)) {
-        DEBUG_CHECK_REPORT_NOT_REACHED ("Invalid message type received");
+    if (! Message::IsValidMessageType (type)) {
+        ZQ_ASSERT_REPORT_NOT_REACHED ("Invalid message type received");
 
         return {ReceiveMessageError::Other};
     }
 
-    return {Message{type}, Base::move (reader)};
+
+    return {type, &mReader};
 }
 
 } // namespace Ziqe

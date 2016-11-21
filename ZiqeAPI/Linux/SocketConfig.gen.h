@@ -30,6 +30,7 @@
 // sockaddr_in[6]
 #include <uapi/linux/in.h>
 #include <uapi/linux/in6.h>
+#include <asm-generic/errno.h>
 #else
 // This headers are "C++ Safe".
 
@@ -41,6 +42,7 @@
 #include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <netinet/ip.h>
+#include <sys/errno.h>
 #endif
 
 typedef ZqKernelAddress ZqSocket;
@@ -76,5 +78,16 @@ typedef struct sockaddr_in6 Zq_sockaddr_in6;
 
 typedef struct in_addr Zq_in_addr;
 typedef struct in6_addr Zq_in6_addr;
+
+/* Error types & values */
+typedef int ZqError;
+
+#define ZQ_E_AGAIN EAGAIN
+#define ZQ_E_CON_RESET ECONNRESET
+#define ZQ_E_DEST_REQUIRED EDESTADDRREQ
+#define ZQ_E_MEM_FAULT EFAULT
+#define ZQ_E_INVALID_ARG EINVAL
+#define ZQ_E_SIZE EMSGSIZE
+#define ZQ_E_OK 0
 
 #endif // LINUX_SOCKETCONFIG_GEN_H

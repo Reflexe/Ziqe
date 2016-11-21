@@ -13,19 +13,19 @@ void ZqAPIInit () {
     Ziqe::Base::Expected<int, Error> error{Error::FirstError};
     Ziqe::Base::Expected<int, Error> value{123};
 
-    DEBUG_CHECK (value.get () == 123);
-    DEBUG_CHECK (error.isError ());
-    DEBUG_CHECK (error.getError () == Error::FirstError);
-    DEBUG_CHECK (value);
-    DEBUG_CHECK (! error);
+    ZQ_ASSERT (value.get () == 123);
+    ZQ_ASSERT (error.isError ());
+    ZQ_ASSERT (error.getError () == Error::FirstError);
+    ZQ_ASSERT (value);
+    ZQ_ASSERT (! error);
 
     auto newError = error;
-    DEBUG_CHECK (newError.isError ());
-    DEBUG_CHECK (newError.getError () == error.getError ());
+    ZQ_ASSERT (newError.isError ());
+    ZQ_ASSERT (newError.getError () == error.getError ());
 
     auto newValue = value;
-    DEBUG_CHECK (newValue);
-    DEBUG_CHECK (newError.get () == error.get ());
+    ZQ_ASSERT (newValue);
+    ZQ_ASSERT (newError.get () == error.get ());
 }
 
 void ZqAPIExit ()

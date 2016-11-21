@@ -23,6 +23,7 @@
 #include "Base/Memory.hpp"
 #include "Base/ExtendedVector.hpp"
 #include "Base/Macros.hpp"
+#include "Base/Expected.hpp"
 
 namespace Ziqe {
 namespace Base {
@@ -87,14 +88,14 @@ struct BigEndianValueReader {
     }
 };
 
-template<class ValueReader, class _VectorType=ExtendedVector<uint8_t>>
+template<class ValueReader, class _VectorType=ExtendedVector<uint8_t>, class _VectorReferenceType=_VectorType>
 class FieldReader
 {
 public:
     typedef _VectorType VectorType;
 
-    FieldReader(VectorType &&vector)
-        : mVector{Base::move (vector)}
+    FieldReader(_VectorReferenceType &&vector)
+        : mVector{Base::forward<_VectorReferenceType&&> (vector)}
     {
     }
 
@@ -104,28 +105,83 @@ public:
     T readT() {
         T value;
         mValueReader.readValue (value, mVector);
-        mVector.increaseBegin (sByteLength);
+        getVector ().increaseBegin (sByteLength);
 
         return value;
     }
 
+    template<typename T, SizeType sByteLength=sizeof (T)>
+    bool canReadVectorT(SizeType numberOfElements)
+    {
+        return haveBytes (numberOfElements * sByteLength);
+    }
+
+    template<typename T, SizeType sByteLength=sizeof (T)>
+    bool canReadVectorT(SizeType numberOfElements) const
+    {
+        return haveBytes (numberOfElements * sByteLength);
+    }
+
+    template <typename T, SizeType sByteLength=sizeof (T)>
+    Base::Vector<T> readTVector (SizeType numberOfElements) {
+        Base::Vector<T> elements;
+        elements.resize (numberOfElements);
+
+        for (typename Base::Vector<T>::SizeType i = 0; i < numberOfElements; ++i) {
+            elements[i] = readT ();
+        }
+
+        return elements;
+    }
+
+    enum class ReadError{
+        NoEnoguhLength
+    };
+
+    template<class T>
+    Base::Expected<T, ReadError> tryReadT () {
+        if (! canReadT<T> ())
+            return {ReadError::NoEnoguhLength};
+
+        return {readT<T>()};
+    }
+
+    template<class T>
+    Base::Expected<Base::Vector<T>, ReadError> tryReadTVector (SizeType numberOfElements) {
+        if (! canReadVectorT<T>(numberOfElements))
+            return {ReadError::NoEnoguhLength};
+
+        return {readTVector<T>(numberOfElements)};
+    }
+
     void skipBytes (SizeType length)
     {
-        mVector.increaseBegin (length);
+        getVector ().increaseBegin (length);
     }
 
     bool haveBytes (SizeType length) const
     {
-        return mVector.size () >= length;
+        return getVector ().hasLength (length);
+    }
+
+    bool haveBytes (SizeType length)
+    {
+        return getVector ().hasLength (length);
     }
 
     RawPointer<uint8_t> getCurrent()
     {
-        return &(mVector[0]);
+        return &(getVector ()[0]);
     }
 
     template<class T, SizeType sByteLength=sizeof (T)>
     bool canReadT() const
+    {
+        return haveBytes (sByteLength);
+    }
+
+    template<class T, SizeType sByteLength=sizeof (T)>
+    bool canReadT()
     {
         return haveBytes (sByteLength);
     }
@@ -138,15 +194,14 @@ public:
 private:
     ValueReader mValueReader;
 
-    VectorType mVector;
+    _VectorReferenceType mVector;
 };
 
+template<class VectorType=ExtendedVector<uint8_t>, class ReferenceType=VectorType>
+using LittleEndianFieldReader=FieldReader<LittleEndianValueReader<VectorType>,VectorType, ReferenceType>;
 
-template<class VectorType=ExtendedVector<uint8_t>>
-using LittleEndianFieldReader=FieldReader<LittleEndianValueReader<VectorType>,VectorType>;
-
-template<class VectorType=ExtendedVector<uint8_t>>
-using BigEndianFieldReader=FieldReader<BigEndianValueReader<VectorType>,VectorType>;
+template<class VectorType=ExtendedVector<uint8_t>, class ReferenceType=VectorType>
+using BigEndianFieldReader=FieldReader<BigEndianValueReader<VectorType>,VectorType, ReferenceType>;
 
 } // namespace Base
 } // namespace Ziqe

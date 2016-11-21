@@ -21,6 +21,12 @@
 #define ZIQE_MESSAGE_H
 
 #include "Base/Types.hpp"
+#include "Base/Vector.hpp"
+#include "Base/Expected.hpp"
+
+#include "Common/Types.hpp"
+
+#include <limits>
 
 namespace Ziqe {
 namespace Protocol {
@@ -111,7 +117,9 @@ namespace Protocol {
 class Message
 {
 public:
-    enum class Type : uint16_t {
+    typedef uint16_t MessageTypeInteger;
+
+    enum class Type : MessageTypeInteger {
         /// Process Peer Messages: the 2**15 bit is on.
         ///
         /// @brief Get the value of a remote memory. Used to
@@ -152,13 +160,19 @@ public:
         /// @brief Tell a peer that his DoSystemCall request
         ///        has been done and send him the results (changed memory
         ///        and the function return value).
-        SystemCallResult    = 0x4001,
+        DoSystemCallResult    = 0x4001,
 
         /// Global Messages: The 2**13 bit is on.
         /// @brief Look for a peer to run a thread.
         RunThreadPeerLookup               = 0x2000,
         RunThreadPeerLookupPropose        = 0x2001,
         RunThreadPeerLookupAcceptPropose  = 0x2002,
+    };
+
+    enum class ParseError {
+        TooShort,
+        InvalidType,
+        Other
     };
 
     typedef Type MessageType;
@@ -179,11 +193,121 @@ public:
     bool isGlobalServerMessage() const;
     bool isGlobalClientMessage() const;
 
-    static bool isValidMessageType(Type type);
+    static bool IsValidMessageType(Type type);
 
 private:
     MessageType mMessageType;
 };
+
+template<Message::Type type>
+class MessageWithType : public Message {
+public:
+    MessageWithType()
+        : Message{type}
+    {
+    }
+
+    template<class ReaderType>
+    static Base::Expected<MessageWithType, ParseError> ReadFrom(ReaderType &reader) {
+        Base::IgnoreUnused(reader);
+
+        // Return a new MessageWithType<type>.
+        return {};
+    }
+
+    template<class WriterType, class ...Args>
+    void writeTo (WriterType &writer, Args&&...previousFields)
+    {
+        writer.writeT (static_cast<Message::MessageTypeInteger> (getType ()), Base::forward<Args>(previousFields)...);
+    }
+};
+
+template<Message::Type type>
+class MessageWithThreadID : public MessageWithType<type> {
+public:
+    MessageWithThreadID(HostedThreadID threadID)
+        : mThreadID{threadID}
+    {
+    }
+
+    template<class ReaderType>
+    static Base::Expected<MessageWithThreadID, Message::ParseError> ReadFrom(ReaderType &reader) {
+        if (! reader.template canReadT<HostedThreadID>())
+            return {Message::ParseError::TooShort};
+
+        auto threadID = reader.template readT<HostedThreadID>();
+
+        return {threadID};
+    }
+
+    template<class WriterType, class ...Args>
+    void writeTo (WriterType &writer, Args&&...previousFields)
+    {
+        writer.writeT (mThreadID, Base::forward<Args>(previousFields)...);
+    }
+
+private:
+    HostedThreadID mThreadID;
+};
+
+template<Message::Type type>
+class MessageWithThreadIDs : public MessageWithType<type> {
+public:
+    MessageWithThreadIDs(Base::Vector<HostedThreadID> &&threadIDs)
+        : mThreadIDs{threadIDs}
+    {
+    }
+
+    const Base::Vector<HostedThreadID> &getThreadIDs () const
+    {
+        return mThreadIDs;
+    }
+
+
+    typedef uint16_t ArraySizeType;
+
+    template<class ReaderType>
+    static Base::Expected<MessageWithThreadIDs, Message::ParseError> ReadFrom(ReaderType &reader) {
+        if (! reader.template canReadT<ArraySizeType>())
+            return {Message::ParseError::TooShort};
+
+        auto arraySize = reader.template readT<ArraySizeType>();
+        auto vector = reader.template readTVector<HostedThreadID>(arraySize);
+
+        if (! vector)
+            return {Message::ParseError::TooShort};
+
+        return {Base::move (vector)};
+    }
+
+    template<class WriterType, class ...Args>
+    void writeTo (WriterType &writer, Args&&...previousFields) {
+        ZQ_ASSERT (mThreadIDs.size () <= std::numeric_limits<uint16_t>::max ());
+
+        // Write the size and then the array.
+        writer.writeT (static_cast<ArraySizeType> (mThreadIDs.size ()),
+                       mThreadIDs,
+                       Base::forward<Args>(previousFields)...);
+    }
+
+private:
+    Base::Vector<HostedThreadID> mThreadIDs;
+
+};
+
+typedef MessageWithThreadID<Message::Type::ContinueThread> ContiniueThreadMessage;
+typedef MessageWithThreadID<Message::Type::ContinueThreadOK> ContiniueThreadOKMessage;
+
+typedef MessageWithThreadID<Message::Type::KillThread> KillThreadMessage;
+typedef MessageWithThreadID<Message::Type::KillThreadOK> KillThreadOKMessage;
+
+typedef MessageWithThreadID<Message::Type::StopThread> StopThreadMessage;
+typedef MessageWithThreadID<Message::Type::StopThreadOK> StopThreadOKMessage;
+
+typedef MessageWithThreadIDs<Message::Type::ProcessPeerHello> ProcessPeerHelloMessage;
+typedef MessageWithThreadIDs<Message::Type::ProcessPeerGoodbye> ProcessPeerGoodbyeMessage;
+
+
 
 } // namespace Ziqe
 } // namespace Protocol

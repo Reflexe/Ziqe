@@ -22,7 +22,8 @@
 
 #include "../Socket.h"
 
-#include <linux/socket.h>
+#include <asm/ioctls.h>
+#include <linux/ioctl.h>
 #include <linux/net.h>
 
 #define zqsocket_to_socket(zqsocket) ((struct socket *) zqsocket)
@@ -32,6 +33,15 @@ static int ziqe_sendmsg (struct socket *sock, ZqConstKernelAddress buffer, ZqSiz
 static int ziqe_recvmsg (struct socket *sock, ZqKernelAddress buffer,
                          ZqSizeType buffer_size, struct sockaddr *sockaddr,
                          ZqSizeType *sockaddr_len);
+
+static ZqSizeType get_next_packet_size (struct socket *sock) {
+    ZqSizeType packet_size = 0;
+
+    if (kernel_sock_ioctl (sock, SIOCINQ, (unsigned long)&packet_size) < 0)
+        BUG ();
+
+    return packet_size;
+}
 
 ZqSocket ZqSocketOpen(ZqSocketFamily family,
                       ZqSocketType type,
@@ -52,7 +62,7 @@ void ZqSocketClose(ZqSocket zqsocket) {
     sock_release(sock);
 }
 
-ZqBool ZqSocketListen(ZqSocket zqsocket,
+ZqError ZqSocketListen(ZqSocket zqsocket,
                       ZqSizeType backlog)
 {
     struct socket *sock = zqsocket_to_socket (zqsocket);
@@ -60,25 +70,25 @@ ZqBool ZqSocketListen(ZqSocket zqsocket,
 
     retval = kernel_listen (sock, backlog);
     if (retval)
-        return ZQ_FALSE;
+        return retval;
 
-    return ZQ_TRUE;
+    return ZQ_E_OK;
 }
 
-ZqBool ZqSocketBind(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
+ZqError ZqSocketBind(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
 
     retval = kernel_bind(sock, (struct sockaddr *) &sockaddr->in,
                          sockaddr->socklen);
     if (retval)
-        return ZQ_FALSE;
+        return retval;
 
-    return ZQ_TRUE;
+    return ZQ_E_OK;
 }
 
 
-ZqBool ZqSocketConnect(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
+ZqError ZqSocketConnect(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int retval;
 
@@ -86,62 +96,80 @@ ZqBool ZqSocketConnect(ZqSocket zqsocket, const ZqSocketAddress *sockaddr) {
                            sockaddr->socklen, 0);
 
     if (retval)
-        return ZQ_FALSE;
+        return retval;
     else
-        return ZQ_TRUE;
+        return ZQ_E_OK;
 }
 
-ZqBool ZqSocketReceive(ZqSocket zqsocket, ZqKernelAddress buffer, ZqSizeType bufferSize,
-                       ZqSizeType *bytesReceived) {
+ZqError ZqSocketReceive(ZqSocket zqsocket, ZqKernelAddress *pbuffer, ZqSizeType *bytesReceived) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int ret;
+    ZqSizeType bufferSize = get_next_packet_size (sock);
+    ZqKernelAddress packet_buffer;
 
-    ret = ziqe_recvmsg (sock, buffer, bufferSize, NULL, 0);
-    if (ret < 0)
-        return ZQ_FALSE;
+    if (bufferSize != 0)
+        packet_buffer = ZqAllocateVirtual (bufferSize);
+    else
+        packet_buffer = NULL;
+
+    ret = ziqe_recvmsg (sock, packet_buffer, bufferSize, NULL, 0);
+    if (ret < 0) {
+        return ret;
+    }
 
     if (bytesReceived)
         *bytesReceived = (ZqSizeType) ret;
 
-    return ZQ_TRUE;
+    *pbuffer = packet_buffer;
+
+    return ZQ_E_OK;
 }
 
-ZqBool ZqSocketSend(ZqSocket zqsocket, ZqConstKernelAddress buffer, ZqSizeType bufferSize, ZqSizeType *bytesSent) {
+ZqError ZqSocketSend(ZqSocket zqsocket, ZqConstKernelAddress buffer, ZqSizeType bufferSize, ZqSizeType *bytesSent) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int ret;
 
     ret = ziqe_sendmsg (sock, buffer, bufferSize, NULL, 0);
     if (ret < 0)
-        return ZQ_FALSE;
+        return ret;
 
     if (bytesSent)
         *bytesSent = (ZqSizeType) ret;
 
-    return ZQ_TRUE;
+    return ZQ_E_OK;
 }
 
-ZqBool ZqSocketReceiveFrom(ZqSocket zqsocket, ZqKernelAddress buffer,
-                           ZqSizeType bufferSize, ZqSocketAddress *sockaddr,
+ZqError ZqSocketReceiveFrom(ZqSocket zqsocket, ZqKernelAddress *pbuffer, ZqSocketAddress *sockaddr,
                            ZqSizeType *bytesReceived) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
     int ret;
     ZqSizeType socket_length;
 
-    ret = ziqe_recvmsg (sock, buffer,
+    ZqSizeType bufferSize = get_next_packet_size (sock);
+    ZqKernelAddress packet_buffer;
+
+    if (bufferSize != 0)
+        packet_buffer = ZqAllocateVirtual (bufferSize);
+    else
+        packet_buffer = NULL;
+
+    ret = ziqe_recvmsg (sock, packet_buffer,
                         bufferSize, (struct sockaddr *) &sockaddr->in,
                         &socket_length);
     if (ret < 0)
-        return ZQ_FALSE;
+        return ret;
 
     sockaddr->socklen = socket_length;
 
     if (bytesReceived)
         *bytesReceived = (ZqSizeType) ret;
 
-    return ZQ_TRUE;
+    *pbuffer = packet_buffer;
+
+    return ZQ_E_OK;
 }
 
-ZqBool ZqSocketSendTo(ZqSocket zqsocket, ZqConstKernelAddress buffer,
+ZqError ZqSocketSendTo(ZqSocket zqsocket, ZqConstKernelAddress buffer,
                       ZqSizeType bufferSize, const ZqSocketAddress *sockaddr,
                       ZqSizeType *bytesSent) {
     struct socket *sock = zqsocket_to_socket (zqsocket);
@@ -151,12 +179,12 @@ ZqBool ZqSocketSendTo(ZqSocket zqsocket, ZqConstKernelAddress buffer,
                         bufferSize, (struct sockaddr *) &sockaddr->in,
                         sockaddr->socklen);
     if (ret < 0)
-        return ZQ_FALSE;
+        return ret;
 
     if (bytesSent)
         *bytesSent = (ZqSizeType) ret;
 
-    return ZQ_TRUE;
+    return ZQ_E_OK;
 }
 
 
@@ -171,7 +199,9 @@ static int ziqe_sendmsg (struct socket *sock,
     msg.msg_namelen  = sockaddr_len;
     msg.msg_control  = NULL;
     msg.msg_controllen = 0;
-    msg.msg_flags    = 0;
+
+    // Don't send us SIGPIPE on send failure, only return EPIPE.
+    msg.msg_flags    = MSG_NOSIGNAL;
 
     kvec[0].iov_base = (void*) buffer;
     kvec[0].iov_len = buffer_size;
@@ -205,7 +235,7 @@ static int ziqe_recvmsg (struct socket *sock, ZqKernelAddress buffer,
     return retval;
 }
 
-ZqBool ZqSocketSetOption(ZqSocket zqsocket,
+ZqError ZqSocketSetOption(ZqSocket zqsocket,
                          ZqSocketOptionLevel level,
                          ZqSocketOptionName name,
                          ZqConstKernelAddress optionValue,
@@ -217,9 +247,9 @@ ZqBool ZqSocketSetOption(ZqSocket zqsocket,
     ret = kernel_setsockopt(sock, level, name, (void*)optionValue, optionSize);
 
     if (ret)
-        return ZQ_FALSE;
+        return ret;
     else
-        return ZQ_TRUE;
+        return ZQ_E_OK;
 }
 
 ZqSocket ZqSocketAccept(ZqSocket zqsocket, ZqSocketAddress *maybeSocketAddress) {

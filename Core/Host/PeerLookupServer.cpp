@@ -24,8 +24,10 @@
 namespace Ziqe {
 namespace Host {
 
-PeerLookupServer::PeerLookupServer(Base::UniquePointer<MessageStreamFactoryInterface> &&factory)
-    : mStreamFactory{Base::move (factory)}
+PeerLookupServer::PeerLookupServer(Base::UniquePointer<MessageStreamFactoryInterface> &&factory,
+                                   Protocol::MessageStream::Port listenPort)
+    : mStreamFactory{Base::move (factory)},
+      mServer{mStreamFactory->createMessageServer (listenPort)}
 {
 }
 
@@ -61,9 +63,12 @@ void PeerLookupServer::handleMessage(const Protocol::MessageStream &clientStream
         break;
 
     case Protocol::Message::Type::RunThreadPeerLookupAcceptPropose: {
-        auto newProcessPeersServer = ProcessPeersServer::CreateWithPeer ();
-        auto newProcessPeersClient = ProcessPeersClient{newProcessPeersServer};
-        auto newThreadClient       = ThreadClient{mStreamFactory->createMessageStream ()};
+        // TODO: request protocol object
+
+
+//        auto newProcessPeersServer = ProcessPeersServer::getConnections ();
+//        auto newProcessPeersClient = ProcessPeersClient{newProcessPeersServer};
+//        auto newThreadClient       = ThreadClient{mStreamFactory->createMessageStream ()};
 
 
     }

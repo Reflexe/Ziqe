@@ -54,16 +54,11 @@ UdpServer UdpServer::CreateFromStream(UdpStream &&udpStream)
    to solve it, we'll receive a packet and hold it in a special
    stream container that will give it to the user on `receive`.
  */
-class ServerToClientUdpStream : public Stream
+class ServerToClientUdpStream : public UdpStream
 {
 public:
-    ServerToClientUdpStream(const Base::SharedPointer<Base::Socket> &serverSocket,
-                            Stream::DataType &&data,
-                            Base::Socket::SocketAddress &&socketAddress);
-
-    virtual Base::Expected<DataType, ReceiveError> receive () const override;
-
-    virtual void send(const DataType &data) const override;
+    ServerToClientUdpStream(Stream::DataType &&data,
+                            const Base::Pair<Address,Port> &info);
 
     virtual Base::Pair<Address,Port> getStreamInfo () const override;
 
@@ -80,15 +75,16 @@ Base::UniquePointer<Stream> UdpServer::acceptClient() {
 
     if (! maybeDataAndSocketAddress)
         return {};
-    else
-        return Base::makeUnique<ServerToClientUdpStream>(mSocket,
-                                                         Base::move (maybeDataAndSocketAddress->first),
-                                                         Base::move (maybeDataAndSocketAddress->second));
+
+
+
+    // FIXME: a big packets would not work, we should receive the next packet.
+    return Base::makeUnique<ServerToClientUdpStream>();
 }
 
 void ServerToClientUdpStream::send(const Stream::DataType &data) const
 {
-    mSharedSocket->sendToAddress (mDestSocketAddress, data.toRawArray ());
+    mSharedSocket->sendAllToAddress (mDestSocketAddress, data.toRawArray ());
 }
 
 Base::Pair<Stream::Address, Stream::Port> ServerToClientUdpStream::getStreamInfo() const{
@@ -105,7 +101,7 @@ ServerToClientUdpStream::ServerToClientUdpStream(const Base::SharedPointer<Base:
 }
 
 Base::Expected<Stream::DataType, Stream::ReceiveError> ServerToClientUdpStream::receive() const{
-    DEBUG_CHECK (mReceiveData.size () != 0);
+    ZQ_ASSERT (mReceiveData.size () != 0);
 
     return {Base::move (mReceiveData)};
 }

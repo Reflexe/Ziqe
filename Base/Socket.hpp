@@ -103,10 +103,10 @@ public:
         static SocketAddress CreateFromSockaddr (const ZqSocketAddress &sockaddr) {
             // Make sure size and family are valid.
             // ZQ_AF_UNSPEC is invalid in this situation.
-            DEBUG_CHECK (sockaddr.socket_family == ZQ_AF_INET ||
+            ZQ_ASSERT (sockaddr.socket_family == ZQ_AF_INET ||
                          sockaddr.socket_family == ZQ_AF_INET6);
 
-            DEBUG_CHECK (sockaddr.socklen == sizeof (sockaddr.in)
+            ZQ_ASSERT (sockaddr.socklen == sizeof (sockaddr.in)
                          || sockaddr.socklen == sizeof (sockaddr.in6));
 
             SocketAddress socketAddress;
@@ -202,10 +202,36 @@ public:
     void close();
 
     /**
+       @brief Try to send all @a array, or send a part of the data.
+       @param array
+       @return
+     */
+    enum class SendError {
+        TooBig,
+    };
+
+    Expected<ZqSizeType, SendError> send (const RawArray<const uint8_t> &array) const;
+
+    /**
        @brief Send an array of bytes to this socket.
        @param array
      */
-    void send(const RawArray<const uint8_t> &array) const;
+    void sendAll(const RawArray<const uint8_t> &array) const;
+
+    /**
+       @brief Send a bytes array to @a socketAddress.
+       @param socketAddress
+       @param array
+     */
+    void sendAllToAddress(const SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const;
+
+
+    /**
+       @brief Send a bytes array to @a socketAddress.
+       @param socketAddress
+       @param array
+     */
+    SizeType sendToAddress(const SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const;
 
     enum class ReceiveError {
         Disconnected,
@@ -217,14 +243,7 @@ public:
        @brief   Receive an array of bytes from this socket.
        @return  The received bytes.
      */
-    Expected<Vector<uint8_t>,ReceiveError> receive() const;
-
-    /**
-       @brief Send a bytes array to @a socketAddress.
-       @param socketAddress
-       @param array
-     */
-    void sendToAddress(const SocketAddress &socketAddress, const RawArray<const uint8_t> &array) const;
+    Expected<Vector<uint8_t>, ReceiveError> receive() const;
 
     /**
        @brief   Receive a bytes array and the sender's SocketAddress.
@@ -272,7 +291,7 @@ public:
         Other
     };
 
-    Expected<Base::Pair<Socket, Socket::SocketAddress>, AccpetError> accept() const;
+    Expected<Base::Pair<Socket, Socket::SocketAddress>, AccpetError> accept();
 
 private:
     // Allow Base::Excepted to create us :)

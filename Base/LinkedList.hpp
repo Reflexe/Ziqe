@@ -65,14 +65,14 @@ public:
         ZQ_ALLOW_COPY_AND_MOVE (_IteratorBase)
 
         _IteratorBase &operator++ () {
-            DEBUG_CHECK (mCurrent->next != nullptr);
+            ZQ_ASSERT (mCurrent->next != nullptr);
             mCurrent = mCurrent->next;
 
             return *this;
         }
 
         _IteratorBase &operator-- () {
-            DEBUG_CHECK (mCurrent->previous != nullptr);
+            ZQ_ASSERT (mCurrent->previous != nullptr);
             mCurrent = mCurrent->previous;
 
             return *this;
@@ -110,13 +110,13 @@ public:
         using _IteratorBase::operator ==;
 
         const T &operator* () const{
-            DEBUG_CHECK (this->mCurrent != nullptr);
+            ZQ_ASSERT (this->mCurrent != nullptr);
 
             return this->mCurrent->data;
         }
 
         const T *operator-> () const{
-            DEBUG_CHECK (this->mCurrent != nullptr);
+            ZQ_ASSERT (this->mCurrent != nullptr);
 
             return &this->mCurrent->data;
         }
@@ -137,13 +137,13 @@ public:
         }
 
         T &operator* () const{
-            DEBUG_CHECK (this->mCurrent != nullptr);
+            ZQ_ASSERT (this->mCurrent != nullptr);
 
             return this->mCurrent->data;
         }
 
         T *operator-> () const{
-            DEBUG_CHECK (this->mCurrent != nullptr);
+            ZQ_ASSERT (this->mCurrent != nullptr);
 
             return &this->mCurrent->data;
         }
@@ -282,7 +282,7 @@ public:
         if (begin == end)
             return;
 
-        DEBUG_CHECK (begin.mCurrent);
+        ZQ_ASSERT (begin.mCurrent);
 
         ConstIterator iterator = begin;
         NodeType *savedCurrentPrevious = begin.mCurrent->previous;
@@ -434,7 +434,7 @@ public:
 
         erase (cbegin (), cend ());
 
-        DEBUG_CHECK (size() == 0);
+        ZQ_ASSERT (size() == 0);
     }
 
     bool isEmpty() const

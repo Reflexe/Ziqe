@@ -27,6 +27,8 @@ public:
     {
     }
 
+    ZQ_DISALLOW_COPY (Expected)
+
     Expected(Expected &&expected)
         : mIsError{expected.mIsError}
     {
@@ -36,15 +38,6 @@ public:
             mValue = Base::move (expected.mValue);
     }
 
-    Expected(const Expected &expected)
-        : mIsError{expected.mIsError}
-    {
-        if (mIsError)
-            mError = expected.mError;
-        else
-            mValue = expected.mValue;
-    }
-
     Expected &operator = (Expected &&expected) {
         destruct ();
 
@@ -52,17 +45,6 @@ public:
             mError = Base::move (expected.mError);
         else
             mValue = Base::move (expected.mValue);
-
-        return *this;
-    }
-
-    Expected &operator = (const Expected &expected) {
-        destruct ();
-
-        if (mIsError)
-            mError = expected.mError;
-        else
-            mValue = expected.mValue;
 
         return *this;
     }
@@ -78,23 +60,23 @@ public:
     }
 
     ZQ_DEFINE_CONST_AND_NON_CONST(const ErrorType&, ErrorType&, getError, (), {
-        DEBUG_CHECK (mIsError);
+        ZQ_ASSERT (mIsError);
         return mError;
     })
 
     ZQ_DEFINE_CONST_AND_NON_CONST (const T&, T&, get, (), {
-        DEBUG_CHECK (!mIsError);
+        ZQ_ASSERT (!mIsError);
         return mValue;
     })
 
 
     ZQ_DEFINE_CONST_AND_NON_CONST (const T&, T&, operator*, (), {
-        DEBUG_CHECK (!mIsError);
+        ZQ_ASSERT (!mIsError);
         return mValue;
     })
 
     ZQ_DEFINE_CONST_AND_NON_CONST (const T*, T*, operator ->, (), {
-        DEBUG_CHECK (!mIsError);
+        ZQ_ASSERT (!mIsError);
         return &mValue;
     })
 

@@ -36,7 +36,8 @@ template<class T, class Allocator=Allocator<T>, class Constructor=Constructor<T>
 class Vector
 {
 public:
-    typedef SizeType SizeType;
+    typedef T ElementType;
+    typedef Ziqe::SizeType SizeType;
     typedef T* PointerType;
     typedef T* Iterator;
     typedef const T* ConstIterator;
@@ -47,6 +48,11 @@ public:
     Vector(const InputIterator &begin, const InputIterator &end)
         : Vector{begin, end, countRange(begin, end)}
     {
+    }
+
+    static Vector TakeRawArray (RawArray<T> &&array)
+    {
+         return Vector{Base::move (array)};
     }
 
     template<class InputIterator>
@@ -148,7 +154,7 @@ public:
     }
 
     void shrinkWithoutFree(SizeType howMuch) {
-        DEBUG_CHECK (mSize >= howMuch);
+        ZQ_ASSERT (mSize >= howMuch);
 
         mSize -= howMuch;
     }
@@ -221,6 +227,12 @@ public:
     }
 
 private:
+    Vector(RawArray<T> &&array)
+        : mPointer{array.get ()}, mSize{array.size ()}
+    {
+        array.reset ();
+    }
+
     template<class Arg, class...Args>
     void expandFewInsertLoop (SizeType currnetIndex,
                               const Arg &beginAndEnd,

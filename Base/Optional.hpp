@@ -97,7 +97,7 @@ public:
       @note undefined behaviour if this optional is not valid.
       */
     ZQ_DEFINE_CONST_AND_NON_CONST (const T&, T&, get, (), {
-        DEBUG_CHECK(isValid ());
+        ZQ_ASSERT(isValid ());
         return *mConsturctedObject;
     })
 
@@ -121,7 +121,7 @@ public:
     ///
     // ->
     ZQ_DEFINE_CONST_AND_NON_CONST (const T*, T*, operator ->, (), {
-        DEBUG_CHECK (isValid ());
+        ZQ_ASSERT (isValid ());
         return mConsturctedObject;
     })
 

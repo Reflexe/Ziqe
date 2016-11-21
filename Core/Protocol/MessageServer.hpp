@@ -19,7 +19,7 @@ public:
     MessageStream acceptClient () {
         auto maybeClientStream = mServer->acceptClient ();
 
-        DEBUG_CHECK (maybeClientStream);
+        ZQ_ASSERT (maybeClientStream);
         return MessageStream{Base::move (maybeClientStream)};
     }
 

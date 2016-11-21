@@ -19,13 +19,15 @@
  */
 #include "ProcessPeersClient.hpp"
 
-#include "Protocol/MessagesGenerator.hpp"
+#include "Protocol/MessagesWriter.hpp"
 
 namespace Ziqe {
 
-ProcessPeersClient::ProcessPeersClient(ProcessPeersServer &localServer)
-    : mConnections{localServer.getConnections ()}
+ProcessPeersClient::ProcessPeersClient(ProcessPeersServer &localServer,
+                                       Base::UniquePointer<MessageStreamFactoryInterface> &&factory)
+    : mConnections{localServer.getConnections ()}, mStreamFactory{Base::move (factory)}
 {
+
 }
 
 ProcessPeersClient::~ProcessPeersClient()
@@ -33,36 +35,36 @@ ProcessPeersClient::~ProcessPeersClient()
 }
 
 void ProcessPeersClient::continueRemoteThread(HostedThreadID threadID) {
-    if (! sendThreadMessage (threadID, Protocol::MessagesGenerator::makeContinueThread (threadID)))
-        return;
-
     mCurrentTask = Task{Task::Type::ContinueRemoteThread};
-    waitUntilCurrentTaskComplete ();
+    if (! sendThreadMessageAndWait (threadID, Protocol::ContiniueThreadMessage{threadID})) {
+        ZQ_ASSERT_REPORT_NOT_REACHED ("Can't send");
+        return;
+    }
 }
 
 Base::UniquePointer<ProcessPeersClient> ProcessPeersClient::runNewRemoteThread(LocalThread &localThread) {
     // TODO: needs memory.
 }
 
-void ProcessPeersClient::onMessageReceived(const Protocol::Message &type, Protocol::MessageStream::MessageFieldReader &fieldReader)
+void ProcessPeersClient::onMessageReceived(const Protocol::Message::Type &type, Protocol::MessageStream::MessageFieldReader &fieldReader)
 {
 
 }
 
 void ProcessPeersClient::killRemoteThread(HostedThreadID threadID) {
-    if (! sendThreadMessage (threadID, Protocol::MessagesGenerator::makeKillThread (threadID)))
-        return;
-
     mCurrentTask = Task{Task::Type::KillRemoteThread};
-    waitUntilCurrentTaskComplete ();
+    if (! sendThreadMessageAndWait (threadID, Protocol::KillThreadMessage{threadID})) {
+        ZQ_ASSERT_REPORT_NOT_REACHED ("Can't send");
+        return;
+    }
 }
 
 void ProcessPeersClient::stopRemoteThread(HostedThreadID threadID) {
-    if (! sendThreadMessage (threadID, Protocol::MessagesGenerator::makeStopThread (threadID)))
-        return;
-
     mCurrentTask = Task{Task::Type::StopRemoteThread};
-    waitUntilCurrentTaskComplete ();
+    if (! sendThreadMessageAndWait (threadID, Protocol::StopThreadMessage{threadID})) {
+        ZQ_ASSERT_REPORT_NOT_REACHED ("Can't send");
+        return;
+    }
 }
 
 } // namespace Ziqe

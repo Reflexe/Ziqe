@@ -29,20 +29,18 @@
 namespace Ziqe {
 namespace Base {
 
-// TODO: assert instead of CHECK
 #ifdef ZQ_TEST_BUILD
-# define DEBUG_CHECK(expr) ZQ_SGMT_BEGIN if (expr) {} else { ::Ziqe::Logger::logError (#expr " Failed"); } ZQ_SGMT_END
-# define ZQ_ASSERT(expr) DEBUG_CHECK(expr)
+# define ZQ_ASSERT(expr) ZQ_SGMT_BEGIN if (expr) {} else { ::Ziqe::Logger::logError (#expr " Failed"); } ZQ_SGMT_END
 
-# define DEBUG_CHECK_REPORT(expr, msg) ZQ_SGMT_BEGIN if (expr) {} else { ::Ziqe::Logger::logWarning (#expr " Failed"); } ZQ_SGMT_END
-# define DEBUG_CHECK_REPORT_NOT_REACHED(msg) ::Ziqe::Logger::logWarning (msg)
-# define NOT_IMPLEMENTED() DEBUG_CHECK_REPORT_NOT_REACHED("NotImplemented reached")
+# define ZQ_ASSERT_REPORT(expr, msg) ZQ_SGMT_BEGIN if (expr) {} else { ::Ziqe::Logger::logWarning (#expr " Failed: " msg); } ZQ_SGMT_END
+# define ZQ_ASSERT_REPORT_NOT_REACHED(msg) ::Ziqe::Logger::logWarning ("Reached: " msg)
+# define ZQ_NOT_IMPLEMENTED() ZQ_ASSERT_REPORT_NOT_REACHED("NotImplemented reached")
 #else
-# define DEBUG_CHECK(expr) (void)(expr)
+# define ZQ_ASSERT(expr) (void)(expr)
 
-# define DEBUG_CHECK_REPORT(expr, msg) (void) msg, (void) expr
-# define DEBUG_CHECK_REPORT_NOT_REACHED(msg) ZQ_UNUSED (msg)
-# define NOT_IMPLEMENTED() (void)0
+# define ZQ_ASSERT_REPORT(expr, msg) (void) msg, (void) expr
+# define ZQ_ASSERT_REPORT_NOT_REACHED(msg) ZQ_UNUSED (msg)
+# define ZQ_NOT_IMPLEMENTED() (void)0
 #endif
 
 template<class X, class Y>
@@ -51,8 +49,8 @@ bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
      return ((std::numeric_limits<decltype (x + y)>::max() - x) > y);
 }
 
-#define DEBUG_CHECK_NOT_REACHED() DEBUG_CHECK(false)
-#define DEBUG_CHECK_ADD_OVERFLOW(x, y) DEBUG_CHECK (Z_CHECK_ADD_OVERFLOW(x, y))
+#define DEBUG_CHECK_NOT_REACHED() ZQ_ASSERT(false)
+#define DEBUG_CHECK_ADD_OVERFLOW(x, y) ZQ_ASSERT (Z_CHECK_ADD_OVERFLOW(x, y))
 
 } // namespace Base
 } // namespace Ziqe

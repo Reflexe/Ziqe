@@ -26,17 +26,21 @@
 #include "ZiqeAPI/Types.h"
 
 #include "MemoryMap.hpp"
+#include "Object.hpp"
 
 namespace Ziqe {
 namespace Protocol {
 
-class MemoryRevision
+class MemoryRevision : public Object
 {
 public:
     typedef uint64_t ID;
 
     MemoryRevision();
     ZQ_ALLOW_COPY_AND_MOVE (MemoryRevision)
+
+    virtual void fromMessage (Message &message);
+
     // TODO: memory map
 #if 0
     /**

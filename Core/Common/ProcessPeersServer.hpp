@@ -28,20 +28,33 @@
 #include "Base/HashTable.hpp"
 
 #include "Common/Types.hpp"
+#include "Common/MessageStreamFactoryInterface.hpp"
+
 #include "Protocol/ThreadState.hpp"
 #include "Protocol/MemoryMap.hpp"
 #include "Protocol/MessageServer.hpp"
 
 namespace Ziqe {
 
-class ProcessPeersServer final
+class ProcessPeersServer
 {
 public:
     struct OtherServers {
+        typedef Base::Pair<Protocol::MessageStream::Address,
+                            Protocol::MessageStream::Port> StreamInfoType;
+
+
+        struct StreamInfoAndReferenceCount {
+            StreamInfoType info;
+            SizeType referenceCount;
+        };
+
+        typedef Base::LinkedList<StreamInfoAndReferenceCount> ConnectionListType;
+
         void addThreads(const Base::RawArray<HostedThreadID> &threadsToAdd,
-                        Base::UniquePointer<Protocol::MessageStream> &&stream)
+                        const StreamInfoType &info)
         {
-            mConnectionsList.emplace_back (Base::move (*stream));
+            mConnectionsList.emplace_back (info, threadsToAdd.size ());
             auto beforeEnd = mConnectionsList.beforeEnd ();
 
             for (const auto &threadID : threadsToAdd)
@@ -51,33 +64,38 @@ public:
         }
 
         void removeThreads (const Base::RawArray<HostedThreadID> &threadsToRemove) {
-            for (const auto &threadID : threadsToRemove)
-            {
-                mThreadIDToStream.erase (threadID);
+            for (const auto &threadID : threadsToRemove) {
+                auto theradIDIterator = mThreadIDToStream.find (threadID);
+
+                auto currentCount = (theradIDIterator->second->referenceCount -= 1);
+                if (currentCount == 0)
+                    mConnectionsList.erase (theradIDIterator->second);
+
+                mThreadIDToStream.erase (theradIDIterator);
             }
         }
 
-        void sendMessageToProcessPeers (const Protocol::MessageStream::OutputDataType &vector) const{
-            for (const auto &connection : mConnectionsList)
-            {
-                connection.sendMessage (vector);
-            }
+        const ConnectionListType& getAllConnections () const
+        {
+            return mConnectionsList;
         }
 
-        bool sendThreadMessage (HostedThreadID threadID, const Protocol::MessageStream::OutputDataType &vector) const{
+        enum class FindThreadStreamError {
+            InvalidThreadID
+        };
+
+        Base::Expected<StreamInfoType, FindThreadStreamError>
+        findThreadStreamInfo (HostedThreadID threadID) const{
             auto iterator = mThreadIDToStream.find (threadID);
 
             if (iterator == mThreadIDToStream.end()) {
-                DEBUG_CHECK_NOT_REACHED ();
-
-                return false;
+                return {FindThreadStreamError::InvalidThreadID};
             }
 
-            (*iterator->second).sendMessage (vector);
-            return true;
+            // Copy: with a reference, it may be invalid
+            // when returned to user (it get unlocked, and might get removed).
+            return {iterator->second->info};
         }
-
-        typedef Base::LinkedList<Protocol::MessageStream> ConnectionListType;
 
         ConnectionListType mConnectionsList;
         Base::HashTable<HostedThreadID, typename ConnectionListType::Iterator> mThreadIDToStream;
@@ -133,6 +151,16 @@ private:
         return {mProcessLocalThreads.keysBegin (), mProcessLocalThreads.keysEnd ()};
     }
 
+    void sendToAll (Protocol::MessageStream::OutputDataType &&message) {
+        auto readOtherServers{mOtherServers.getRead ()};
+
+        for (auto &connectionInfo : readOtherServers.first.getAllConnections()) {
+            auto newStream = mMessageFactory->createMessageStream (connectionInfo.info.first,
+                                                                   connectionInfo.info.second);
+            newStream.sendMessage (message);
+        }
+    }
+
     // Global Senders
     void sendHello ();
     void sendGoodbye ();
@@ -148,6 +176,8 @@ private:
 
     /// "Global" local threads in the same process.
     Base::HashTable<HostedThreadID, LocalThread> mProcessLocalThreads;
+
+    Base::UniquePointer<MessageStreamFactoryInterface> mMessageFactory;
 };
 
 } // namespace Ziqe

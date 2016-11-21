@@ -22,19 +22,10 @@
 namespace Ziqe {
 namespace Net {
 
-void UdpStream::send(const Stream::DataType &data) const
-{
-    mSocket.send (data.toRawArray ());
-}
-
-Base::Expected<Stream::DataType, Stream::ReceiveError> UdpStream::receive() const{
-    auto maybeData = mSocket.receive ();
-
-    if (! maybeData)
-        return {socketReceiveErrorToError (maybeData.getError ())};
-
-    return {std::move (*maybeData)};
-}
+/**
+   @brief
+   TODO: A shared max data size.
+ */
 
 Base::Pair<Stream::Address, Stream::Port> UdpStream::getStreamInfo() const
 {
@@ -60,6 +51,16 @@ void UdpStream::setBroadcast(bool isBroadcast)
                             integerIsBroadcast);
 }
 
+Base::Expected<Base::Vector<uint8_t>,Base::Socket::ReceiveError> UdpStream::receiveRawPacket()
+{
+    return mSocket.receive ();
+}
+
+SizeType UdpStream::sendRawPacket(const Base::RawArray<const uint8_t> &array)
+{
+    return mSocket.send (array);
+}
+
 Base::Expected<UdpStream, UdpStream::CreateError>
 UdpStream::Connect(const UdpStream::Address &address, UdpStream::Port port) {
     auto maybeUdpSocket = Base::Socket::Connect (Base::Socket::SocketAddress::CreateIn6 (address, port),
@@ -71,7 +72,8 @@ UdpStream::Connect(const UdpStream::Address &address, UdpStream::Port port) {
     return {Base::move (*maybeUdpSocket)};
 }
 
-Base::Expected<UdpStream, UdpStream::CreateError> UdpStream::CreateBroadcast(const Stream::Address &address, const Stream::Port &port) {
+Base::Expected<UdpStream, UdpStream::CreateError>
+UdpStream::CreateBroadcast(const Stream::Address &address, const Stream::Port &port) {
     auto maybeUdpStream = Connect (address, port);
 
     if (! maybeUdpStream)
@@ -80,6 +82,67 @@ Base::Expected<UdpStream, UdpStream::CreateError> UdpStream::CreateBroadcast(con
     maybeUdpStream->setBroadcast (true);
 
     return maybeUdpStream;
+}
+
+UdpStream::UdpOutputVector::UdpOutputVector(UdpStream &stream, bool isCreateConnection)
+    : mStream{stream},
+      mNextMessage{(isCreateConnection ? UdpMessage::Flags::SYN : UdpMessage::Flags::None), 0}
+{
+    createNewSegment ();
+}
+
+void UdpStream::UdpOutputVector::createNewSegment() {
+    mVector.setEnd (0);
+    mVector.setBegin (0);
+
+    // Write the message to the vector.
+    mNextMessage.writeTo (mVector);
+
+    // Advance the message number for the next one.
+    mNextMessage.setMessageNumber (mNextMessage.getMessageNumber () + 1);
+}
+
+void UdpStream::UdpOutputVector::sendCurrentSegment() {
+    // It is the end of the stream (sync has been called), send LastFragment stream.
+    if (mAutoSendDataSize > mVector.getVector ().size ()) {
+        mNextMessage.setLastFragmentFlag (true);
+        mNextMessage.setMessageNumber (mNextMessage.getMessageNumber () - 1);
+
+        // Rewrite the previous message with  the last fragment flag and clear the SYN flag.
+        auto vectorBegin = mVector.getIndexBegin ();
+        mVector.setBegin (0);
+        mNextMessage.writeTo (mVector);
+        mVector.setBegin (vectorBegin);
+
+        mNextMessage.setLastFragmentFlag (false);
+    }
+
+    mStream.sendRawPacket (mVector.getVector ().toRawArray ());
+
+    createNewSegment ();
+}
+
+UdpStream::UdpInputVector::UdpInputVector(UdpStream &stream)
+    : mStream{stream}
+{
+}
+
+Base::Expected<Stream::DataType, Stream::ReceiveError> UdpStream::UdpInputVector::receiveData() const {
+    auto maybeData = mStream.receiveRawPacket ();
+
+    if (! maybeData)
+        return {socketReceiveErrorToError (maybeData.getError ())};
+
+    UdpMessage::InputExtendedVectorType vector{*maybeData};
+    auto maybeMessage = UdpMessage::ReadFrom (vector);
+
+    if (! maybeMessage) {
+        ZQ_LOG ("Invalid message received");
+
+        return {ReceiveError::ParseError};
+    }
+
+    return {std::move (*maybeData)};
 }
 
 } // namespace Net

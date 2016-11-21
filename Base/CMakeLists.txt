@@ -3,7 +3,7 @@ zq_add_library(Base LocalProcess LocalThread SystemCalls ProcessManager
                Types LinkedList Mutex FunctionTools
                FieldReader FieldWriter RWLock RedBlackTree
                SpinLock RangesMap ExtendedVector Logger Socket Optional
-               Expected)
+               Expected ExtendedVectorWritable )
 
 # No need for ZiqeAPI dependency, all zq_add_driver targets depend on it by default.
 

@@ -62,36 +62,36 @@ void ProcessPeersServer::onStopThreadReceived(Protocol::MessageStream &stream, H
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
-        DEBUG_CHECK_REPORT (thread, "Invalid Thread ID");
-        stream.sendMessage (Protocol::MessagesGenerator::makeStopThreadOK ());
+        ZQ_ASSERT_REPORT (thread, "Invalid Thread ID");
+        stream.sendMessage (Protocol::StopThreadOKMessage{threadID});
     }
 
     thread->stop ();
-    stream.sendMessage (Protocol::MessagesGenerator::makeStopThreadOK ());
+    stream.sendMessage (Protocol::StopThreadOKMessage{threadID});
 }
 
 void ProcessPeersServer::onContinueThread(Protocol::MessageStream &stream, HostedThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
-        DEBUG_CHECK_REPORT (thread, "Invalid Thread ID");
-        stream.sendMessage (Protocol::MessagesGenerator::makeContinueThreadOK ());
+        ZQ_ASSERT_REPORT (thread, "Invalid Thread ID");
+        stream.sendMessage (Protocol::ContiniueThreadOKMessage{threadID});
     }
 
     thread->cont ();
-    stream.sendMessage (Protocol::MessagesGenerator::makeContinueThreadOK ());
+    stream.sendMessage (Protocol::ContiniueThreadOKMessage{threadID});
 }
 
 void ProcessPeersServer::onKillThreadReceived(Protocol::MessageStream &stream, HostedThreadID threadID) {
     auto thread = globalToLocalThread (threadID);
 
     if (! thread ) {
-        DEBUG_CHECK_REPORT (thread, "Invalid Thread ID");
-        stream.sendMessage (Protocol::MessagesGenerator::makeKillThreadOK ());
+        ZQ_ASSERT_REPORT (thread, "Invalid Thread ID");
+        stream.sendMessage (Protocol::KillThreadOKMessage{threadID});
     }
 
     thread->kill ();
-    stream.sendMessage (Protocol::MessagesGenerator::makeKillThreadOK ());
+    stream.sendMessage (Protocol::KillThreadOKMessage{threadID});
 }
 
 void ProcessPeersServer::onRunThreadReceived(Protocol::MessageStream &stream, HostedThreadID newThreadID,
@@ -103,7 +103,7 @@ void ProcessPeersServer::onRunThreadReceived(Protocol::MessageStream &stream, Ho
 
 void ProcessPeersServer::onHelloReceived(Protocol::MessageStream &stream, const Base::RawArray<HostedThreadID> &newThreads)
 {
-    mOtherServers.getWrite ().first.addThreads (newThreads, stream);
+    mOtherServers.getWrite ().first.addThreads (newThreads, stream.getInfo ());
 }
 
 void ProcessPeersServer::onGoodbyeReceived(Protocol::MessageStream &stream, const Base::RawArray<HostedThreadID> &leavingThreads)
@@ -113,12 +113,12 @@ void ProcessPeersServer::onGoodbyeReceived(Protocol::MessageStream &stream, cons
 
 void ProcessPeersServer::sendHello()
 {
-    mOtherServers.getRead ().first.sendMessageToProcessPeers (Protocol::MessagesGenerator::makeProcessPeerHello (getProcessThreadIDs ().toRawArray ()));
+   sendToAll (Protocol::ProcessPeerHelloMessage {getProcessThreadIDs ()});
 }
 
 void ProcessPeersServer::sendGoodbye()
 {
-    mOtherServers.getRead ().first.sendMessageToProcessPeers (Protocol::MessagesGenerator::makeProcessPeerGoodbye (getProcessThreadIDs ().toRawArray ()));
+    sendToAll (Protocol::ProcessPeerGoodbyeMessage {getProcessThreadIDs ()});
 }
 
 } // namespace Ziqe

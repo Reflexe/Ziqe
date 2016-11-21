@@ -32,7 +32,6 @@ typedef ZqDifferenceType DifferenceType;
 
 typedef decltype (nullptr) NullptrType;
 
-struct InitializerDelimeter { };
 } // namespace Ziqe
 
 #endif // ZIQE_TYPES_H

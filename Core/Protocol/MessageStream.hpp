@@ -28,6 +28,7 @@
 #include "Common/Types.hpp"
 #include "Protocol/Message.hpp"
 #include "Protocol/MemoryRevision.hpp"
+#include "Protocol/MessagesGenerator.hpp"
 
 namespace Ziqe {
 namespace Protocol {
@@ -66,39 +67,49 @@ public:
     /**
     * @brief DataType  The type used to transform received data.
     */
-    typedef Net::Stream::StreamVector InputDataType;
+    typedef Net::Stream::InputStreamVector InputDataType;
 
     /**
      * @brief OutputDataType  Used to send data.
      */
-    typedef Base::Vector<uint8_t> OutputDataType;
+    typedef Message OutputDataType;
+
+    typedef Net::Stream::InputStreamVector InputStreamType;
+    typedef Net::Stream::OutputStreamVector OutputStreamType;
 
     /**
      * @brief MessageFieldReader  FieldReader used in this stream.
      */
-    typedef Base::LittleEndianFieldReader<InputDataType> MessageFieldReader;
+    typedef Base::LittleEndianFieldReader<InputStreamType, Base::UniquePointer<InputStreamType>> MessageFieldReader;
+    typedef Base::LittleEndianFieldWriter<OutputStreamType, Base::UniquePointer<OutputStreamType>> MessageFieldWriter;
+
+    typedef MessagesGenerator<MessageFieldWriter> MessagesGeneratorType;
+
+//    typedef Base::ExtendedVectorWritable<Net::Stream::OutputStreamVector> MessageType;
 
     enum class ReceiveMessageError {
         Other
     };
 
-    Base::Expected<Base::Pair<Message, MessageFieldReader>, ReceiveMessageError> receiveMessage() const;
+    Base::Expected<Base::Pair<Message::Type, Base::RawPointer<MessageFieldReader>>, ReceiveMessageError> receiveMessage();
 
-    void sendMessage(const OutputDataType &messageData) const
-    {
-        mStream->send (messageData);
+    template<class MessageType>
+    void sendMessage(const MessageType &messageData) {
+        MessagesGeneratorType{mWriter}.write (messageData);
+        mWriter.getVector ().sync ();
     }
 
-    void retransmitLastMessage()
+    Base::Pair<Address, Port>
+    getInfo () const
     {
-        mStream->send (mLastOutput);
+        return mStream->getStreamInfo ();
     }
 
 private:
-    OutputDataType mLastOutput;
-
     Base::UniquePointer<Net::Stream> mStream;
 
+    MessageFieldWriter mWriter;
+    MessageFieldReader mReader;
 };
 
 } // namespace Ziqe

@@ -46,7 +46,7 @@ void ZqAPIInit ()
         int i = 0;
         for (int n : list)
         {
-            DEBUG_CHECK (i == n);
+            ZQ_ASSERT (i == n);
 
             ++i;
         }
@@ -54,11 +54,11 @@ void ZqAPIInit ()
 
     // copy consturctor
     anotherList = list;
-    DEBUG_CHECK (list.size () == N);
-    DEBUG_CHECK (anotherList.size () == N);
+    ZQ_ASSERT (list.size () == N);
+    ZQ_ASSERT (anotherList.size () == N);
 
     // end, before end
-    DEBUG_CHECK (list.end () == next (list.beforeEnd ()));
+    ZQ_ASSERT (list.end () == next (list.beforeEnd ()));
 
     // erase
     list.erase (list.begin ());
@@ -71,7 +71,7 @@ void ZqAPIInit ()
         int i = 0;
         for (int n : list)
         {
-            DEBUG_CHECK (i == n);
+            ZQ_ASSERT (i == n);
 
             ++i;
         }
@@ -81,7 +81,7 @@ void ZqAPIInit ()
         int i = 0;
         for (int n : anotherList)
         {
-            DEBUG_CHECK (i == n);
+            ZQ_ASSERT (i == n);
 
             ++i;
         }

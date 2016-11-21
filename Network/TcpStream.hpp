@@ -37,15 +37,42 @@ public:
 
     static Base::Expected<TcpStream,ConnectError> Connect(const Address &address, const Port &port);
 
-    virtual Base::Expected<DataType, ReceiveError> receive() const override;
-
-    virtual void send(const DataType &data) const override;
-
     virtual Base::Pair<Address, Port> getStreamInfo () const override;
 
     TcpStream(Base::Socket &&readySocket, Base::Pair<Address, Port> &&addressAndPort);
 
+    virtual Base::UniquePointer<InputStreamVector> getInputStreamVector() const override;
+
+    virtual Base::UniquePointer<OutputStreamVector> getOutputStreamVector() const override;
+
 private:
+    class TcpInputStreamVector : public InputStreamVector {
+        TcpInputStreamVector(TcpStream &stream);
+
+        Base::Expected<DataType, ReceiveError> receiveData () const override;
+
+    private:
+        TcpStream &mStream;
+
+    };
+
+    class TcpOutputStreamVector : public OutputStreamVector {
+        TcpOutputStreamVector(TcpStream &stream);
+
+        void sendCurrentSegment () override;
+
+    private:
+        TcpStream &mStream;
+
+    };
+
+    Base::Expected<DataType, ReceiveError> receiveRawPacket() const;
+
+    void sendRawPacket(const DataType &data) const
+    {
+        mSocket.send (data.toRawArray ());
+    }
+
     static ReceiveError socketReceiveErrorToError(const Base::Socket::ReceiveError &receiveError) {
         using SocketReceiveError=Base::Socket::ReceiveError;
 

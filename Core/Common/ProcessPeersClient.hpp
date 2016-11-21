@@ -25,16 +25,26 @@
 #include "Base/LocalThread.hpp"
 
 #include "Common/ProcessPeersServer.hpp"
+#include "Common/MessageStreamFactoryInterface.hpp"
+
 #include "Protocol/MemoryRevision.hpp"
 
 #include "Protocol/MessageStream.hpp"
 
 namespace Ziqe {
 
+/**
+   @brief A client for ProcessPeersServer.
+
+   When a task start, a stream created and a message being sent to
+   the other Process Peers Server. Then, we'll wait for the task to
+   end.
+ */
 class ProcessPeersClient
 {
 public:
-    ProcessPeersClient(ProcessPeersServer &localServer);
+    ProcessPeersClient(ProcessPeersServer &localServer,
+                       Base::UniquePointer<MessageStreamFactoryInterface> &&factory);
     ~ProcessPeersClient();
 
     ZQ_ALLOW_COPY_AND_MOVE (ProcessPeersClient)
@@ -99,9 +109,9 @@ private:
         bool mIsComplete;
     };
 
-    void waitUntilCurrentTaskComplete () {
+    void waitUntilCurrentTaskComplete (Protocol::MessageStream &messageStream) {
         do {
-            auto message = mReceiveStream.receiveMessage ();
+            auto message = messageStream.receiveMessage ();
             if (! message)
                 continue;
 
@@ -109,8 +119,9 @@ private:
         } while (! mCurrentTask.isComplete ());
     }
 
-    void onMessageReceived (const Protocol::Message &type,
+    void onMessageReceived (const Protocol::Message::Type &type,
                             Protocol::MessageStream::MessageFieldReader &fieldReader);
+
     void onRunThreadOKReceived ();
 
     /**
@@ -118,9 +129,17 @@ private:
      * @param threadID
      * @param vector
      */
-    bool sendThreadMessage (HostedThreadID threadID, Protocol::MessageStream::OutputDataType &&vector)
-    {
-        return mConnections->getRead ().first.sendThreadMessage (threadID, Base::move (vector));
+    bool sendThreadMessageAndWait (HostedThreadID threadID, Protocol::MessageStream::OutputDataType &&data) {
+        auto maybeStreamInfo = mConnections->getRead ().first.findThreadStreamInfo (threadID);
+        if (! maybeStreamInfo)
+            return false;
+
+        auto newStream = mStreamFactory->createMessageStream (maybeStreamInfo->first, maybeStreamInfo->second);
+        newStream.sendMessage (Base::move (data));
+
+        waitUntilCurrentTaskComplete (newStream);
+
+        return true;
     }
 
     /**
@@ -134,8 +153,7 @@ private:
      */
     ProcessPeersServer::ConnectionsType mConnections;
 
-
-    // FIXME: how to receive answers?
+    Base::UniquePointer<MessageStreamFactoryInterface> mStreamFactory;
 };
 
 } // namespace Ziqe

@@ -737,10 +737,12 @@ public:
         erase (equalIterators.first, equalIterators.second);
     }
 
-    Pair<Iterator, Iterator> getEqualRange (const KeyType &key) {
+    ZQ_DEFINE_CONST_AND_NON_CONST (ZQ_ARG(Pair<ConstIterator, ConstIterator>), ZQ_ARG(Pair<Iterator, Iterator>), getEqualRange,
+                                   (const KeyType &key),
+    {
         auto firstIterator = find (key);
         if (firstIterator == this->end ())
-            return;
+            return {this->end(), this->end()};
 
         auto lastIteator = firstIterator;
 
@@ -750,23 +752,8 @@ public:
         } while (lastIteator != this->end() && mIsEqual (key, lastIteator->first));
 
 
-        return Pair<Iterator, Iterator>{firstIterator, lastIteator};
-    }
-
-    Pair<ConstIterator, ConstIterator> getEqualRange (const KeyType &key) const{
-        auto firstIterator = find (key);
-        if (firstIterator == this->end ())
-            return;
-
-        auto lastIteator = firstIterator;
-
-        // find the last iterator with this key.
-        do {
-            ++lastIteator;
-        } while (lastIteator != this->end() && mIsEqual (key, lastIteator->first));
-
-        return Pair<Iterator, Iterator>{firstIterator, lastIteator};
-    }
+        return {firstIterator, lastIteator};
+    })
 };
 
 template<class KeyType,

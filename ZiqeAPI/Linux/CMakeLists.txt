@@ -6,7 +6,10 @@ endmacro ()
 # Linux's version; by default, the current.
 # Will be used to find Linux's headers.
 #set (zq_linux_version "")
-set(zq_linux_version "${CMAKE_SYSTEM_VERSION}" CACHE STRING "Linux version for drivers")
+unset(zq_linux_version CACHE)
+zq_get_current_linux_version (zq_linux_version)
+set(zq_linux_version ${zq_linux_version} CACHE STRING "Linux version for drivers")
+#set(zq_linux_version "${CMAKE_SYSTEM_VERSION}" CACHE STRING "Linux version for drivers")
 
 set(zq_linux_here ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 

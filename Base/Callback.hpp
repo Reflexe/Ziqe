@@ -163,8 +163,8 @@ public:
     Callback() = default;
 
     /// Initilize from a regular function.
-    template<FunctionType sFunction>
-    Callback(StaticVariable<FunctionType, sFunction>)
+    template<FunctionType* sFunction>
+    Callback(StaticVariable<FunctionType*, sFunction>)
         : mObjectManager{new RegularFunctionObjectManager <sFunction>}
     {
     }
@@ -199,7 +199,7 @@ public:
     }
 
     ReturnType operator() (ArgsTypes&&... args) {
-        DEBUG_CHECK (mObjectManager->isValid());
+        ZQ_ASSERT (mObjectManager->isValid());
 
         return mObjectManager->invoke (Base::forward<ArgsTypes>(args)...);
     }

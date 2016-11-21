@@ -21,12 +21,20 @@
 #define ZIQE_NET_UDPSTREAM_HPP
 
 #include "Network/Stream.hpp"
+#include "Network/UdpMessage.hpp"
 
 #include "Base/Socket.hpp"
 
 namespace Ziqe {
 namespace Net {
 
+/**
+   @brief A Udp implementation of Stream.
+
+   this stream is not a raw UDP stream, it sends a few headers before each
+   packet. Mainly to allow basic fragmention for big UdpPackets.
+
+ */
 class UdpStream final : implements public Stream
 {
 public:
@@ -43,11 +51,11 @@ public:
 
     static Base::Expected<UdpStream,CreateError> CreateBroadcast (const Address &address, const Port &port);
 
-    virtual void send (const DataType &data) const override;
-
-    virtual Base::Expected<DataType,ReceiveError> receive () const override;
-
     virtual Base::Pair<Address, Port> getStreamInfo () const override;
+
+    virtual Base::UniquePointer<InputStreamVector> getInputStreamVector () const override;
+
+    virtual Base::UniquePointer<OutputStreamVector> getOutputStreamVector () const override;
 
     /**
        @brief Set whether this Stream is a broadcast stream or not.
@@ -56,6 +64,32 @@ public:
 
 private:
     friend class UdpServer;
+
+    Base::Expected<Base::Vector<uint8_t>, Base::Socket::ReceiveError> receiveRawPacket();
+
+    SizeType sendRawPacket (const Base::RawArray<const uint8_t> &array);
+
+    class UdpOutputVector final : public Stream::OutputStreamVector {
+        UdpOutputVector(UdpStream &stream, bool isCreateConnection);
+
+    private:
+        void createNewSegment ();
+
+        virtual void sendCurrentSegment () override;
+
+        UdpMessage mNextMessage;
+        UdpStream &mStream;
+    };
+
+    class UdpInputVector : public Stream::InputStreamVector {
+        UdpInputVector (UdpStream &stream);
+
+    private:
+        virtual Base::Expected<DataType,ReceiveError> receiveData () const override;
+
+    protected:
+        UdpStream &mStream;
+    };
 
     static ReceiveError socketReceiveErrorToError(const Base::Socket::ReceiveError &receiveError) {
         using SocketReceiveError=Base::Socket::ReceiveError;

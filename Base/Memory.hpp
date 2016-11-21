@@ -502,7 +502,7 @@ protected:
     }
 
     void deleteObject () {
-        DEBUG_CHECK (mPointer != nullptr);
+        ZQ_ASSERT (mPointer != nullptr);
 
         mReference->mDeleter (mPointer);
     }
@@ -707,6 +707,13 @@ public:
     explicit RawArray () = default;
     RawArray(T *ptr, SizeType size)
         : _PointerType{ptr}, mSize{size}
+    {
+    }
+
+    // prefer copy consturctor on this one (that's why the class = int)
+    template<class = int>
+    RawArray(const RawArray<typename RemoveConst<T>::type> &nonconstArray)
+        : _PointerType{nonconstArray.get ()}, mSize{nonconstArray.size ()}
     {
     }
 
