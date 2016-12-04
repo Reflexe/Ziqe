@@ -49,11 +49,14 @@ ZqSocket ZqSocketOpen(ZqSocketFamily family,
     struct socket *sock;
     int retval;
 
-     retval = sock_create_lite (family, type, protocol, &sock);
-     if (retval != 0)
-         return ZQ_INVALID_SOCKET;
-     else
-         return (ZqSocket) sock;
+    // Create a non-kernel socket. I may do some security problems
+    // But the user should not have access to this socket anyway.
+    // (it has no fd).
+    retval = sock_create (family, type, protocol, &sock);
+    if (retval)
+        return ZQ_INVALID_SOCKET;
+    else
+        return (ZqSocket) sock;
 }
 
 void ZqSocketClose(ZqSocket zqsocket) {

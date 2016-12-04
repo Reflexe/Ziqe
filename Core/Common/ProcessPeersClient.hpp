@@ -129,7 +129,8 @@ private:
      * @param threadID
      * @param vector
      */
-    bool sendThreadMessageAndWait (HostedThreadID threadID, Protocol::MessageStream::OutputDataType &&data) {
+    template<class MessageType>
+    bool sendThreadMessageAndWait (HostedThreadID threadID, const MessageType &data) {
         auto maybeStreamInfo = mConnections->getRead ().first.findThreadStreamInfo (threadID);
         if (! maybeStreamInfo)
             return false;

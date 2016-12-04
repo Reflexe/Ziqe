@@ -23,13 +23,8 @@
 #include "Types.hpp"
 #include "Macros.hpp"
 
-#include <utility>
-
 namespace Ziqe {
 namespace Base {
-
-using Base::move;
-using Base::forward;
 
 template<class InputIterator>
 class MoveIterator

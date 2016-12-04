@@ -22,7 +22,7 @@
 namespace Ziqe {
 } // namespace Ziqe
 
-void *operator new(std::size_t count) {
+void *operator new(size_t count) {
     static_assert (sizeof (ZqRegisterType) >= sizeof (void *),
                    "Invalid ZqRegisterType");
     return ZqAllocateVirtual (static_cast<ZqSizeType>(count));

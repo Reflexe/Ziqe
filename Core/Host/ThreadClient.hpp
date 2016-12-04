@@ -75,9 +75,10 @@ private:
     };
 
     // Receivers
-    void sendThreadOwnerMessage (const Protocol::MessageStream::OutputDataType &vector)
+    template<class MessageType>
+    void sendThreadOwnerMessage (const MessageType &message)
     {
-        mThreadOwnerStream->sendMessage (vector);
+        mThreadOwnerStream->sendMessage (message);
     }
 
     void waitUntilTaskComplete (const Task &task) {

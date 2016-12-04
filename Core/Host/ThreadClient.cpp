@@ -19,8 +19,6 @@
  */
 #include "ThreadClient.hpp"
 
-#include "Protocol/MessagesGenerator.hpp"
-
 namespace Ziqe {
 namespace Host {
 

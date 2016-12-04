@@ -195,38 +195,35 @@ public:
 
     static bool IsValidMessageType(Type type);
 
+    template<class WriterType>
+    void writeToWriter (WriterType &writer) const
+    {
+        writer.writeT (static_cast<Message::MessageTypeInteger> (getType ()));
+    }
+
+    SizeType writableSize () const
+    {
+        return sizeof (MessageTypeInteger);
+    }
+
 private:
     MessageType mMessageType;
 };
 
-template<Message::Type type>
-class MessageWithType : public Message {
+template<Message::Type type, class MessageType>
+class MessageWithType : public MessageType {
 public:
-    MessageWithType()
-        : Message{type}
+    template<class ...Args>
+    MessageWithType(Args&&...args)
+        : MessageType{type, Base::forward<Args>(args)...}
     {
-    }
-
-    template<class ReaderType>
-    static Base::Expected<MessageWithType, ParseError> ReadFrom(ReaderType &reader) {
-        Base::IgnoreUnused(reader);
-
-        // Return a new MessageWithType<type>.
-        return {};
-    }
-
-    template<class WriterType, class ...Args>
-    void writeTo (WriterType &writer, Args&&...previousFields)
-    {
-        writer.writeT (static_cast<Message::MessageTypeInteger> (getType ()), Base::forward<Args>(previousFields)...);
     }
 };
 
-template<Message::Type type>
-class MessageWithThreadID : public MessageWithType<type> {
+class MessageWithThreadID : Message {
 public:
-    MessageWithThreadID(HostedThreadID threadID)
-        : mThreadID{threadID}
+    MessageWithThreadID(Message::Type type, HostedThreadID threadID)
+        : Message{type}, mThreadID{threadID}
     {
     }
 
@@ -240,21 +237,25 @@ public:
         return {threadID};
     }
 
-    template<class WriterType, class ...Args>
-    void writeTo (WriterType &writer, Args&&...previousFields)
+    template<class WriterType>
+    void writeToWriter (WriterType &writer) const
     {
-        writer.writeT (mThreadID, Base::forward<Args>(previousFields)...);
+        writer.writeT (static_cast<const Message&>(*this), mThreadID);
+    }
+
+    SizeType writableSize () const
+    {
+        return sizeof (mThreadID) + Message::writableSize ();
     }
 
 private:
     HostedThreadID mThreadID;
 };
 
-template<Message::Type type>
-class MessageWithThreadIDs : public MessageWithType<type> {
+class MessageWithThreadIDs : public Message {
 public:
-    MessageWithThreadIDs(Base::Vector<HostedThreadID> &&threadIDs)
-        : mThreadIDs{threadIDs}
+    MessageWithThreadIDs(MessageType type, Base::Vector<HostedThreadID> &&threadIDs)
+        : Message{type}, mThreadIDs{threadIDs}
     {
     }
 
@@ -271,6 +272,7 @@ public:
         if (! reader.template canReadT<ArraySizeType>())
             return {Message::ParseError::TooShort};
 
+        // Read the array size.
         auto arraySize = reader.template readT<ArraySizeType>();
         auto vector = reader.template readTVector<HostedThreadID>(arraySize);
 
@@ -280,14 +282,19 @@ public:
         return {Base::move (vector)};
     }
 
-    template<class WriterType, class ...Args>
-    void writeTo (WriterType &writer, Args&&...previousFields) {
+    template<class WriterType>
+    void writeToWriter (WriterType &writer) const{
         ZQ_ASSERT (mThreadIDs.size () <= std::numeric_limits<uint16_t>::max ());
 
         // Write the size and then the array.
-        writer.writeT (static_cast<ArraySizeType> (mThreadIDs.size ()),
-                       mThreadIDs,
-                       Base::forward<Args>(previousFields)...);
+        writer.writeT (static_cast<const Message&>(*this),
+                       static_cast<ArraySizeType> (mThreadIDs.size ()),
+                       mThreadIDs);
+    }
+
+    SizeType writableSize () const{
+        return Message::writableSize() + sizeof (ArraySizeType)
+                + mThreadIDs.size () * sizeof (HostedThreadID);
     }
 
 private:
@@ -295,19 +302,76 @@ private:
 
 };
 
-typedef MessageWithThreadID<Message::Type::ContinueThread> ContiniueThreadMessage;
-typedef MessageWithThreadID<Message::Type::ContinueThreadOK> ContiniueThreadOKMessage;
+class MessageWithThreadInfo {
+    SizeType writableSize () const
+    {
+        return sizeof (OperatingSystemConfig) + sizeof (MachineConfiguration);
+    }
 
-typedef MessageWithThreadID<Message::Type::KillThread> KillThreadMessage;
-typedef MessageWithThreadID<Message::Type::KillThreadOK> KillThreadOKMessage;
+    /**
+       @brief This thread's Operating System.
+     */
+    enum class OperatingSystemConfig : uint16_t{
+        Linux_4,
+        WindowsNT_10
+    };
 
-typedef MessageWithThreadID<Message::Type::StopThread> StopThreadMessage;
-typedef MessageWithThreadID<Message::Type::StopThreadOK> StopThreadOKMessage;
+    /**
+       @brief This thread's machine code type.
+     */
+    enum class MachineConfiguration : uint16_t{
+        x86_Intel,
+        x64_Intel
+    };
 
-typedef MessageWithThreadIDs<Message::Type::ProcessPeerHello> ProcessPeerHelloMessage;
-typedef MessageWithThreadIDs<Message::Type::ProcessPeerGoodbye> ProcessPeerGoodbyeMessage;
+private:
+    OperatingSystemConfig mOperatingSystem;
 
+    MachineConfiguration mMachineConfig;
+};
 
+class MessageWithSystemCallRequest : public Message {
+public:
+    typedef uint16_t ParametersSizeType;
+    typedef uint64_t ParameterType;
+
+    MessageWithSystemCallRequest(Base::Vector<ZqRegisterType> &&message);
+
+    template<class ReaderType>
+    static Base::Expected<MessageWithSystemCallRequest, ParseError> ReadFrom (ReaderType &reader) {
+        auto arraySize = reader.template readT<ParametersSizeType> ();
+        auto array = reader.template readTVector<ParameterType> (arraySize);
+
+        return {};
+    }
+
+    template<class WriterType>
+    void writeToWriter(WriterType &writer) {
+        ZQ_ASSERT (std::numeric_limits<ParametersSizeType>::max () >= mParameters.size ());
+
+        writer.write (static_cast<Message&>(*this),
+                      static_cast<ParametersSizeType>(mParameters.size ()),
+                      mParameters);
+    }
+
+private:
+    Base::Vector<ParameterType> mParameters;
+
+};
+
+typedef MessageWithType<Message::Type::ContinueThread, MessageWithThreadID>     ContiniueThreadMessage;
+typedef MessageWithType<Message::Type::ContinueThreadOK, MessageWithThreadID>   ContiniueThreadOKMessage;
+
+typedef MessageWithType<Message::Type::KillThread, MessageWithThreadID>         KillThreadMessage;
+typedef MessageWithType<Message::Type::KillThreadOK, MessageWithThreadID>       KillThreadOKMessage;
+
+typedef MessageWithType<Message::Type::StopThread, MessageWithThreadID>         StopThreadMessage;
+typedef MessageWithType<Message::Type::StopThreadOK, MessageWithThreadID>       StopThreadOKMessage;
+
+typedef MessageWithType<Message::Type::ProcessPeerHello, MessageWithThreadIDs>  ProcessPeerHelloMessage;
+typedef MessageWithType<Message::Type::ProcessPeerGoodbye, MessageWithThreadIDs>ProcessPeerGoodbyeMessage;
+
+typedef MessageWithType<Message::Type::DoSystemCall, MessageWithSystemCallRequest> DoSystemCallMessage;
 
 } // namespace Ziqe
 } // namespace Protocol

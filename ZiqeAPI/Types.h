@@ -1,6 +1,8 @@
 #ifndef ZIQEAPI_TYPES_H
 #define ZIQEAPI_TYPES_H
 
+#include "Macros.h"
+
 #ifdef __x86_64__
 typedef unsigned long ZqRegisterType;
 typedef ZqRegisterType ZqSystemCallIDType;
@@ -73,10 +75,7 @@ typedef struct {
 # include <cstdint>
 # include <cstddef>
 #else
-/* # include <stdint.h>*/
-# include <stddef.h>
-#include <linux/types.h>
-
+# include <linux/types.h>
 typedef u8 uint8_t;
 typedef u16 uint16_t;
 typedef u32 uint32_t;
@@ -92,7 +91,7 @@ typedef char ZqBool;
 #define ZQ_FALSE (0)
 #define ZQ_TRUE (!ZQ_FALSE)
 
-typedef size_t ZqSizeType;
+typedef uint64_t ZqSizeType;
 typedef int64_t  ZqDifferenceType;
 
 typedef struct {

@@ -26,12 +26,12 @@
 
 #include "ZiqeAPI/Memory.h"
 
-void* operator new  (std::size_t count);
+void* operator new  (size_t count);
 void operator delete (void *pointer) noexcept;
 
 // Placement
-inline void *operator new(std::size_t, void *p) noexcept{ return p; }
-inline void *operator new[](std::size_t, void *p)  noexcept{ return p; }
+inline void *operator new(size_t, void *p) noexcept{ return p; }
+inline void *operator new[](size_t, void *p)  noexcept{ return p; }
 inline void  operator delete  (void *, void *) noexcept { }
 inline void  operator delete[](void *, void *) noexcept { }
 

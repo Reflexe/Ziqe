@@ -111,22 +111,30 @@ private:
 
 // An helper HashTable uses to detect the required initial size for a
 // table.
+// TODO: numeric_limits
 namespace {
 /// @b Default vector size.
 static const SizeType kVectorInitialSize = 1000;
 
-template<class KeyType, bool value = std::numeric_limits<KeyType>::is_specialized>
+//template<class KeyType, bool value = std::numeric_limits<KeyType>::is_specialized>
+//struct GetVectorInitialSize
+//{
+//    static constexpr const SizeType sValue = kVectorInitialSize;
+//};
+
+//template<class KeyType>
+//struct GetVectorInitialSize<KeyType, true>
+//{
+//    static constexpr const SizeType sValue = min(SizeType{std::numeric_limits<KeyType>::max ()},
+//                                                 kVectorInitialSize);
+//};
+
+template<class KeyType>
 struct GetVectorInitialSize
 {
     static constexpr const SizeType sValue = kVectorInitialSize;
 };
 
-template<class KeyType>
-struct GetVectorInitialSize<KeyType, true>
-{
-    static constexpr const SizeType sValue = min(SizeType{std::numeric_limits<KeyType>::max ()},
-                                                 kVectorInitialSize);
-};
 }
 
 /**

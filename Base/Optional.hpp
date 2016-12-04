@@ -37,7 +37,7 @@ public:
     template<class... Args>
     Optional(Args&&... args)
     // Construct T{args} on mStorageData.
-        : mConsturctedObject{mConstructor.construct (mStorageData, std::forward<Args>(args)...)}
+        : mConsturctedObject{mConstructor.construct (mStorageData, Base::forward<Args>(args)...)}
     {
     }
 
@@ -78,7 +78,7 @@ public:
     void construct (Args&&... args) {
         destruct ();
 
-        mConsturctedObject = mConstructor.construct (mStorageData, std::forward<Args>(args)...);
+        mConsturctedObject = mConstructor.construct (mStorageData, Base::forward<Args>(args)...);
     }
 
     /**

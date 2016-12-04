@@ -26,10 +26,4 @@ Logger::Logger()
 
 }
 
-
-
-
-
-
-
 } // namespace Ziqe

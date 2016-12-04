@@ -20,6 +20,8 @@
 #ifndef LINUX_SOCKETCONFIG_GEN_H
 #define LINUX_SOCKETCONFIG_GEN_H
 
+#include "Macros.h"
+
 #ifdef _LINUX
 // struct sockaddr_storage, AF_*, SOCK_*, SO_*, SOL_*
 #include <uapi/linux/socket.h>
@@ -31,6 +33,7 @@
 #include <uapi/linux/in.h>
 #include <uapi/linux/in6.h>
 #include <asm-generic/errno.h>
+
 #else
 // This headers are "C++ Safe".
 

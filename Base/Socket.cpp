@@ -41,7 +41,7 @@ Socket::Connect(const Socket::SocketAddress &address, Socket::Type type, ZqSocke
     if (! socket.connect (address))
         return {ConnectError::Timeout};
 
-    return {std::move (socket)};
+    return {Base::move (socket)};
 }
 
 Expected<Socket,Socket::ListenError>
@@ -57,7 +57,7 @@ Socket::Listen(const Socket::SocketAddress &address, Socket::Type type,
     if (! bindedSocket->listen (backlog))
         return {ListenError::Other};
 
-    return {std::move (bindedSocket.get ())};
+    return {Base::move (bindedSocket.get ())};
 }
 
 Expected<Socket,Socket::BindError>
@@ -74,7 +74,7 @@ Socket::Bind(const Socket::SocketAddress &address,
     if (! socket.bind (address))
         return {BindError::Other};
 
-    return {std::move (socket)};
+    return {Base::move (socket)};
 }
 
 bool Socket::isOpen() const

@@ -151,7 +151,8 @@ private:
         return {mProcessLocalThreads.keysBegin (), mProcessLocalThreads.keysEnd ()};
     }
 
-    void sendToAll (Protocol::MessageStream::OutputDataType &&message) {
+    template<class MessageType>
+    void sendToAll (const MessageType &message) {
         auto readOtherServers{mOtherServers.getRead ()};
 
         for (auto &connectionInfo : readOtherServers.first.getAllConnections()) {

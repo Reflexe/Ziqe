@@ -42,7 +42,7 @@ public:
     struct Node {
         template<class...Args>
         Node(Node *parent, Node *right, Node *left, const KeyType &key, Args&&...args)
-            : mKeyAndValue{std::move (key), {Base::forward<Args>(args)...}}, mParent{parent}, mRight{right}, mLeft{left}
+            : mKeyAndValue{Base::move (key), {Base::forward<Args>(args)...}}, mParent{parent}, mRight{right}, mLeft{left}
         {
         }
 
@@ -393,7 +393,7 @@ public:
         // If this tree doesn't have an head.
         if (result.resultParent == nullptr) {
             mHead = mRightest = mLeftest = new Node{nullptr, nullptr, nullptr,
-                                                    key, std::forward<Args>(args)...};
+                                                    key, Base::forward<Args>(args)...};
 
             return {mHead, true};
         }
@@ -406,7 +406,7 @@ public:
 
 
         auto newNode = new Node{result.resultParent, nullptr, nullptr,
-                                key, std::forward<Args>(args)...};
+                                key, Base::forward<Args>(args)...};
 
         *(result.pResultAtParent) = newNode;
 

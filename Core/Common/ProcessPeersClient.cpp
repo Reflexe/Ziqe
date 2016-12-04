@@ -19,8 +19,6 @@
  */
 #include "ProcessPeersClient.hpp"
 
-#include "Protocol/MessagesWriter.hpp"
-
 namespace Ziqe {
 
 ProcessPeersClient::ProcessPeersClient(ProcessPeersServer &localServer,

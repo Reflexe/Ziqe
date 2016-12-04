@@ -31,15 +31,13 @@
 namespace Ziqe {
 namespace Protocol {
 
-class MemoryRevision : public Object
+class MemoryRevision
 {
 public:
     typedef uint64_t ID;
 
     MemoryRevision();
     ZQ_ALLOW_COPY_AND_MOVE (MemoryRevision)
-
-    virtual void fromMessage (Message &message);
 
     // TODO: memory map
 #if 0

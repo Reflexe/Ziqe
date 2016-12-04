@@ -23,7 +23,7 @@ public:
     }
 
     Expected(ErrorType &&error)
-        : mError{std::move (error)}, mIsError{true}
+        : mError{Base::move (error)}, mIsError{true}
     {
     }
 

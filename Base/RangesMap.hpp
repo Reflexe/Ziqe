@@ -23,10 +23,16 @@
 #include "Base/RedBlackTree.hpp"
 #include "Base/IteratorTools.hpp"
 
+
+
 namespace Ziqe {
 namespace Base {
-//TODO redblack tree
+
 #if 0
+//TODO redblack tree
+// Is that required at all?
+// NO; we should move what required to MemoryMap.
+
 template<class _ValueType, class _IndexType>
 struct Range {
     using IndexType=_IndexType;
@@ -45,7 +51,6 @@ struct Range {
         return end;
     }
 };
-
 template<class ValueType,
          // TODO
          class RangeType=Range<ValueType, int>,
@@ -61,6 +66,11 @@ class RangesMap
 public:
     RangesMap();
 
+    TreeIterator find (const IndexType &index) const
+    {
+        return mTree.findBefore (index).first;
+    }
+
     template<class...Args>
     TreeIterator emplace (const RangeType &range,
                           Args&&...args)
@@ -68,14 +78,13 @@ public:
         auto begin = range.getBegin ();
         auto end = range.getEnd ();
 
-        if (! (begin < end))
-            return;
+        ZQ_ASSERT (begin < end);
 
-        auto beginIterator = mTree.insert_or_assign (keyBegin, Base::forward<Args>(args...));
+        auto beginIterator = mTree.insert_or_assign (begin, Base::forward<Args>(args...));
 
-        auto endIterator = mTree.lower_bound (keyEnd);
+        auto endIterator = mTree.findBefore (beginIterator);
         bool isEndIteratorEnd = (endIterator == mTree.end ());
-        DEBUG_CHECK (endIterator != mTree.begin ());
+        ZQ_ASSERT (endIterator != mTree.begin ());
 
         auto beforeEndIterator = Base::prev (endIterator);
         bool isKeyEndExist = (!isEndIteratorEnd
@@ -89,7 +98,7 @@ public:
             // If keyEnd is a key in the map, just erase all the collisions.
             // If not, move beforeEndIterator to keyEnd.
             if (!isKeyEndExist) {
-                DEBUG_CHECK (mTree.count (keyEnd) == 0);
+                ZQ_ASSERT (mTree.count (keyEnd) == 0);
                 endIterator = mTree.emplace_hint (beforeEndIterator, keyEnd,
                                                   Base::move (beforeEndIterator->second));
             }
@@ -118,6 +127,7 @@ public:
         }
     }
 };
+
 #endif
 
 } // namespace Base

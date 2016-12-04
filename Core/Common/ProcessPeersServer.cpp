@@ -19,8 +19,6 @@
  */
 #include "ProcessPeersServer.hpp"
 
-#include "Protocol/MessagesGenerator.hpp"
-
 namespace Ziqe {
 
 ProcessPeersServer::ProcessPeersServer(Protocol::MessageServer &&messageServer)

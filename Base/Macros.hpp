@@ -24,8 +24,6 @@
 
 #include "Base/Types.hpp"
 
-#include <utility>
-
 #define ZQ_FUNCTION_STR __PRETTY_FUNCTION__
 
 #define implements
@@ -147,29 +145,20 @@ constexpr SizeType sizeOfArgs ()
 // Do you have a better way?
 //#define ExpandArgs(args) for (args...; false; )
 
-template<typename F, typename... Args>
-void pack_foreach(F f, Args&&... args) {
-    int unpack[] = {(f(std::forward<Args>(args)), 0)..., 0};
-
-    ZQ_UNUSED (unpack);
-}
-
-template<class ResultType, class Arg, class...Args>
-ResultType plusArgs (const Arg &arg, const Args&&... args)
-{
-    return arg + plusArgs<ResultType>(std::forward<Args>(args)...);
-}
-
 template<bool value, class T=void>
-struct EnableIf
+struct _EnableIf
 {
 };
 
 template<class T>
-struct EnableIf<true, T>
+struct _EnableIf<true, T>
 {
     typedef T type;
 };
+
+
+template<bool value, class T=void>
+using EnableIf=_EnableIf<value, T>;
 
 template<class T1, class T2>
 struct IsSame
@@ -184,29 +173,57 @@ struct IsSame<T, T>
 };
 
 template<class T>
-struct RemoveConst
+struct _RemoveConst
 {
     typedef T type;
 };
-
 
 template<class T>
-struct RemoveConst<const T>
+struct _RemoveConst<const T>
 {
     typedef T type;
 };
+
+template<class T>
+using RemoveConst=_RemoveConst<T>;
 
 /**
  * @brief A little helper to copy a lvalue and return the copy as a prvalue.
  */
 template<class T>
-T copy (const T &value)
+inline_hint T copy (const T &value)
 {
     return value;
 }
 
-using std::move;
-using std::forward;
+
+template<class T> struct remove_reference      { typedef T type; };
+template<class T> struct remove_reference<T&>  { typedef T type;};
+template<class T> struct remove_reference<T&&> { typedef T type; };
+
+template< class T >
+inline_hint constexpr typename remove_reference<T>::type&& move(T&& t) noexcept
+{
+    return static_cast<typename remove_reference<T>::type&&>(t);
+}
+
+template<class T>
+inline_hint constexpr T&& forward(typename remove_reference<T>::type& t) noexcept
+{
+    return static_cast<T&&>(t);
+}
+
+template<class T>
+inline_hint constexpr T&& forward(typename remove_reference<T>::type&& t) noexcept
+{
+    return static_cast<T&&>(t);
+}
+
+template<class T>
+inline_hint constexpr T&& declval ()
+{
+    return static_cast<T&&>(*static_cast<Base::remove_reference<T>*>(nullptr));
+}
 
 /// @brief An generic IsEqual.
 template<class T>
@@ -269,6 +286,19 @@ template<class T1, class T2, class T3>
 Triple<T1, T2, T3> makeTriple (T1&& first, T2&& second, T3&& third)
 {
     return Triple<T1, T2, T3>{Base::forward<T1>(first), Base::forward<T2>(second), Base::forward<T3>(third)};
+}
+
+template<typename F, typename... Args>
+void pack_foreach(F f, Args&&... args) {
+    int unpack[] = {(f(Base::forward<Args>(args)), 0)..., 0};
+
+    ZQ_UNUSED (unpack);
+}
+
+template<class ResultType, class Arg, class...Args>
+ResultType plusArgs (const Arg &arg, const Args&&... args)
+{
+    return arg + plusArgs<ResultType>(Base::forward<Args>(args)...);
 }
 
 }

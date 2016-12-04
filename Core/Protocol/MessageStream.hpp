@@ -28,7 +28,6 @@
 #include "Common/Types.hpp"
 #include "Protocol/Message.hpp"
 #include "Protocol/MemoryRevision.hpp"
-#include "Protocol/MessagesGenerator.hpp"
 
 namespace Ziqe {
 namespace Protocol {
@@ -69,11 +68,6 @@ public:
     */
     typedef Net::Stream::InputStreamVector InputDataType;
 
-    /**
-     * @brief OutputDataType  Used to send data.
-     */
-    typedef Message OutputDataType;
-
     typedef Net::Stream::InputStreamVector InputStreamType;
     typedef Net::Stream::OutputStreamVector OutputStreamType;
 
@@ -82,8 +76,6 @@ public:
      */
     typedef Base::LittleEndianFieldReader<InputStreamType, Base::UniquePointer<InputStreamType>> MessageFieldReader;
     typedef Base::LittleEndianFieldWriter<OutputStreamType, Base::UniquePointer<OutputStreamType>> MessageFieldWriter;
-
-    typedef MessagesGenerator<MessageFieldWriter> MessagesGeneratorType;
 
 //    typedef Base::ExtendedVectorWritable<Net::Stream::OutputStreamVector> MessageType;
 
@@ -95,7 +87,7 @@ public:
 
     template<class MessageType>
     void sendMessage(const MessageType &messageData) {
-        MessagesGeneratorType{mWriter}.write (messageData);
+        messageData.writeToWriter (mWriter);
         mWriter.getVector ().sync ();
     }
 

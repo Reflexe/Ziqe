@@ -128,6 +128,13 @@ public:
         return (v.size () * sizeof (T)) + mySizeOfArgs (args...);
     }
 
+    template<class Writable, typename = decltype (Writable::writableSize()), class ...Args>
+    static SizeType mySizeOfArgs (Writable &writable,
+                                  const Args &...args)
+    {
+        return (writable.writableSize ()) + mySizeOfArgs (args...);
+    }
+
     static constexpr SizeType mySizeOfArgs ()
     {
         return 0;
@@ -152,47 +159,61 @@ public:
     }
 
 private:
-    template<class T>
-    void writeOneT (T value) {
+    /// Write integers.
+    void writeOneT (const uint8_t &value) {
         mWriter.write (value, getVector());
-        getVector().increaseBegin (sizeof (T));
+        getVector().increaseBegin (sizeof (value));
     }
 
-    void writeOneT (const Vector<uint8_t> &vector)
-    {
-        getVector().insertVectorAtBegin (vector);
+    void writeOneT (const uint16_t &value) {
+        mWriter.write (value, getVector());
+        getVector().increaseBegin (sizeof (value));
     }
 
-    template<class A, class B>
-    void writeOneT (const ExtendedVector<uint8_t, A, B> &vector)
-    {
-        getVector().insertVectorAtBegin (vector);
+    void writeOneT (const uint32_t &value) {
+        mWriter.write (value, getVector());
+        getVector().increaseBegin (sizeof (value));
     }
 
+    void writeOneT (const uint64_t &value) {
+        mWriter.write (value, getVector());
+        getVector().increaseBegin (sizeof (value));
+    }
+
+    // Write containers.
     template<class T>
-    void writeOneT (const RawArray<T> &array) {
-        for (SizeType i = 0; i < array.size (); ++i)
-        {
-            writeOneT (array[i]);
-        }
-    }
-
-    template<class T>
-    void writeOneT (const Vector<T> &array) {
-        for (SizeType i = 0; i < array.size (); ++i)
-        {
-            writeOneT (array[i]);
+    void writeOneT (const Vector<T> &vector) {
+        for (auto &element : vector) {
+            writeOneT (element);
         }
     }
 
     template<class T, class A, class B>
-    void writeOneT (const ExtendedVector<T, A, B> &array) {
-        for (SizeType i = 0; i < array.size (); ++i)
-        {
-            writeOneT (array[i]);
+    void writeOneT (const ExtendedVector<T, A, B> &vector) {
+        for (auto &element : vector) {
+            writeOneT (element);
         }
     }
 
+    template<class T>
+    void writeOneT (const RawArray<T> &array) {
+        for (auto &element : array) {
+            writeOneT (element);
+        }
+    }
+
+    /**
+      @brief Write a writable object.
+
+      A writable object is object that has the following functions:
+        - writeToWriter(writer): takes a writer as a argument and write to it.
+        - writableSize: return the size of bytes writeToWriter.
+     */
+    template<class Writable>
+    void writeOneT (const Writable &writable)
+    {
+        writable.writeToWriter (*this);
+    }
 
     WriterType mWriter;
     ReferenceType mVector;
