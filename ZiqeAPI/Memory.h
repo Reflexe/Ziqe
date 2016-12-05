@@ -28,6 +28,7 @@
 ZQ_BEGIN_C_DECL
 
 #include "MemoryConfig.h.generated"
+#include "Errors.h.generated"
 
 /**
   @brief The Ziqe memory API.
@@ -46,14 +47,14 @@ ZQ_BEGIN_C_DECL
    @brief Deallocate the result of ZqAllocateVirtual.
    @param address
  */
-static void ZqDeallocateVirtual (ZqKernelAddress address);
+static void ZqMmDeallocateVirtual (ZqKernelAddress address);
 
 /**
    @brief Allocate virtual kernel memory.
    @param size
    @return
  */
-static ZqKernelAddress ZqAllocateVirtual (ZqSizeType size);
+static ZqKernelAddress ZqMmAllocateVirtual (ZqSizeType size);
 
 /**
    @brief Copy
@@ -62,7 +63,7 @@ static ZqKernelAddress ZqAllocateVirtual (ZqSizeType size);
    @param length
    @return
  */
-ZqBool ZqCopyToUser (ZqUserAddress destination,
+ZqError ZqCopyToUser (ZqUserAddress destination,
                      ZqKernelAddress source,
                      ZqSizeType length);
 
@@ -81,21 +82,17 @@ void ZqSetWriteProtectedFaultHandler (ZqVirtualPagePermsFaultHandler handler,
                                       ZqKernelAddress pointer);
 */
 
-ZqBool ZqAllocateUserMemory (ZqSizeType length,
-                             ZqUserMemoryAreaProtection protection,
-                             ZqUserAddress *result);
-void ZqDeallocateUserMemory (ZqUserAddress address, ZqSizeType length);
+ZqBool ZqMmAllocateUserMemory (ZqSizeType length,
+                               ZqUserMemoryAreaProtection protection,
+                               ZqUserAddress *result);
+void ZqMmDeallocateUserMemory (ZqUserAddress address, ZqSizeType length);
 
 
-ZqBool ZqMapKernelToUserMemory (ZqKernelAddress address,
+ZqBool ZqMmMapKernelVirtualToUser (ZqKernelAddress address,
                                 ZqUserMemoryAreaProtection protection,
                                 ZqSizeType length,
                                 ZqUserAddress *destinationAddress);
-void ZqUnmapKernelToUserMemory (ZqUserAddress address, ZqSizeType length);
-
-ZqBool ZqMapUserToKernelMemory (ZqUserAddress address, ZqSizeType length,
-                                ZqKernelAddress *destinationAddress);
-void ZqUnmapUserToKernelMemory (ZqKernelAddress address, ZqSizeType length);
+void ZqMmUnmapKernelVirtualToUser (ZqUserAddress address, ZqSizeType length);
 
 void ZqMapPhysicalToUser (ZqUserAddress);
 void ZqUnmapPhysicalToUser (void);

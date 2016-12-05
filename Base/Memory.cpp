@@ -25,10 +25,10 @@ namespace Ziqe {
 void *operator new(size_t count) {
     static_assert (sizeof (ZqRegisterType) >= sizeof (void *),
                    "Invalid ZqRegisterType");
-    return ZqAllocateVirtual (static_cast<ZqSizeType>(count));
+    return ZqMmAllocateVirtual (static_cast<ZqSizeType>(count));
 }
 
 void operator delete(void *pointer) noexcept
 {
-    ZqDeallocateVirtual (pointer);
+    ZqMmDeallocateVirtual (pointer);
 }
