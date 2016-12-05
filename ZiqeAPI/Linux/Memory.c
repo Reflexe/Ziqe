@@ -125,8 +125,6 @@ static int kernel_memory_vma_fault(struct vm_area_struct *vma,
 }
 
 struct vm_operations_struct kernel_memory_vm_ops = {
-//    .open =     scullv_vma_open,
-//    .close =    scullv_vma_close,
     .fault =    kernel_memory_vma_fault,
 };
 
@@ -144,15 +142,7 @@ static int kernel_memory_mmap (struct file *filp, struct vm_area_struct *vma) {
 
 struct file_operations kernel_memory_fops = {
     .owner =     THIS_MODULE,
-//    .llseek =    scullv_llseek,
-//    .read =	     scullv_read,
-//    .write =     scullv_write,
-    //.ioctl =     scullv_ioctl,
     .mmap =	     kernel_memory_mmap,
-//    .open =	     scullv_open,
-//    .release =   scullv_release,
-    //.aio_read =  scullv_aio_read,
-    //.aio_write = scullv_aio_write,
 };
 
 ZqBool ZqMapKernelToUserMemory(ZqKernelAddress address,
@@ -190,34 +180,13 @@ ZqBool ZqMapKernelToUserMemory(ZqKernelAddress address,
     return ZQ_TRUE;
 }
 
-#if 0
-struct kernel_memory_device {
-    /**
-       @brief Protect from multiple ZqMapKernelToUserMemory at the same time.
+ZqError ZqCopyToUser(ZqUserAddress destination,
+                    ZqKernelAddress source,
+                    ZqSizeType length)
+{
+    int ret = copy_to_user ((void __user*) destination,
+                            source,
+                            length);
 
-        There is a problem with the mmap function: we can't pass it any
-        private data. However, Linux doesn't privide any other method
-        to create a vm_area_struct. The only way to pass private arguments
-        is by using a global variable that need to be protected.
-
-        NOTE: there should not be any major performence impact in a result
-              of this lock: `vm_mmap` does lock current->mm->mmap_sem.
-        PROBLEM: support multiprocess without lock: there is a lock
-                 when two processes will want to map kernel memory
-                 to their user.
-
-        Solutions:
-            1. Global variable: X: performence.
-            2. new file: X, "".
-            3. per cpu variable: better than global but still.
-            4. per process variable: problem with multi threaded process.
-            5. allocation varialbe: anyway to achieve that?
-                * offset: only sizeof(unsigned long) * 8 - PAGE_OFFSET bits.
-                * lock current->mm, change our params,
-
-     */
-    struct semaphore sem;
-
-    kernel_memory_params *params;
-} dev;
-#endif
+    return ZQ_E_OK;
+}
