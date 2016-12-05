@@ -10,5 +10,6 @@ zq_define_per_platform_file_generator (ProcessConfig)
 zq_define_per_platform_file_generator (MemoryConfig)
 zq_define_per_platform_file_generator (MemoryInline)
 zq_define_per_platform_file_generator (SocketConfig)
+zq_define_per_platform_file_generator (Errors)
 
 add_subdirectory (${zq_platform})
