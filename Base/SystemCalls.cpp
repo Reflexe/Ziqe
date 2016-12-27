@@ -22,8 +22,8 @@
 #include "Base/ProcessManager.hpp"
 #include "Base/FunctionTools.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE

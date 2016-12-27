@@ -24,7 +24,7 @@
 #include "Base/Macros.hpp"
 #include "Base/Logger.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 #ifdef ZQ_TEST_BUILD
@@ -52,6 +52,6 @@ bool Z_CHECK_ADD_OVERFLOW(X x, Y y)
 #define DEBUG_CHECK_ADD_OVERFLOW(x, y) ZQ_ASSERT (Z_CHECK_ADD_OVERFLOW(x, y))
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_CHECKS_H

@@ -19,16 +19,17 @@
  */
 #include "Memory.hpp"
 
-namespace Ziqe {
-} // namespace Ziqe
+ZQ_BEGIN_NAMESPACE
+ZQ_END_NAMESPACE
 
 void *operator new(size_t count) {
-    static_assert (sizeof (ZqRegisterType) >= sizeof (void *),
-                   "Invalid ZqRegisterType");
-    return ZqMmAllocateVirtual (static_cast<ZqSizeType>(count));
+    auto maybePointer = Ziqe::OS::Allocators::Kernel::Allocate (count);
+    ZQ_ASSERT (maybePointer);
+
+    return *maybePointer;
 }
 
 void operator delete(void *pointer) noexcept
 {
-    ZqMmDeallocateVirtual (pointer);
+    Ziqe::OS::Allocators::Kernel::Deallocate (pointer);
 }

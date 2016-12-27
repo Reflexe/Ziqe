@@ -19,7 +19,7 @@
  */
 #include "Socket.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 Socket::Socket(Family family, Type type, ZqSocketProtocol protocol)
@@ -223,4 +223,4 @@ Expected<ZqSizeType, Socket::SendError> Socket::send(const RawArray<const uint8_
 }
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE

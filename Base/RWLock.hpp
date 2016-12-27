@@ -24,7 +24,7 @@
 #include "Base/Macros.hpp"
 #include "Base/Memory.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 class RWLock
@@ -162,6 +162,6 @@ template<class T>
 using RawRWLocked=RawPointer<RWLocked<T>>;
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_RWLOCK_H

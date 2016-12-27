@@ -19,7 +19,7 @@
  */
 #include "LocalProcess.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 LocalProcess::LocalProcess(ProcessID processID)
     : mProcessID{processID}
@@ -32,4 +32,4 @@ ZqProcessID LocalProcess::getProcessID() const
     return mProcessID;
 }
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE

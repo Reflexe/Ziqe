@@ -21,11 +21,10 @@
 #define ZIQE_LOCALTHREAD_H
 
 #include "Base/Types.hpp"
-#include "Base/Callback.hpp"
 
 #include "ZiqeAPI/Process.h"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 class LocalThread
 {
@@ -70,6 +69,6 @@ private:
     mutable bool         mIsThreadInfoUpdated = false;
 };
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_LOCALTHREAD_H

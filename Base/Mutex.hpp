@@ -25,7 +25,7 @@
 
 #include "ZiqeAPI/Mutex.h"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 class Mutex
 {
@@ -99,6 +99,6 @@ private:
 
 };
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_MUTEX_H

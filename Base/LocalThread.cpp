@@ -22,7 +22,7 @@
 #include "Checks.hpp"
 #include "Macros.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 LocalThread::LocalThread(ThreadID threadID)
     : mThreadID{threadID}
@@ -57,4 +57,4 @@ void LocalThread::runFunction(void (*function)(ZqRegisterType), ZqRegisterType p
                   parameter);
 }
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE

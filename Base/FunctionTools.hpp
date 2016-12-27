@@ -20,10 +20,9 @@
 #ifndef ZIQE_FUNCTIONTOOLS_H
 #define ZIQE_FUNCTIONTOOLS_H
 
-#include "Base/Callback.hpp"
 #include "Base/Macros.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 template<ZQ_TemplateVariable (sFunc), class CallbackT, class... Args>
@@ -49,6 +48,6 @@ void runAndCallbackSingleParameter(ParameterType *parameter)
 }
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_FUNCTIONTOOLS_H

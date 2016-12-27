@@ -19,6 +19,6 @@
  */
 #include "FunctionTools.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE

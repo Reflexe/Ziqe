@@ -20,11 +20,9 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#include "ZiqeAPI/Macros.h"
+#include "Platforms/Macros.h"
 
 #include "Base/Types.hpp"
-
-#define ZQ_FUNCTION_STR __PRETTY_FUNCTION__
 
 #define implements
 
@@ -49,7 +47,7 @@
 #define ZQ_DEFINE_CONST_AND_NON_CONST(ReturnValueConst, ReturnValueNonConst, name, args, ...) ReturnValueConst name args const __VA_ARGS__ \
     ReturnValueNonConst name args __VA_ARGS__
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 /**
@@ -60,17 +58,17 @@ constexpr void IgnoreUnused (Args...)
 {
 }
 
-template<class T>
-constexpr const T &max(const T &one, const T &two)
-{
-    return (one > two) ? one : two;
-}
+//template<class T>
+//constexpr const T &max(const T &one, const T &two)
+//{
+//    return (one > two) ? one : two;
+//}
 
-template<class T>
-constexpr const T &min(const T &one, const T &two)
-{
-    return (one < two) ? one : two;
-}
+//template<class T>
+//constexpr const T &min(const T &one, const T &two)
+//{
+//    return (one < two) ? one : two;
+//}
 
 template<class T>
 constexpr T &max(T &one, T &two)
@@ -86,21 +84,22 @@ constexpr T &min(T &one, T &two)
 
 /**
  * An holder for a build time known value. Used in places
- * that we want to get a temlate variable as a parameter.
+ * that we want to get a template variable as a parameter.
  *
  * Example:
  * \code
  * template<int n>
- * void printN()
+ * void printN(StaticVariable<int, n>)
  * {
  *     std::cout << n;
  * }
  *
- * // Not really a parameter,
  * printN(MakeStaticVariable(6));
  * \endcode
  */
 #define ZQ_MakeStaticVariable(expr) StaticVariable<decltype(expr), (expr)>()
+
+
 template<class T, T sValue>
 class StaticVariable
 {
@@ -135,16 +134,6 @@ constexpr SizeType sizeOfArgs ()
     return 0;
 }
 
-//template<class ...Args>
-//constexpr bool _ExpandArgs (Args...)
-//{
-//    return false;
-//}
-//#define ExpandArgs(expr) _ExpandArgs((expr, 0)...)
-
-// Do you have a better way?
-//#define ExpandArgs(args) for (args...; false; )
-
 template<bool value, class T=void>
 struct _EnableIf
 {
@@ -156,10 +145,12 @@ struct _EnableIf<true, T>
     typedef T type;
 };
 
-
 template<bool value, class T=void>
 using EnableIf=_EnableIf<value, T>;
 
+/**
+  @brief std::is_same
+ */
 template<class T1, class T2>
 struct IsSame
 {
@@ -172,6 +163,9 @@ struct IsSame<T, T>
     static constexpr bool value = true;
 };
 
+/**
+  @brief Remove `const` identifer from a type.
+ */
 template<class T>
 struct _RemoveConst
 {
@@ -196,19 +190,29 @@ inline_hint T copy (const T &value)
     return value;
 }
 
-
+/**
+  @brief Remove Reference from a type.
+ */
 template<class T> struct remove_reference      { typedef T type; };
 template<class T> struct remove_reference<T&>  { typedef T type;};
 template<class T> struct remove_reference<T&&> { typedef T type; };
 
-template< class T >
-inline_hint constexpr typename remove_reference<T>::type&& move(T&& t) noexcept
+/**
+  @brief Return xvalue from everything.
+ */
+template<class T>
+inline_hint
+constexpr typename remove_reference<T>::type&& move(T&& t) noexcept
 {
     return static_cast<typename remove_reference<T>::type&&>(t);
 }
 
+/**
+  @brief std::forward   Perfect forwarding.
+ */
 template<class T>
-inline_hint constexpr T&& forward(typename remove_reference<T>::type& t) noexcept
+inline_hint
+constexpr T&& forward(typename remove_reference<T>::type& t) noexcept
 {
     return static_cast<T&&>(t);
 }
@@ -219,23 +223,32 @@ inline_hint constexpr T&& forward(typename remove_reference<T>::type&& t) noexce
     return static_cast<T&&>(t);
 }
 
+/**
+  @brief Return an invalid (not-dereferencable) rvalue reference to @tparam T.
+ */
 template<class T>
 inline_hint constexpr T&& declval ()
 {
     return static_cast<T&&>(*static_cast<Base::remove_reference<T>*>(nullptr));
 }
 
-/// @brief An generic IsEqual.
+/**
+  @brief A generic IsEqual with the () operator, uses @tparam T 's != operator.
+ */
 template<class T>
 struct IsEqual
 {
     bool operator () (const T &one,
-                      const T &other)
+                             const T &other)
     {
         return !(one != other);
     }
 };
 
+/**
+  @brief A generic dereference IsEqual, uses @tparam T 's * operator for dereference
+         and @tparam T 's != operator.
+ */
 template<class T>
 struct DerefrenceIsEqual
 {
@@ -292,7 +305,7 @@ template<typename F, typename... Args>
 void pack_foreach(F f, Args&&... args) {
     int unpack[] = {(f(Base::forward<Args>(args)), 0)..., 0};
 
-    ZQ_UNUSED (unpack);
+    IgnoreUnused (unpack);
 }
 
 template<class ResultType, class Arg, class...Args>
@@ -302,6 +315,6 @@ ResultType plusArgs (const Arg &arg, const Args&&... args)
 }
 
 }
-}
+ZQ_END_NAMESPACE
 
 #endif // MACROS_H

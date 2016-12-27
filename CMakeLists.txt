@@ -12,11 +12,14 @@ set(zq_h_ext hpp)
 set(zq_debug ON)
 set(zq_test_build ON)
 
-# Linux | Posix
+# Linux | Posix | IOKit | WDK
 set(zq_platform Linux)
 
+# Combining linux headers is impossible: inline functions with linux code would not work
 set(zq_cpp_compiler_arguments -std=c++14 -Wno-old-style-cast -Wno-c++98-compat -Wno-documentation -Wno-padded
-                               -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -fno-rtti -fno-exceptions)
+    -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -fno-rtti -fno-exceptions)
+#                               -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include/generated/uapi -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include/generated  -I/lib/modules/4.8.13-1-ARCH/build/include -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include/uapi -I/lib/modules/4.8.13-1-ARCH/build/include/uapi -I/lib/modules/4.8.13-1-ARCH/build/include/generated/uapi -include /lib/modules/4.8.13-1-ARCH/build/include/linux/kconfig.h -D__KERNEL__
+#                               -nostdinc -nostdinc++)
 
 
 if (zq_test_build)
@@ -24,7 +27,7 @@ if (zq_test_build)
     enable_testing()
 endif()
 
-set(zq_include_directories ${zq_root})
+set(zq_include_directories ${zq_root} "${CMAKE_CURRENT_SOURCE_DIR}/Platforms/${zq_platform}/")
 
 if(zq_test_build)
     set(CMAKE_BUILD_TYPE Debug)
@@ -116,12 +119,14 @@ macro (zq_add_test name)
 #    target_compile_options (${target_name} PUBLIC ${zq_compiler_arguments})
 endmacro ()
 
-add_subdirectory (ZiqeAPI)
+add_subdirectory (Platforms)
 add_subdirectory (Base)
+add_subdirectory (Utils)
 #add_subdirectory (ThirdParty)
-add_subdirectory (Network)
-add_subdirectory (Core)
+#add_subdirectory (Network)
+#add_subdirectory (Core)
 
 # Build Ziqe's main driver
 zq_add_library(MainLibrary main)
-zq_add_driver (MainDriver CoreHost CoreClient MainLibrary)
+#zq_add_driver (MainDriver CoreHost CoreClient MainLibrary)
+zq_add_driver (MainDriver MainLibrary)

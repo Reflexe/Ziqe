@@ -23,9 +23,7 @@
 #include "LocalThread.hpp"
 #include "LocalProcess.hpp"
 
-#include "Base/HashTable.hpp"
-
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 class ProcessManager
 {
@@ -47,6 +45,6 @@ public:
 private:
 };
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_PROCESSMANAGER_H

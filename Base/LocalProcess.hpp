@@ -20,12 +20,11 @@
 #ifndef ZIQE_LOCALPROCESS_H
 #define ZIQE_LOCALPROCESS_H
 
-#include "Base/LinkedList.hpp"
 #include "Base/Macros.hpp"
 
 #include "ZiqeAPI/Process.h"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 /// Process that runs on this computer.
 class LocalProcess
@@ -45,6 +44,6 @@ private:
     // memory manager
 };
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_LOCALPROCESS_H

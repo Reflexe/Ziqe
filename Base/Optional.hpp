@@ -4,10 +4,10 @@
 #include "Base/Types.hpp"
 #include "Base/Macros.hpp"
 
-// For Base::Consturctor.
+// For Base::CustomStorageConstructor.
 #include "Base/Memory.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 /**
@@ -65,8 +65,7 @@ public:
     }
 
     template<class... Args>
-    Optional &operator =(Args&&... args)
-    {
+    Optional &operator =(Args&&... args) {
         construct(Base::forward<Args>(args)...);
         return *this;
     }
@@ -145,6 +144,6 @@ private:
 };
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_BASE_OPTIONAL_HPP

@@ -19,5 +19,5 @@
  */
 #include "RWLock.hpp"
 
-namespace Ziqe {
-} // namespace Ziqe
+ZQ_BEGIN_NAMESPACE
+ZQ_END_NAMESPACE

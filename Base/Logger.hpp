@@ -23,7 +23,7 @@
 #include "ZiqeAPI/Logging.h"
 #include "Macros.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 class Logger
 {
@@ -67,6 +67,6 @@ private:
 #define ZQ_WARNING(msg) Logger::logWarning (": \"" msg "\"")
 #define ZQ_ERROR(msg) Logger::logError (": \"" msg "\"")
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_LOGGER_H

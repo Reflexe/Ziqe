@@ -4,13 +4,21 @@
 #include "Macros.hpp"
 #include "Checks.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
+/**
+  @brief A dynamic variant container for a value, or an error value.
+
+
+ */
 template<class T, class ErrorType>
 class Expected
 {
 public:
+    /**
+      @brief Forward arguments to T's constructor (not error).
+     */
     template<class... Args>
     Expected(Args&&...valueArgs)
         : mValue{Base::forward<Args>(valueArgs)...}, mIsError{false}
@@ -22,6 +30,10 @@ public:
         destruct ();
     }
 
+    /**
+       @brief Construct the error from to an error rvalue (error).
+       @param error The error.
+     */
     Expected(ErrorType &&error)
         : mError{Base::move (error)}, mIsError{true}
     {
@@ -81,6 +93,10 @@ public:
     })
 
 private:
+    /**
+      @brief According to the current status (error|not error),
+             descturct the current active value.
+      */
     void destruct() {
         if (mIsError)
             mError.~ErrorType();
@@ -88,15 +104,22 @@ private:
             mValue.~T();
     }
 
+    /**
+       @brief An union, would hold the value, or the error.
+     */
     union {
          T mValue;
          ErrorType mError;
     };
 
+    /**
+       @brief mIsError Specify wether we're holding a error
+              or T.
+     */
     bool mIsError;
 };
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_BASE_EXPECTED_HPP

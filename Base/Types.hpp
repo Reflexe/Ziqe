@@ -23,8 +23,9 @@
 /* Types that aren't big enough to have their own file */
 
 #include "ZiqeAPI/Types.h"
+#include "Platforms/Macros.h"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 typedef ZqSizeType SizeType;
 typedef ZqDifferenceType DifferenceType;
@@ -32,6 +33,6 @@ typedef ZqDifferenceType DifferenceType;
 
 typedef decltype (nullptr) NullptrType;
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_TYPES_H

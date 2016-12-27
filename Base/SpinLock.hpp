@@ -24,7 +24,7 @@
 #include "Base/Macros.hpp"
 #include "Base/Memory.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 class SpinLock
 {
@@ -120,6 +120,6 @@ private:
 template<class T>
 using UniqueSpinLocked=SpinLocked<T, Base::UniquePointer<SpinLock>>;
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_SPINLOCK_H

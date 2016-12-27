@@ -26,7 +26,7 @@
 #include "Base/Vector.hpp"
 #include "Base/Expected.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 class Socket
@@ -309,6 +309,6 @@ private:
 };
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_BASE_SOCKET_HPP

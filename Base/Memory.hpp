@@ -35,7 +35,7 @@ inline void *operator new[](size_t, void *p)  noexcept{ return p; }
 inline void  operator delete  (void *, void *) noexcept { }
 inline void  operator delete[](void *, void *) noexcept { }
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 template<class T>
@@ -851,6 +851,6 @@ RawArray<const uint8_t> makeBytesArray (const T &object, SizeType size=sizeof (T
 }
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_MEMORY_H

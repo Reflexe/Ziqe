@@ -1,9 +1,9 @@
 #include "Optional.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 namespace Base {
 
 
 
 } // namespace Base
-} // namespace Ziqe
+ZQ_END_NAMESPACE

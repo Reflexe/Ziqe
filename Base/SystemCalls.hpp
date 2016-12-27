@@ -21,7 +21,6 @@
 #define ZIQE_SYSTEMCALLS_H
 
 #include "Base/Types.hpp"
-#include "Base/Callback.hpp"
 #include "Base/FunctionTools.hpp"
 
 #include "ZiqeAPI/SystemCalls.h"
@@ -29,7 +28,7 @@
 #include "LocalThread.hpp"
 #include "LocalProcess.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 class SystemCalls
 {
@@ -40,7 +39,7 @@ public:
     {
         return ZqCallSyscall (regs);
     }
-    
+
     static void setSystemCallHook (ZqSystemCallHookType hook)
     {
         ZqInitSystemCallsHook (hook);
@@ -54,6 +53,6 @@ private:
     constexpr SystemCalls() = default;
 };
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
 
 #endif // ZIQE_SYSTEMCALLS_H

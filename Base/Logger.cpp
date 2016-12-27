@@ -19,11 +19,11 @@
  */
 #include "Logger.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 Logger::Logger()
 {
 
 }
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE

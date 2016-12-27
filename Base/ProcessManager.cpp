@@ -19,7 +19,7 @@
  */
 #include "ProcessManager.hpp"
 
-namespace Ziqe {
+ZQ_BEGIN_NAMESPACE
 
 ProcessManager::ProcessManager()
 {
@@ -44,4 +44,4 @@ LocalThread ProcessManager::getCurrentThread()
 }
 #endif
 
-} // namespace Ziqe
+ZQ_END_NAMESPACE
