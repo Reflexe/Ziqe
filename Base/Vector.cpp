@@ -21,10 +21,4 @@
 
 ZQ_BEGIN_NAMESPACE
 
-void test() {
-    Base::Vector<int> v;
-    v.swap (v);
-    v.assign (v.begin (), v.end ());
-}
-
 ZQ_END_NAMESPACE
