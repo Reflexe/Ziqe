@@ -20,10 +20,15 @@
 #ifndef ZIQE_VECTOR_H
 #define ZIQE_VECTOR_H
 
-#include "Types.hpp"
-#include "Macros.hpp"
-#include "Memory.hpp"
-#include "IteratorTools.hpp"
+#include "Base/Types.hpp"
+#include "Base/Macros.hpp"
+
+#include "Base/Constructor.hpp"
+
+#include "Base/Allocator.hpp"
+#include "Base/IteratorTools.hpp"
+#include "Base/RawPointer.hpp"
+#include "Base/Checks.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Base {
@@ -32,7 +37,9 @@ namespace Base {
  * @brief A very simple vector implementation, with no insert,push_back,pop_back,erase and more.
  *        Basicly, it's a normal dynamic array: what std::vector should really be.
  */
-template<class T, class Allocator=Allocator<T>, class Constructor=Constructor<T>>
+template<class T,
+         class Allocator=Allocator<T>,
+         class Constructor=Constructor<T>>
 class Vector
 {
 public:
@@ -46,7 +53,7 @@ public:
 
     template<class InputIterator>
     Vector(const InputIterator &begin, const InputIterator &end)
-        : Vector{begin, end, countRange(begin, end)}
+        : Vector{begin, end, iteratorsRange(begin, end)}
     {
     }
 
@@ -58,10 +65,13 @@ public:
     template<class InputIterator>
     Vector(const InputIterator &begin,
            const InputIterator &end,
-           SizeType beginToEnd)
+           SizeType beginToEnd,
+           Allocator &&allocator = Allocator{},
+           Constructor &&constructor = Constructor{})
+        : mAllocator{move (allocator)},
+          mConstructor{move (constructor)}
     {
-        resizeBuffer (beginToEnd);
-        insertToUninitilizedBuffer (0, begin, end);
+        assign (begin, end, beginToEnd);
     }
 
     ~Vector()
@@ -70,67 +80,60 @@ public:
     }
 
     Vector(Vector &&other)
-        : mPointer{Base::move (other.mPointer)}, mSize{other.mSize}
+        : mPointer{other.mPointer},
+          mSize{other.mSize},
+          mAllocator{move(other.mAllocator)},
+          mConstructor{move (other.mConstrutor)}
     {
-        other.mSize = 0;
-        other.mPointer = nullptr;
+        other.makeEmpty ();
     }
 
     Vector &operator = (Vector &&other) {
+        // Delete the current data.
         deleteAll (mPointer, mSize);
 
-        mPointer = other.mPointer;
-        mSize    = other.mSize;
-
-        other.mSize = 0;
-        other.mPointer = nullptr;
+        // Swap the empty *this with @a other.
+        swap (*this, other);
 
         return *this;
     }
 
     Vector(const Vector &other)
-        : Vector{other.mPointer, other.mPointer+other.mSize, other.mSize}
+        : Vector{other.mPointer, other.mPointer+other.mSize, other.mSize,
+                 copy(other.mAllocator), copy(other.mConstructor)}
     {
     }
 
-    T &operator[] (SizeType index)
+    ZQ_DEFINE_CONST_AND_NON_CONST (const T&, T&, operator[], (SizeType index),
     {
         return *(begin() + index);
-    }
-
-    const T &operator[] (SizeType index) const
-    {
-        return *(begin() + index);
-    }
+    })
 
     Vector &operator = (const Vector &other) {
         // assign will deleteAll for us.
-
         assign (other.mPointer, other.mPointer+other.mSize, other.mSize);
 
         return *this;
     }
 
-    ZQ_DEFINE_CONST_AND_NON_CONST (RawArray<const T>, RawArray<T>, toRawArray, (), { return {data (), size ()}; })
+    ZQ_DEFINE_CONST_AND_NON_CONST (RawArray<const T>, RawArray<T>, toRawArray, (),
+    {
+        return {data (), size ()};
+    })
 
     template<class InputIterator>
     void assign(const InputIterator &begin, const InputIterator &end)
     {
-        return assign (begin, end, countRange(begin, end));
+        return assign (begin, end, iteratorsRange(begin, end));
     }
 
     template<class InputIterator>
-    void assign(const InputIterator &begin, const InputIterator &end, SizeType beginToEnd) {
-        if (mSize == beginToEnd)
-        {
-            insertToUninitilizedBuffer (0, begin, end);
-        }
-
-        deleteAll (mPointer, mSize);
-        reset ();
-
-        resizeBuffer (beginToEnd);
-        insertToUninitilizedBuffer (0, begin, end);
+    void assign(const InputIterator &begin,
+                const InputIterator &end,
+                SizeType beginToEnd)
+    {
+       resizeBuffer (beginToEnd);
+       insertToUninitilizedBuffer (0, begin, end);
     }
 
     template<class ...Args>
@@ -140,7 +143,7 @@ public:
 
         if (newSize == 0) {
             deleteAll (mPointer, mSize);
-            reset ();
+            this->reset ();
 
             return;
         }
@@ -150,7 +153,7 @@ public:
 
         // Construct the new objects (If there are).
         if (newSize > oldSize)
-            mConstrutor.constructN (mPointer+oldSize, newSize-oldSize, Base::forward<Args>(args)...);
+            mConstructor.constructN (mPointer+oldSize, newSize-oldSize, Base::forward<Args>(args)...);
     }
 
     void shrinkWithoutFree(SizeType howMuch) {
@@ -226,6 +229,13 @@ public:
         return mSize;
     }
 
+    void swap(Vector &other) {
+        Base::swap (mPointer, other.mPointer);
+        Base::swap (mSize, other.mSize);
+        Base::swap (mConstructor, other.mConstructor);
+        Base::swap (mAllocator, other.mAllocator);
+    }
+
 private:
     Vector(RawArray<T> &&array)
         : mPointer{array.get ()}, mSize{array.size ()}
@@ -244,15 +254,15 @@ private:
         return expandFewInsertLoop (currnetIndex, args...);
     }
 
-    void reset() {
-        mSize = 0;
+    void makeEmpty () {
         mPointer = nullptr;
+        mSize = 0;
     }
 
     void resizeBuffer (SizeType newSize) {
         if (mSize == newSize) {
             // destruct without free ing.
-            mConstrutor.destruct (mPointer, mSize);
+            mConstructor.destruct (mPointer, mSize);
             return;
         }
 
@@ -283,7 +293,7 @@ private:
 
         for (auto iterator{begin}; iterator != end; ++iterator, ++currentIndex)
         {
-            mConstrutor.construct (&mPointer[currentIndex], *iterator);
+            mConstructor.construct (&mPointer[currentIndex], *iterator);
         }
 
         return currentIndex-index;
@@ -293,7 +303,7 @@ private:
         if (size == 0)
             return;
 
-        mConstrutor.destruct (pointer, size);
+        mConstructor.destruct (pointer, size);
         mAllocator.deallocate (pointer);
     }
 
@@ -301,7 +311,7 @@ private:
     SizeType mSize = 0;
 
     Allocator mAllocator;
-    Constructor mConstrutor;
+    Constructor mConstructor;
 };
 
 } // namespace Base

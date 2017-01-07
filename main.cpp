@@ -22,7 +22,7 @@
 #include "Base/SystemCalls.hpp"
 #include "Base/ProcessManager.hpp"
 
-#include "ZiqeAPI/EntryPoints.h"
+#include "OS/EntryPoints.h"
 
 /**
    @brief

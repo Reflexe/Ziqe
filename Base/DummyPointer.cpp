@@ -1,5 +1,5 @@
 /**
- * @file EntryPoints
+ * @file DummyPointer.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,16 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ENTRYPOINTS_H
-#define ENTRYPOINTS_H
+#include "DummyPointer.hpp"
 
-#include "Platforms/Macros.h"
+namespace Ziqe {
+namespace Base {
 
-ZQ_BEGIN_C_DECL
-
-extern void ZqAPIInit (void);
-extern void ZqAPIExit (void);
-
-ZQ_END_C_DECL
-
-#endif // ENTRYPOINTS_H
+} // namespace Base
+} // namespace Ziqe

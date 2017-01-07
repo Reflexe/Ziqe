@@ -26,8 +26,35 @@
 
 #include "asm/uaccess.h"
 
-#include "ZiqeAPI/Memory.h"
-#include "ZiqeAPI/Logging.h"
+#include "OS/Memory.h"
+#include "OS/Logging.h"
+
+/**
+   @brief Convert ZqMemoryProtection to page protection flags.
+   @param protection
+   @return
+ */
+inline_hint pgprot_t memory_prot_to_pgprot_kernel(ZqMemoryProtection protection) {
+    switch(protection) {
+    case (PROT_NONE):
+        return PAGE_NONE;
+    case (PROT_READ):
+        return PAGE_KERNEL_RO;
+    case (PROT_EXEC):
+    case (PROT_READ|PROT_EXEC):
+        return PAGE_KERNEL_RX;
+    case (PROT_WRITE):
+    case (PROT_WRITE|PROT_READ):
+        return PAGE_SHARED;
+    case (PROT_WRITE|PROT_EXEC):
+    case (PROT_READ|PROT_WRITE|PROT_EXEC):
+        return PAGE_SHARED_EXEC;
+    default:
+        ZqOnBug ("Invalid prot");
+    }
+
+    return PAGE_NONE;
+}
 
 ZqKernelAddress ZqMmAllocateContiguous (ZqSizeType size)
 {
@@ -39,7 +66,7 @@ ZqKernelAddress ZqMmAllocateAtomicContiguous (ZqSizeType size)
     return kmalloc (size, GFP_ATOMIC);
 }
 
-ZqBool ZqMmAllocateUserMemory(ZqSizeType length,
+ZqError ZqMmAllocateUserMemory(ZqSizeType length,
                               ZqUserMemoryAreaProtection protection,
                               ZqUserAddress *result) {
     ZqUserAddress addr;
@@ -54,7 +81,7 @@ ZqBool ZqMmAllocateUserMemory(ZqSizeType length,
     *result = addr;
     // TODO: error handling.
 
-    return ZQ_TRUE;
+    return ZQ_E_OK;
 }
 
 void ZqMmDeallocateUserMemory(ZqUserAddress address, ZqSizeType length)
@@ -90,9 +117,11 @@ struct vm_operations_struct kernel_memory_vm_ops = {
     .fault =    kernel_memory_vma_fault,
 };
 
-static int kernel_memory_mmap (struct file *filp, struct vm_area_struct *vma) {
+static int kernel_memory_mmap (struct file *filp,
+                               struct vm_area_struct *vma) {
     // Initilize the vtable.
     vma->vm_ops = &kernel_memory_vm_ops;
+    ZQ_UNUSED (filp);
 
     return 0;
 }
@@ -102,9 +131,7 @@ struct file_operations kernel_memory_fops = {
     .mmap =	     kernel_memory_mmap,
 };
 
-ZqBool ZqMmMapKernelToUser(ZqToUserMapContext *context) {
-    ZqUserAddress realDestinationAddress = context->destinationAddress;
-
+ZqError ZqMmMapKernelToUser(ZqToUserMapContext *context) {
     // MAYBE: allocate it only once.
     struct file *flip = anon_inode_getfile("ZqKToU",
                                            &kernel_memory_fops,
@@ -112,7 +139,7 @@ ZqBool ZqMmMapKernelToUser(ZqToUserMapContext *context) {
                                            O_RDWR);
 
     context->destinationAddress = vm_mmap (flip,
-                                           realDestinationAddress,
+                                           0,
                                            context->length,
                                            context->protection,
                                            0, /* flags */
@@ -120,23 +147,7 @@ ZqBool ZqMmMapKernelToUser(ZqToUserMapContext *context) {
 
     // Now, the "callback" ops->mmap get called and updates the vma.
 
-    // Make sure destinationAddress is really the requested address.
-    // The kernel might change it.
-    ZQ_BUG_IF_NOT (context->destinationAddress != realDestinationAddress
-                   && realDestinationAddress != 0);
-
     fput (flip);
-
-    return ZQ_TRUE;
-}
-
-ZqError ZqCopyToUser(ZqUserAddress destination,
-                    ZqKernelAddress source,
-                    ZqSizeType length)
-{
-    int ret = copy_to_user ((void __user*) destination,
-                            source,
-                            length);
 
     return ZQ_E_OK;
 }
@@ -161,6 +172,11 @@ void ZqMmUnlockUserMemoryWrite()
     down_write (&current->mm->mmap_sem);
 }
 
+/**
+   @brief Release a memory pages array with the put_page function.
+   @param pages   A pointer to a `struct page*` array.
+   @param pages_count   The number of elements in @a pages.
+ */
 static void inline_hint zq_put_pages (struct page **pages,
                                       ZqSizeType pages_count)
 {
@@ -172,7 +188,6 @@ static void inline_hint zq_put_pages (struct page **pages,
     }
 }
 
-// Should not be trusted to write to the user.
 ZqError ZqMmMapUserToKernel(ZqToKernelMapContext *context) {
     ZqSizeType firstPage = (context->sourceAddress & PAGE_MASK) >> PAGE_SHIFT;
     ZqSizeType lastPage  = ((context->sourceAddress + context->length -1) & PAGE_MASK) >> PAGE_SHIFT;
@@ -206,20 +221,23 @@ ZqError ZqMmMapUserToKernel(ZqToKernelMapContext *context) {
 
             return ret;
         }
-
-        // Map the user's pages to the kernel's virtual memory.
-        context->destinationAddress = vmap (pagesArray,
-                                            pagesCount,
-                                            0 /* flags */,
-                                            context->protection);
     }
     ZqMmUnlockUserMemoryRead ();
 
-    return ZQ_E_OK;
+    // Map the user's pages to the kernel's virtual memory.
+    context->destinationAddress = vmap (pagesArray,
+                                        pagesCount,
+                                        0 /* flags */,
+                                        memory_prot_to_pgprot_kernel(context->protection));
+
+    if (context->destinationAddress == NULL)
+        return ZQ_E_MEM_FAULT;
+    else
+        return ZQ_E_OK;
 }
 
 void ZqMmUnmapUserToKernel(ZqToKernelMapContext *context) {
-    zq_put_pages (context->pagesArray, pagesArraySize);
+    zq_put_pages (context->pagesArray, context->pagesArraySize);
 
     kfree (context->pagesArray);
 

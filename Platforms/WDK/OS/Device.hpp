@@ -1,5 +1,5 @@
 /**
- * @file SpinLock.h
+ * @file OS/Device.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,24 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_API_SPINLOCK_H
-#define ZIQE_API_SPINLOCK_H
+#ifndef DEVICE_HPP
+#define DEVICE_HPP
 
-#include "Platforms/Macros.h"
-#include "Memory.h"
 
-ZQ_BEGIN_C_DECL
+// TODO: is abstraction required in this level?
 
-typedef ZqKernelAddress ZqSpinLock;
-#define ZQ_UNDEFINED_SPINLOCK (0)
+/**
+   Device class methods?
+    *
+ */
+class IDevice
+{
+public:
+    IDevice();
+    virtual ~IDevice();
 
-void ZqSpinLockInit(ZqSpinLock *spinlock);
-void ZqSpinLockDeinit(ZqSpinLock *spinlock);
+    virtual Error launch() = 0;
 
-ZqBool ZqSpinLockTryLock(ZqSpinLock *spinlock);
-void ZqSpinLockLock(ZqSpinLock *spinlock);
-void ZqSpinLockUnlock(ZqSpinLock *spinlock);
 
-ZQ_END_C_DECL
 
-#endif // ZIQE_API_SPINLOCK_H
+private:
+    // Static virtual functions
+};
+
+#endif // DEVICE_HPP

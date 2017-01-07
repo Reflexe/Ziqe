@@ -23,6 +23,8 @@
 #include "Base/Vector.hpp"
 #include "Base/Checks.hpp"
 
+#include "Base/SharedPointer.hpp"
+
 ZQ_BEGIN_NAMESPACE
 namespace Base {
 

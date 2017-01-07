@@ -30,8 +30,8 @@
 
 #include <asm/syscalls.h>
 
-#include "ZiqeAPI/Memory.h"
-#include "ZiqeAPI/SystemCalls.h"
+#include "OS/Memory.h"
+#include "OS/SystemCalls.h"
 
 #ifdef __x86_64__
 #define SYSCALL_ID_FROM_REGISTERS(regs) (regs->ax)

@@ -20,7 +20,7 @@
 #ifndef ZIQE_LOGGER_H
 #define ZIQE_LOGGER_H
 
-#include "ZiqeAPI/Logging.h"
+#include "OS/Logging.h"
 #include "Macros.hpp"
 
 ZQ_BEGIN_NAMESPACE

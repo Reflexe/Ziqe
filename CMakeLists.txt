@@ -121,7 +121,6 @@ endmacro ()
 
 add_subdirectory (Platforms)
 add_subdirectory (Base)
-add_subdirectory (Utils)
 #add_subdirectory (ThirdParty)
 #add_subdirectory (Network)
 #add_subdirectory (Core)

@@ -20,7 +20,7 @@
 
 #include "Base/LinkedList.hpp"
 #include "Base/IteratorTools.hpp"
-#include "ZiqeAPI/EntryPoints.h"
+#include "OS/EntryPoints.h"
 
 #define N 20
 

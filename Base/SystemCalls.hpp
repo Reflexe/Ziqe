@@ -23,7 +23,7 @@
 #include "Base/Types.hpp"
 #include "Base/FunctionTools.hpp"
 
-#include "ZiqeAPI/SystemCalls.h"
+#include "OS/SystemCalls.h"
 
 #include "LocalThread.hpp"
 #include "LocalProcess.hpp"

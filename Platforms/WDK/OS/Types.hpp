@@ -1,5 +1,5 @@
 /**
- * @file RWLock
+ * @file Types
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,29 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQEAPI_RWLOCK_H
-#define ZIQEAPI_RWLOCK_H
+#ifndef TYPES_HPP
+#define TYPES_HPP
 
-#include "Platforms/Macros.h"
-#include "Memory.h"
+#include "Base/Macros.hpp"
 
-ZQ_BEGIN_C_DECL
+#include <cstdint>
 
-#define ZQ_UNDEFINED_RWLOCK (0)
+ZQ_BEGIN_NAMESPACE
+namespace OS {
+typedef DWORD Error;
+}
+ZQ_END_NAMESPACE
 
-typedef ZqKernelAddress ZqRWLock;
-
-void ZqRWLockInit(ZqRWLock *rw_lock);
-void ZqRWLockDeinit(ZqRWLock *rw_lock);
-
-ZqBool ZqRWLockTryLockWrite(ZqRWLock *rw_lock);
-void ZqRWLockLockWrite(ZqRWLock *rw_lock);
-void ZqRWLockUnlockWrite(ZqRWLock *rw_lock);
-
-ZqBool ZqRWLockTryLockRead(ZqRWLock *rw_lock);
-void ZqRWLockLockRead(ZqRWLock *rw_lock);
-void ZqRWLockUnlockRead(ZqRWLock *rw_lock);
-
-ZQ_END_C_DECL
-
-#endif // ZIQEAPI_RWLOCK_H
+#endif // TYPES_HPP

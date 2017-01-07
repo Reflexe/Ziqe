@@ -22,14 +22,23 @@
 
 /* Types that aren't big enough to have their own file */
 
-#include "ZiqeAPI/Types.h"
+#include "OS/Types.h"
 #include "Platforms/Macros.h"
 
 ZQ_BEGIN_NAMESPACE
 
-typedef ZqSizeType SizeType;
-typedef ZqDifferenceType DifferenceType;
+using ::int8_t;
+using ::int16_t;
+using ::int32_t;
+using ::int64_t;
 
+using ::uint8_t;
+using ::uint16_t;
+using ::uint32_t;
+using ::uint64_t;
+
+typedef uint64_t  SizeType;
+typedef int64_t DifferenceType;
 
 typedef decltype (nullptr) NullptrType;
 

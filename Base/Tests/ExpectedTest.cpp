@@ -1,6 +1,6 @@
 #include "Base/Expected.hpp"
 
-#include "ZiqeAPI/EntryPoints.h"
+#include "OS/EntryPoints.h"
 
 enum class Error {
     FirstError,

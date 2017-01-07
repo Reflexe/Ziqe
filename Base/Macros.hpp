@@ -32,6 +32,7 @@
 #define ZQ_ALLOW_COPY_AND_MOVE(name) ZQ_ALLOW_COPY(name) ZQ_ALLOW_MOVE(name)
 
 #define ZQ_ALLOW_MAKE_UNIQUE() template<class T, class ...Args> friend ::Ziqe::Base::UniquePointer<T> makeUnique(Args&&...)
+#define ZQ_ALLOW_EXPECTED() template<class A, class B> friend class ::Ziqe::Base::Expected
 
 #define ZQ_DISALLOW_COPY(name) name(const name &) = delete; name &operator= (const name &) = delete;
 #define ZQ_DISALLOW_MOVE(name) name(name &&)      = delete; name & operator= (name &&)     = delete;
@@ -163,6 +164,13 @@ struct IsSame<T, T>
     static constexpr bool value = true;
 };
 
+// Would fail if the first argument is invalid (SFINAE)
+template<class T>
+inline_hint constexpr bool EnableIfExists (const T &)
+{
+    return true;
+}
+
 /**
   @brief Remove `const` identifer from a type.
  */
@@ -224,12 +232,16 @@ inline_hint constexpr T&& forward(typename remove_reference<T>::type&& t) noexce
 }
 
 /**
-  @brief Return an invalid (not-dereferencable) rvalue reference to @tparam T.
+  @brief Return an invalid (not-dereferencable) T.
  */
 template<class T>
-inline_hint constexpr T&& declval ()
+inline_hint constexpr T declval ()
 {
-    return static_cast<T&&>(*static_cast<Base::remove_reference<T>*>(nullptr));
+    using NoReferenceT=typename Base::remove_reference<T>::type;
+
+    // Remove references from T, convert nullptr to a pointer to the result.
+    // and then convert it again to T.
+    return static_cast<T>(*static_cast<NoReferenceT*>(nullptr));
 }
 
 /**
@@ -314,7 +326,23 @@ ResultType plusArgs (const Arg &arg, const Args&&... args)
     return arg + plusArgs<ResultType>(Base::forward<Args>(args)...);
 }
 
+template<class T>
+inline_hint void swap (T &first, T &second) {
+    T temp{move (first)};
+
+    first = move (second);
+    second = move (temp);
 }
+
+// Check for .swap member.
+template<class T,
+         bool = EnableIfExists(declval<T&>().swap (declval<T&>()))>
+inline_hint void swap (T &first, T &second)
+{
+    first.swap (second);
+}
+
+} // namespace Base
 ZQ_END_NAMESPACE
 
 #endif // MACROS_H

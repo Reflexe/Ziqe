@@ -18,11 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _LINUX
+
 #include <asm/ioctls.h>
 #include <linux/ioctl.h>
 #include <linux/net.h>
 
-#include "ZiqeAPI/Socket.h"
+#include "OS/Socket.h"
 
 #define zqsocket_to_socket(zqsocket) ((struct socket *) zqsocket)
 

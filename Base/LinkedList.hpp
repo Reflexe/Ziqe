@@ -20,10 +20,10 @@
 #ifndef ZIQE_LINKEDLIST_H
 #define ZIQE_LINKEDLIST_H
 
-#include "Memory.hpp"
-#include "Checks.hpp"
-#include "Macros.hpp"
-#include "Types.hpp"
+#include "Base/Memory.hpp"
+#include "Base/Checks.hpp"
+#include "Base/Macros.hpp"
+#include "Base/Types.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Base {

@@ -14,7 +14,7 @@ ccflags-y := -I$(ZQ_SRC_DIR) -I.
 
 #obj=$(ZQ_OUT_DIR)
 
-all: ;  touch "$(CURDIR)/$(name).c" ;  make -B -C /lib/modules/$(ZQ_LINUX_VERSION)/build M=$(CURDIR) modules
+all: ;  touch "$(CURDIR)/$(name).c" ; make -B -C /lib/modules/$(ZQ_LINUX_VERSION)/build M=$(CURDIR) modules
 #ld -r --build-id -o $(ko-m).new Linux.mod.o $(OTHER_OBJECTS) $(ZQ_OBJECTS)
 
 clean: ; make -B -C /lib/modules/$(ZQ_LINUX_VERSION)/build M=$(CURDIR) clean

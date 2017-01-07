@@ -22,8 +22,9 @@
 
 #include "Base/Macros.hpp"
 #include "Base/Memory.hpp"
-#include "Base/IteratorTools.hpp"
 #include "Base/Checks.hpp"
+
+#include "Base/IteratorTools.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Base {

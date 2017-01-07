@@ -1,5 +1,6 @@
 #include "Base/Optional.hpp"
-#include "ZiqeAPI/EntryPoints.h"
+#include "Base/Checks.hpp"
+#include "OS/EntryPoints.h"
 
 void ZqAPIInit() {
     using Ziqe::Base::Optional;

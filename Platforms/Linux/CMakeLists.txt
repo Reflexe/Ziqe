@@ -27,13 +27,16 @@ endmacro ()
 
 set(SOURCES SystemCalls.c Process.c Memory.c
     SpinLock.c Mutex.c EntryPoints.c Socket.c Logging.c
-    ZiqeAPI/SystemCalls.h
-    ZiqeAPI/Types.h ZiqeAPI/Process.h
-    ZiqeAPI/Memory.h ZiqeAPI/SpinLock.h ZiqeAPI/Mutex.h ZiqeAPI/RWLock.h
-    ZiqeAPI/Socket.h ZiqeAPI/Logging.h
-    ZiqeAPI/EntryPoints.h)
+    )
+
+# Sources that are a part of the cpp module for linux.
+zq_add_library(linux_cpp_module OS/Memory)
 
 set(SOURCES ${SOURCES} CACHE INTERNAL "The ZiqeAPI's Linux module's files")
+# OS/SystemCalls.h OS/Types.h OS/Process.h
+# OS/Memory.h OS/SpinLock.h OS/Mutex.h OS/RWLock.h
+# OS/Socket.h OS/Logging.h
+# OS/EntryPoints.h
 
 # FIXME: would not work for all platform: we aren't taking care of compiler
 #        arguments.
@@ -42,8 +45,9 @@ function(zq_add_driver name)
         set(FULL_SOURCES ${FULL_SOURCES} "${zq_linux_here}/${file}")
     endforeach()
 
-    # Convert these libraries to valid targets.
-    zq_library_to_target(libraries ${ARGN})
+    # Convert this target's dependencies to valid targets.
+    # and add linux's CPP library
+    zq_library_to_target(libraries ${ARGN} linux_cpp_module)
 
     # Get all of these libraries' dependencies.
     foreach(library ${libraries})

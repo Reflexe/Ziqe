@@ -20,7 +20,7 @@
 #ifndef ZIQE_RWLOCK_H
 #define ZIQE_RWLOCK_H
 
-#include "ZiqeAPI/RWLock.h"
+#include "OS/RWLock.h"
 #include "Base/Macros.hpp"
 #include "Base/Memory.hpp"
 

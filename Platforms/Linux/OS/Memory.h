@@ -35,34 +35,6 @@ ZQ_BEGIN_C_DECL
 
   @todo Memory Pool API.
   */
-
-#ifdef __cplusplus
-
-typedef uint64_t UserMemoryAddress;
-class UserMemory {
-private:
-    UserMemory();
-
-
-};
-
-typedef void* KernelMemoryAddress;
-
-class KernelMemory {
-private:
-    KernelMemory ();
-};
-
-class Mapping {
-private:
-};
-
-/**
-  Memory:
-
-  */
-#endif
-
 #ifdef __cplusplus
 extern void *vmalloc(unsigned long size);
 extern void vfree(const void *addr);
@@ -130,13 +102,13 @@ typedef struct {
     ZqUserAddress destinationAddress;
 } ZqToUserMapContext;
 
-ZqBool ZqMmAllocateUserMemory (ZqSizeType length,
+ZqError ZqMmAllocateUserMemory (ZqSizeType length,
                                ZqUserMemoryAreaProtection protection,
                                ZqUserAddress *result);
 void ZqMmDeallocateUserMemory (ZqUserAddress address, ZqSizeType length);
 
 
-ZqBool ZqMmMapKernelToUser (ZqToUserMapContext *context);
+ZqError ZqMmMapKernelToUser(ZqToUserMapContext *context);
 void ZqMmUnmapKernelToUser (ZqToUserMapContext *context);
 
 ZqError ZqMmMapUserToKernel (ZqToKernelMapContext *context);
@@ -160,58 +132,6 @@ ZQ_END_C_DECL
 /* MAYBE: chname this file to Allocators, Mapping, Locks, ... */
 #ifdef __cplusplus
 
-#include "Base/Expected.hpp"
-
-ZQ_BEGIN_NAMESPACE
-namespace OS {
-namespace Allocators {
-/**
-   @brief The regular kernel allocator.
-
-   Allocates page-aligned non-contiguous memory.
-
-   @note If it wasn't page aligned, we wouldn't be able
-         to map it to usermode safely (other data can be in
-         the same page).
-   @todo Seperate Base into
-    * Base: The real basic, could be lower than ZiqeAPI, sometimes declare what ZiqeAPI should impelement.
-    * ZiqeAPI: minimalistic per-platform implementation.
-    * Utils: Less basic: Vector, the new operator, HashTable, LinkedList.
-    * OS: High level operating system related classes (process manager, thread managment, Socket).
- */
-struct Kernel {
-     static Base::Expected<ZqKernelAddress, Error>
-             Allocate(ZqSizeType size)
-     {
-         return ZqMmAllocateVirtual (size);
-     }
-
-     static void Deallocate(ZqKernelAddress address)
-     {
-         ZqMmDeallocateVirtual (address);
-     }
-};
-
-struct User {
-    typedef ZqUserMemoryAreaProtection Protection;
-
-    static Base::Expected<ZqUserAddress, Error>
-            Allocate(ZqSizeType size, Protection protection) {
-        ZqUserAddress addressResult;
-        auto result = ZqMmAllocateUserMemory (size, protection, &addressResult);
-
-        if (! )
-    }
-
-    static void Deallocate(ZqUserAddress address, ZqSizeType size)
-    {
-        ZqMmDeallocateUserMemory (address, size);
-    }
-};
-
-}
-}
-ZQ_END_NAMESPACE
 
 #endif /* __cplusplus */
 

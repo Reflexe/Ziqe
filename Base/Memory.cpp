@@ -21,15 +21,3 @@
 
 ZQ_BEGIN_NAMESPACE
 ZQ_END_NAMESPACE
-
-void *operator new(size_t count) {
-    auto maybePointer = Ziqe::OS::Allocators::Kernel::Allocate (count);
-    ZQ_ASSERT (maybePointer);
-
-    return *maybePointer;
-}
-
-void operator delete(void *pointer) noexcept
-{
-    Ziqe::OS::Allocators::Kernel::Deallocate (pointer);
-}

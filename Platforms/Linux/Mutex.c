@@ -20,7 +20,7 @@
 
 #define _LINUX
 
-#include "ZiqeAPI/Mutex.h"
+#include "OS/Mutex.h"
 
 #include <linux/mutex.h>
 

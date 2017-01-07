@@ -1,9 +1,7 @@
 #include <linux/module.h>
 #include <linux/bug.h>
 
-#include "ZiqeAPI/Logging.h"
-
-// TODO: consider making this functions inline
+#include "OS/Logging.h"
 
 void ZqLogText (const char *string)
 {

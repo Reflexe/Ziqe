@@ -20,8 +20,8 @@
 #ifndef ZIQE_ITERATORTOOLS_H
 #define ZIQE_ITERATORTOOLS_H
 
-#include "Types.hpp"
-#include "Macros.hpp"
+#include "Base/Types.hpp"
+#include "Base/Macros.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Base {
@@ -120,16 +120,16 @@ inline_hint ActionIterator<InputIterator, FunctionType> makeActionIteratorFromOt
     return ActionIterator<InputIterator, FunctionType>{inputIterator};
 }
 
-// optimize it to use operator - when possible.
+// optimize it to use operator- when possible.
 template<class InputIterator,
-         typename = decltype (InputIterator::operator-())>
-SizeType countRange (const InputIterator &begin, const InputIterator &end)
+         bool = EnableIfExists(declval<const InputIterator&>()-declval<const InputIterator&>())>
+SizeType iteratorsRange (const InputIterator &begin, const InputIterator &end)
 {
     return end-begin;
 }
 
 template<class InputIterator>
-SizeType countRange (const InputIterator &begin, const InputIterator &end) {
+SizeType iteratorsRange (const InputIterator &begin, const InputIterator &end) {
     SizeType count = 0;
 
     for (auto iterator = begin; iterator != end; ++iterator)
@@ -141,13 +141,13 @@ SizeType countRange (const InputIterator &begin, const InputIterator &end) {
 }
 
 template<class InputIterator>
-SizeType countRange (const Pair<InputIterator, InputIterator> &beginAndEnd)
+SizeType iteratorsRange (const Pair<InputIterator, InputIterator> &beginAndEnd)
 {
-    return countRange (beginAndEnd.first, beginAndEnd.second);
+    return iteratorsRange (beginAndEnd.first, beginAndEnd.second);
 }
 
 template<class InputIterator>
-SizeType countRange (const Triple<InputIterator, InputIterator, SizeType> &beginEndAndSize)
+SizeType iteratorsRange (const Triple<InputIterator, InputIterator, SizeType> &beginEndAndSize)
 {
     return beginEndAndSize.third;
 }
@@ -165,6 +165,14 @@ inline_hint void advance (_Iterator &iterator, DifferenceType n) {
             ++iterator;
         }
     }
+}
+
+// A specialized version for iterators that has operator+=
+template<typename _Iterator,
+         bool = EnableIfExists(declval<_Iterator&>()+=declval<DifferenceType>())>
+inline_hint void advance (_Iterator &iterator, DifferenceType n)
+{
+    iterator += n;
 }
 
 template<typename _Iterator>

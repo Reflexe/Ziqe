@@ -20,9 +20,11 @@
 #ifndef ZIQE_CALLBACK_H
 #define ZIQE_CALLBACK_H
 
-#include "Memory.hpp"
 #include "Macros.hpp"
 #include "Checks.hpp"
+
+#include "Base/SharedPointer.hpp"
+#include "Base/UniquePointer.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Base {
@@ -54,9 +56,7 @@ private:
     template<FunctionType *sFunction>
     struct RegularFunctionObjectManager final : public ObjectManagerInterface
     {
-        RegularFunctionObjectManager()
-        {
-        }
+        RegularFunctionObjectManager() = default;
 
         ZQ_ALLOW_MOVE (RegularFunctionObjectManager)
         ZQ_DISALLOW_COPY (RegularFunctionObjectManager)

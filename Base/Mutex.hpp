@@ -23,7 +23,7 @@
 #include "Base/Macros.hpp"
 #include "Base/Checks.hpp"
 
-#include "ZiqeAPI/Mutex.h"
+#include "OS/Mutex.h"
 
 ZQ_BEGIN_NAMESPACE
 

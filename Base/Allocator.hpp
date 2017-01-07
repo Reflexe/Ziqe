@@ -1,5 +1,5 @@
 /**
- * @file Vector.cpp
+ * @file Allocator.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,8 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Vector.hpp"
+#ifndef ALLOCATOR_HPP
+#define ALLOCATOR_HPP
+
+#include "Base/Macros.hpp"
 
 ZQ_BEGIN_NAMESPACE
+namespace Base {
 
+template<class T>
+struct Allocator {
+    T* allocate(SizeType n) {
+        n *= sizeof(T);
+        return static_cast<T*>(::operator new(n));
+    }
+
+    void deallocate(T *p)
+    {
+        ::operator delete(p);
+    }
+};
+
+} // namespace Base
 ZQ_END_NAMESPACE
+
+#endif // ALLOCATOR_HPP

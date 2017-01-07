@@ -20,7 +20,7 @@
 #ifndef ZIQE_BASE_SOCKET_HPP
 #define ZIQE_BASE_SOCKET_HPP
 
-#include "ZiqeAPI/Socket.h"
+#include "OS/Socket.h"
 
 #include "Base/Memory.hpp"
 #include "Base/Vector.hpp"

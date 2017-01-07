@@ -20,7 +20,7 @@
 #ifndef ZIQE_SPINLOCK_H
 #define ZIQE_SPINLOCK_H
 
-#include "ZiqeAPI/SpinLock.h"
+#include "OS/SpinLock.h"
 #include "Base/Macros.hpp"
 #include "Base/Memory.hpp"
 

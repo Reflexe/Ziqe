@@ -1,5 +1,5 @@
 /**
- * @file Mutex.h
+ * @file Allocator.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,24 +17,4 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_API_MUTEX_H
-#define ZIQE_API_MUTEX_H
-
-#include "Platforms/Macros.h"
-#include "Memory.h"
-
-ZQ_BEGIN_C_DECL
-
-typedef ZqKernelAddress ZqMutex;
-#define ZQ_UNDEFINED_MUTEX (0)
-
-void ZqMutexInit(ZqMutex *mutex);
-void ZqMutexDeinit(ZqMutex *mutex);
-
-ZqBool ZqMutexTryLock(ZqMutex *mutex);
-void ZqMutexLock(ZqMutex *mutex);
-void ZqMutexUnlock(ZqMutex *mutex);
-
-ZQ_END_C_DECL
-
-#endif // ZIQE_API_MUTEX_H
+#include "Allocator.hpp"

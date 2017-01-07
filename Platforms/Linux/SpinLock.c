@@ -20,7 +20,7 @@
 
 #include <linux/spinlock.h>
 
-#include "ZiqeAPI/SpinLock.h"
+#include "OS/SpinLock.h"
 
 void ZqSpinLockInit(ZqSpinLock *spinlock) {
     *spinlock = (ZqSpinLock) ZqMmAllocateVirtual (sizeof (spinlock_t));

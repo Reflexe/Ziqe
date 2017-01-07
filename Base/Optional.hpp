@@ -3,9 +3,10 @@
 
 #include "Base/Types.hpp"
 #include "Base/Macros.hpp"
+#include "Base/Checks.hpp"
 
 // For Base::CustomStorageConstructor.
-#include "Base/Memory.hpp"
+#include "Base/Constructor.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Base {

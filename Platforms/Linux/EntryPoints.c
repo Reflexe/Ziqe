@@ -22,7 +22,7 @@
 
 #include <linux/module.h>
 
-#include "ZiqeAPI/EntryPoints.h"
+#include "OS/EntryPoints.h"
 
 static int __init linux_init(void) {
         ZqAPIInit();
