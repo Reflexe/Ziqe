@@ -1,13 +1,13 @@
 #include "Base/Expected.hpp"
 
-#include "OS/EntryPoints.h"
+#include "ZqAPI/EntryPoints.h"
 
 enum class Error {
     FirstError,
     SecondError
 };
 
-void ZqAPIInit () {
+void ZqOnLoad () {
     using namespace Ziqe;
 
     Ziqe::Base::Expected<int, Error> error{Error::FirstError};
@@ -28,6 +28,6 @@ void ZqAPIInit () {
     ZQ_ASSERT (newError.get () == error.get ());
 }
 
-void ZqAPIExit ()
+void ZqOnUnload ()
 {
 }

@@ -19,10 +19,10 @@
  *
  */
 
-#include "Base/SystemCalls.hpp"
-#include "Base/ProcessManager.hpp"
+//#include "Base/SystemCalls.hpp"
+//#include "Base/ProcessManager.hpp"
 
-#include "OS/EntryPoints.h"
+#include "ZqAPI/EntryPoints.h"
 
 /**
    @brief
@@ -44,19 +44,19 @@ namespace {
 DriverMain *gDriverMain;
 }
 
-void ZqAPIInit ()
+void ZqOnLoad ()
 {
     gDriverMain = new DriverMain;
 }
 
-void ZqAPIExit ()
+void ZqOnUnload ()
 {
     delete gDriverMain;
 }
 
-ZqBool systemCallHook (const ZqSystemCallIDType id,
-                       const ZqRegisterType *params,
-                       ZqRegisterType *result);
+//ZqBool systemCallHook (const ZqSystemCallIDType id,
+//                       const ZqRegisterType *params,
+//                       ZqRegisterType *result);
 
 namespace {
 

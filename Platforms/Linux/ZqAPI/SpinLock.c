@@ -1,5 +1,5 @@
 /**
- * @file Allocator.cpp
+ * @file SpinLock.c
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,24 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Allocator.hpp"
-#include "Checks.hpp"
 
-#include "ZqAPI/Memory.h"
+#include <linux/spinlock.h>
 
-void *operator new(size_t count) {
-    auto ptr = ZQ_SYMBOL(ZqAllocate) (count);
+#include "ZqAPI/SpinLock.h"
 
-    ZQ_ASSERT (ptr != nullptr);
-    return ptr;
+void ZqSpinLockInit(ZqSpinLock *spinlock) {
+    *spinlock = (ZqSpinLock) ZQ_SYMBOL(ZqAllocate) (sizeof (spinlock_t));
+
+    spin_lock_init ((spinlock_t *) *spinlock);
 }
 
-void operator delete(void *pointer) noexcept
+void ZqSpinLockDeinit(ZqSpinLock *spinlock)
 {
-    ZQ_SYMBOL(ZqDeallocate) (pointer);
+    ZQ_SYMBOL(ZqDeallocate) ((ZqKernelAddress) *spinlock);
 }
 
-void operator delete(void *ptr, size_t size) {
-    ZQ_SYMBOL(ZqDeallocate) (ptr);
-    Ziqe::Base::IgnoreUnused(size);
+void ZqSpinLockLock(ZqSpinLock *spinlock)
+{
+    spin_lock ((spinlock_t*)  spinlock);
+}
+
+void ZqSpinLockUnlock(ZqSpinLock *spinlock)
+{
+    spin_unlock ((spinlock_t*)  spinlock);
+}
+
+ZqBool ZqSpinLockTryLock(ZqSpinLock *spinlock)
+{
+    return (spin_trylock ((spinlock_t *) spinlock) == 1) ? ZQ_TRUE : ZQ_FALSE;
 }

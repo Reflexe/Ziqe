@@ -22,6 +22,13 @@
 
 #include "Base/Macros.hpp"
 
+// Define the new and delete operators.
+void* operator new  (size_t count);
+void operator delete (void *pointer) noexcept;
+
+// delete with size for C++14.
+void operator delete  (void* ptr, size_t size);
+
 ZQ_BEGIN_NAMESPACE
 namespace Base {
 

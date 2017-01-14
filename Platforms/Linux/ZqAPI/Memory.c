@@ -26,8 +26,8 @@
 
 #include "asm/uaccess.h"
 
-#include "OS/Memory.h"
-#include "OS/Logging.h"
+#include "ZqAPI/Memory.h"
+#include "ZqAPI/Logging.h"
 
 /**
    @brief Convert ZqMemoryProtection to page protection flags.
@@ -56,17 +56,17 @@ inline_hint pgprot_t memory_prot_to_pgprot_kernel(ZqMemoryProtection protection)
     return PAGE_NONE;
 }
 
-ZqKernelAddress ZqMmAllocateContiguous (ZqSizeType size)
+ZqKernelAddress ZQ_SYMBOL(ZqMmAllocateContiguous) (ZqSizeType size)
 {
     return (ZqKernelAddress) kmalloc (size, GFP_KERNEL);
 }
 
-ZqKernelAddress ZqMmAllocateAtomicContiguous (ZqSizeType size)
+ZqKernelAddress ZQ_SYMBOL(ZqMmAllocateAtomicContiguous) (ZqSizeType size)
 {
     return kmalloc (size, GFP_ATOMIC);
 }
 
-ZqError ZqMmAllocateUserMemory(ZqSizeType length,
+ZqError ZQ_SYMBOL(ZqMmAllocateUserMemory)(ZqSizeType length,
                               ZqUserMemoryAreaProtection protection,
                               ZqUserAddress *result) {
     ZqUserAddress addr;
@@ -84,7 +84,7 @@ ZqError ZqMmAllocateUserMemory(ZqSizeType length,
     return ZQ_E_OK;
 }
 
-void ZqMmDeallocateUserMemory(ZqUserAddress address, ZqSizeType length)
+void ZQ_SYMBOL(ZqMmDeallocateUserMemory)(ZqUserAddress address, ZqSizeType length)
 {
     vm_munmap ((unsigned long)address, length);
 }
@@ -126,12 +126,12 @@ static int kernel_memory_mmap (struct file *filp,
     return 0;
 }
 
-struct file_operations kernel_memory_fops = {
+static struct file_operations kernel_memory_fops = {
     .owner =     THIS_MODULE,
     .mmap =	     kernel_memory_mmap,
 };
 
-ZqError ZqMmMapKernelToUser(ZqToUserMapContext *context) {
+ZqError ZQ_SYMBOL(ZqMmMapKernelToUser)(ZqToUserMapContext *context) {
     // MAYBE: allocate it only once.
     struct file *flip = anon_inode_getfile("ZqKToU",
                                            &kernel_memory_fops,
@@ -188,7 +188,7 @@ static void inline_hint zq_put_pages (struct page **pages,
     }
 }
 
-ZqError ZqMmMapUserToKernel(ZqToKernelMapContext *context) {
+ZqError ZQ_SYMBOL(ZqMmMapUserToKernel) (ZqToKernelMapContext *context) {
     ZqSizeType firstPage = (context->sourceAddress & PAGE_MASK) >> PAGE_SHIFT;
     ZqSizeType lastPage  = ((context->sourceAddress + context->length -1) & PAGE_MASK) >> PAGE_SHIFT;
     ZqSizeType pagesCount = lastPage - firstPage;
@@ -236,7 +236,7 @@ ZqError ZqMmMapUserToKernel(ZqToKernelMapContext *context) {
         return ZQ_E_OK;
 }
 
-void ZqMmUnmapUserToKernel(ZqToKernelMapContext *context) {
+void ZQ_SYMBOL(ZqMmUnmapUserToKernel) (ZqToKernelMapContext *context) {
     zq_put_pages (context->pagesArray, context->pagesArraySize);
 
     kfree (context->pagesArray);

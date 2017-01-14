@@ -43,31 +43,35 @@ macro(zq_library_to_target output_name)
     endforeach()
 endmacro()
 
-function(zq_get_target_dependencies output_var target)
+macro(zq_get_target_dependencies output_var target)
+    # Target is not valid
+    if (NOT TARGET ${target})
+        message(FATAL_ERROR "${target} is not a valid target!")
+    endif()
+
     get_target_property(dependencies ${target} LINK_LIBRARIES)
 
     # If this target doesn't has any dependencies, leave this function.
     if (${dependencies} STREQUAL dependencies-NOTFOUND)
         set(${output_var} "")
-        return()
+    else()
+        foreach(dependency ${dependencies})
+            zq_get_target_dependencies(more_dependencies ${dependency})
+            set(dependencies ${more_dependencies} ${dependencies})
+        endforeach()
+
+        set(${output_var} ${dependencies} PARENT_SCOPE)
     endif()
+endmacro()
 
-    foreach(dependency ${dependencies})
-        zq_get_target_dependencies(more_dependencies ${dependency})
-        set(dependencies ${more_dependencies} ${dependencies})
-    endforeach()
-
-    set(${output_var} ${dependencies} PARENT_SCOPE)
-endfunction()
-
-function(zq_get_module_dependencies output_var target)
+macro(zq_get_module_dependencies output_var target)
     zq_library_to_target(target ${target})
 
     zq_get_target_dependencies(${output_var} ${target})
 
     # Update the parent scope's output_var.
     set(${output_var} ${${output_var}} PARENT_SCOPE)
-endfunction()
+endmacro()
 
 function(zq_add_one_depend_module caller_name target_name)
     zq_library_to_target(caller_name ${caller_name})
@@ -99,25 +103,28 @@ macro(zq_add_library library_name)
 endmacro()
 
 macro (zq_add_test name)
-    if (NOT zq_test_build)
-        return()
-    endif ()
+    if (zq_test_build)
+        set(target_name "test_${name}")
+        zq_library_to_target(target_name ${target_name})
 
-    set(target_name "test_${name}")
-    zq_library_to_target(target_name ${target_name})
+        add_library("${target_name}_lib" "${name}.${zq_cpp_ext}")
+        target_compile_options("${target_name}_lib" PUBLIC ${zq_cpp_compiler_arguments})
+        target_include_directories ("${target_name}_lib" PUBLIC ${zq_include_directories})
 
-    add_library("${target_name}_lib" "${name}.${zq_cpp_ext}")
-    target_compile_options("${target_name}_lib" PUBLIC ${zq_cpp_compiler_arguments})
-    target_include_directories ("${target_name}_lib" PUBLIC ${zq_include_directories})
+        zq_platform_add_driver (NAME "${target_name}_driver" LIBRARIES "${target_name}_lib" ${ARGN})
 
-    zq_add_driver ("${target_name}_driver" "test_${name}_lib" ${ARGN})
-
-#    add_executable (${target_name} "${name}.${zq_cpp_ext}")
-    add_test (${target_name} "./${name}")
-#    zq_add_module(${target_name} ${arguments})
-#    target_include_directories (${target_name} PUBLIC ${zq_include_directories})
-#    target_compile_options (${target_name} PUBLIC ${zq_compiler_arguments})
+    #    add_executable (${target_name} "${name}.${zq_cpp_ext}")
+        add_test (${target_name} "./${name}")
+    #    zq_add_module(${target_name} ${arguments})
+    #    target_include_directories (${target_name} PUBLIC ${zq_include_directories})
+    #    target_compile_options (${target_name} PUBLIC ${zq_compiler_arguments})
+    endif()
 endmacro ()
+
+# Output a string of elements, splitted by spaces.
+macro(zq_list_to_string input_list output_string_name)
+    string (REPLACE ";" " " "${output_string_name}" "${input_list}")
+endmacro()
 
 add_subdirectory (Platforms)
 add_subdirectory (Base)
@@ -128,4 +135,4 @@ add_subdirectory (Base)
 # Build Ziqe's main driver
 zq_add_library(MainLibrary main)
 #zq_add_driver (MainDriver CoreHost CoreClient MainLibrary)
-zq_add_driver (MainDriver MainLibrary)
+zq_platform_add_driver (NAME MainDriver LIBRARIES Ziqe_MainLibrary Ziqe_Base)

@@ -25,11 +25,7 @@
 #include "Base/Expected.hpp"
 #include "Base/Optional.hpp"
 
-#include "OS/Memory.h"
-
-// Define the new and delete operators.
-void* operator new  (size_t count);
-void operator delete (void *pointer, size_t size) noexcept;
+#include "ZqAPI/Memory.h"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
@@ -47,12 +43,12 @@ struct Kernel {
      static Base::Expected<ZqKernelAddress, Error>
              Allocate(ZqSizeType size)
      {
-         return ZqMmAllocateVirtual (size);
+         return ZQ_SYMBOL(ZqAllocate) (size);
      }
 
      static void Deallocate(ZqKernelAddress address)
      {
-         ZqMmDeallocateVirtual (address);
+         ZQ_SYMBOL(ZqDeallocate) (address);
      }
 };
 
@@ -62,7 +58,7 @@ struct User {
     static Base::Expected<ZqUserAddress, Error>
             Allocate(ZqSizeType size, Protection protection) {
         ZqUserAddress addressResult;
-        auto result = ZqMmAllocateUserMemory (size, protection, &addressResult);
+        auto result = ZQ_SYMBOL(ZqMmAllocateUserMemory) (size, protection, &addressResult);
 
         if (result != ZQ_E_OK)
             return {Base::move (result)};
@@ -72,7 +68,7 @@ struct User {
 
     static void Deallocate(ZqUserAddress address, ZqSizeType size)
     {
-        ZqMmDeallocateUserMemory (address, size);
+        ZQ_SYMBOL(ZqMmDeallocateUserMemory) (address, size);
     }
 };
 
@@ -87,7 +83,7 @@ struct UserToKernel {
         kernelMap.sourceAddress = userAddress;
         kernelMap.length        = length;
 
-        auto result = ZqMmMapUserToKernel (&kernelMap);
+        auto result = ZQ_SYMBOL(ZqMmMapUserToKernel) (&kernelMap);
 
         if (result == ZQ_E_OK) {
             return {kernelMap};
@@ -104,7 +100,7 @@ struct UserToKernel {
         // If this is a valid map (not a moved map),
         // unmap it.
         if (mMaybeKernelMapContext)
-            ZqMmUnmapUserToKernel (&mMaybeKernelMapContext.get ());
+            ZQ_SYMBOL(ZqMmUnmapUserToKernel) (&mMaybeKernelMapContext.get ());
     }
 
     ZqKernelAddress getKernelAddress () const
@@ -141,7 +137,7 @@ struct KernelToUser {
         context.sourceAddress = kernelAddress;
         context.length = length;
 
-        auto result = ZqMmMapKernelToUser (&context);
+        auto result = ZQ_SYMBOL(ZqMmMapKernelToUser) (&context);
 
         if (result == ZQ_E_OK) {
             return {context};
@@ -158,7 +154,7 @@ struct KernelToUser {
         // If this is a valid map (not a moved map),
         // unmap it.
         if (mMaybeUserMapContext)
-            ZqMmUnmapKernelToUser (&mMaybeUserMapContext.get ());
+            ZQ_SYMBOL(ZqMmUnmapKernelToUser) (&mMaybeUserMapContext.get ());
     }
 
     ZqKernelAddress getKernelAddress () const

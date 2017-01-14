@@ -1,8 +1,8 @@
 #include "Base/Optional.hpp"
 #include "Base/Checks.hpp"
-#include "OS/EntryPoints.h"
+#include "ZqAPI/EntryPoints.h"
 
-void ZqAPIInit() {
+void ZqOnLoad () {
     using Ziqe::Base::Optional;
 
     Optional<int> integer;
@@ -17,6 +17,6 @@ void ZqAPIInit() {
 }
 
 
-void ZqAPIExit ()
+void ZqOnUnload ()
 {
 }

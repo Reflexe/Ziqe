@@ -1,7 +1,7 @@
 #include <linux/module.h>
 #include <linux/bug.h>
 
-#include "OS/Logging.h"
+#include "ZqAPI/Logging.h"
 
 void ZqLogText (const char *string)
 {

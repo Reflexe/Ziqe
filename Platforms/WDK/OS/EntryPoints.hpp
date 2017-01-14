@@ -1,5 +1,5 @@
 /**
- * @file SpinLock.c
+ * @file EntryPoints.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,33 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef ENTRYPOINTS_HPP
+#define ENTRYPOINTS_HPP
 
-#include <linux/spinlock.h>
+#include "Platforms/Macros.h"
 
-#include "OS/SpinLock.h"
+ZQ_BEGIN_C_DECL
 
-void ZqSpinLockInit(ZqSpinLock *spinlock) {
-    *spinlock = (ZqSpinLock) ZqMmAllocateVirtual (sizeof (spinlock_t));
+::NTSTATUS
+DriverEntry(::DRIVER_OBJECT  *driver,
+            ::UNICODE_STRING *registry);
 
-    spin_lock_init ((spinlock_t *) *spinlock);
-}
+ZQ_END_C_DECL
 
-void ZqSpinLockDeinit(ZqSpinLock *spinlock)
-{
-    ZqMmDeallocateVirtual ((ZqKernelAddress) *spinlock);
-}
-
-void ZqSpinLockLock(ZqSpinLock *spinlock)
-{
-    spin_lock ((spinlock_t*)  spinlock);
-}
-
-void ZqSpinLockUnlock(ZqSpinLock *spinlock)
-{
-    spin_unlock ((spinlock_t*)  spinlock);
-}
-
-ZqBool ZqSpinLockTryLock(ZqSpinLock *spinlock)
-{
-    return (spin_trylock ((spinlock_t *) spinlock) == 1) ? ZQ_TRUE : ZQ_FALSE;
-}
+#endif // ENTRYPOINTS_HPP

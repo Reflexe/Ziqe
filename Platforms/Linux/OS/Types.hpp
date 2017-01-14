@@ -1,5 +1,5 @@
 /**
- * @file Allocator.cpp
+ * @file Types.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,24 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Allocator.hpp"
-#include "Checks.hpp"
+#ifndef TYPES_HPP
+#define TYPES_HPP
 
-#include "ZqAPI/Memory.h"
+#include "Platforms/Macros.h"
 
-void *operator new(size_t count) {
-    auto ptr = ZQ_SYMBOL(ZqAllocate) (count);
+#include "ZqAPI/Types.h"
 
-    ZQ_ASSERT (ptr != nullptr);
-    return ptr;
-}
+ZQ_BEGIN_NAMESPACE
+namespace OS {
 
-void operator delete(void *pointer) noexcept
-{
-    ZQ_SYMBOL(ZqDeallocate) (pointer);
-}
+} // namespace OS
+ZQ_END_NAMESPACE
 
-void operator delete(void *ptr, size_t size) {
-    ZQ_SYMBOL(ZqDeallocate) (ptr);
-    Ziqe::Base::IgnoreUnused(size);
-}
+#endif // TYPES_HPP

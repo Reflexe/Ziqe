@@ -238,10 +238,11 @@ template<class T>
 inline_hint constexpr T declval ()
 {
     using NoReferenceT=typename Base::remove_reference<T>::type;
+    using PVoidType=void*;
 
     // Remove references from T, convert nullptr to a pointer to the result.
     // and then convert it again to T.
-    return static_cast<T>(*static_cast<NoReferenceT*>(nullptr));
+    return static_cast<T>(*static_cast<NoReferenceT*>(PVoidType()));
 }
 
 /**

@@ -22,7 +22,7 @@
 
 /* Types that aren't big enough to have their own file */
 
-#include "OS/Types.h"
+#include "ZqAPI/Types.h"
 #include "Platforms/Macros.h"
 
 ZQ_BEGIN_NAMESPACE

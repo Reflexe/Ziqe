@@ -1,3 +1,3 @@
-zq_add_test (LinkedListTest Base)
-zq_add_test (OptionalTest Base)
-zq_add_test (ExpectedTest Base)
+zq_add_test (LinkedListTest Ziqe_Base)
+zq_add_test (OptionalTest Ziqe_Base)
+zq_add_test (ExpectedTest Ziqe_Base)

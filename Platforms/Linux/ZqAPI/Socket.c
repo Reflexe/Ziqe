@@ -24,7 +24,7 @@
 #include <linux/ioctl.h>
 #include <linux/net.h>
 
-#include "OS/Socket.h"
+#include "ZqAPI/Socket.h"
 
 #define zqsocket_to_socket(zqsocket) ((struct socket *) zqsocket)
 
@@ -111,7 +111,7 @@ ZqError ZqSocketReceive(ZqSocket zqsocket, ZqKernelAddress *pbuffer, ZqSizeType 
     ZqKernelAddress packet_buffer;
 
     if (bufferSize != 0)
-        packet_buffer = ZqMmAllocateVirtual (bufferSize);
+        packet_buffer = ZQ_SYMBOL(ZqAllocate) (bufferSize);
     else
         packet_buffer = NULL;
 
@@ -152,7 +152,7 @@ ZqError ZqSocketReceiveFrom(ZqSocket zqsocket, ZqKernelAddress *pbuffer, ZqSocke
     ZqKernelAddress packet_buffer;
 
     if (bufferSize != 0)
-        packet_buffer = ZqMmAllocateVirtual (bufferSize);
+        packet_buffer = ZQ_SYMBOL(ZqAllocate) (bufferSize);
     else
         packet_buffer = NULL;
 

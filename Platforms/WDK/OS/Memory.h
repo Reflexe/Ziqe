@@ -83,7 +83,8 @@ namespace Map {
 
     In WDK, there is no way to map a real usermode address
     to the kernel. We'll be using IOCTL to pass a user pointer
-    and then, we'll make sure we can read from it.
+    and then, in this class, we'll only make sure we can
+    read from it.
  */
 struct UserToKernel {
     static Base::Expected<UserToKernel, Error>

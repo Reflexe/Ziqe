@@ -20,19 +20,19 @@
 
 #define _LINUX
 
-#include "OS/Mutex.h"
+#include "ZqAPI/Mutex.h"
 
 #include <linux/mutex.h>
 
 void ZqMutexInit(ZqMutex *mutex) {
-    *mutex = ZqMmAllocateVirtual (sizeof (struct mutex));
+    *mutex = ZQ_SYMBOL(ZqAllocate) (sizeof (struct mutex));
 
     mutex_init ((struct mutex *) *mutex);
 }
 
 void ZqMutexDeinit(ZqMutex *mutex)
 {
-    ZqMmDeallocateVirtual ((ZqKernelAddress) *mutex);
+    ZQ_SYMBOL(ZqDeallocate) ((ZqKernelAddress) *mutex);
 }
 
 void ZqMutexLock(ZqMutex *mutex)

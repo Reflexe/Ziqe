@@ -20,11 +20,11 @@
 
 #include "Base/LinkedList.hpp"
 #include "Base/IteratorTools.hpp"
-#include "OS/EntryPoints.h"
+#include "ZqAPI/EntryPoints.h"
 
 #define N 20
 
-void ZqAPIInit ()
+void ZqOnLoad ()
 {
     using Ziqe::Base::LinkedList;
     using Ziqe::Base::next;
@@ -88,6 +88,6 @@ void ZqAPIInit ()
     }
 }
 
-void ZqAPIExit ()
+void ZqOnUnload ()
 {
 }
