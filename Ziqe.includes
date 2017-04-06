@@ -1,0 +1,8 @@
+Platforms/Common
+Platforms/IOKit
+Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/build/include/
+Platforms/Linux/ZqAPI
+Platforms/Linux/
+Platforms/Posix
+Platforms/WDK
+./

@@ -13,6 +13,18 @@
 #zq_define_per_platform_file_generator (Errors)
 
 #add_subdirectory (${zq_platform})
+
+# Linux Ziqe
 add_subdirectory (Linux)
-add_subdirectory (IOKit)
-add_subdirectory (WDK)
+
+# IOKit Ziqe
+#add_subdirectory (IOKit)
+
+# WDK Ziqe
+#add_subdirectory (WDK)
+
+# Common files and functions (both cpp and cmake) for all platforms
+# Any platform can override these by simply having a file in its includes folders.
+# e.g. To override IDriver, simply create the file IDriver.h in your platform's
+# OS folder.
+add_subdirectory (Common)

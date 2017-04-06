@@ -1,0 +1,54 @@
+/**
+ * @file IDevice.hpp
+ * @author Shmuel Hazan (shmuelhazan0@gmail.com)
+ *
+ * Ziqe: copyright (C) 2016 Shmuel Hazan
+ *
+ * Ziqe is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ziqe is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#ifndef IDEVICE_HPP
+#define IDEVICE_HPP
+
+#include "Utils/Macros.hpp"
+
+ZQ_BEGIN_NAMESPACE
+namespace OS {
+
+class IDevice
+{
+public:
+    IDevice();
+
+    enum class Class : uint64_t {
+        Usb     = 0x1,
+        Network = 0x2,
+    };
+
+    Class getDeviceClass() const
+    {
+        return mDeviceClass;
+    }
+
+private:
+    /**
+     * @brief A readonly mask that describes the device's class: USB, PCI, Network, etc.
+     * @note A device can have more that one class.
+     */
+    Class mDeviceClass;
+};
+
+} // namespace OS
+ZQ_END_NAMESPACE
+
+#endif // IDEVICE_HPP

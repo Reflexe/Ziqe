@@ -15,5 +15,5 @@ void ZqLogWarning (const char *string)
 
 void ZqOnBug (const char *string) {
     printk(KERN_ERR"%s", string);
-    BUG ();
+//    BUG ();
 }

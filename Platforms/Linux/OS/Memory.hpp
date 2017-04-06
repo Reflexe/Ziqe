@@ -22,8 +22,8 @@
 
 #include "Platforms/Macros.h"
 
-#include "Base/Expected.hpp"
-#include "Base/Optional.hpp"
+#include "Utils/Expected.hpp"
+#include "Utils/Optional.hpp"
 
 #include "ZqAPI/Memory.h"
 
@@ -40,10 +40,10 @@ namespace Allocators {
          the same page).
  */
 struct Kernel {
-     static Base::Expected<ZqKernelAddress, Error>
+     static Utils::Expected<ZqKernelAddress, Error>
              Allocate(ZqSizeType size)
      {
-         return ZQ_SYMBOL(ZqAllocate) (size);
+         return {ZQ_SYMBOL(ZqAllocate) (size)};
      }
 
      static void Deallocate(ZqKernelAddress address)
@@ -55,13 +55,13 @@ struct Kernel {
 struct User {
     typedef ZqUserMemoryAreaProtection Protection;
 
-    static Base::Expected<ZqUserAddress, Error>
+    static Utils::Expected<ZqUserAddress, Error>
             Allocate(ZqSizeType size, Protection protection) {
         ZqUserAddress addressResult;
         auto result = ZQ_SYMBOL(ZqMmAllocateUserMemory) (size, protection, &addressResult);
 
         if (result != ZQ_E_OK)
-            return {Base::move (result)};
+            return {Utils::move (result)};
         else
             return {addressResult};
     }
@@ -76,7 +76,7 @@ struct User {
 
 namespace Map {
 struct UserToKernel {
-    static Base::Expected<UserToKernel, Error>
+    static Utils::Expected<UserToKernel, Error>
             Create (ZqUserAddress userAddress, SizeType length)
     {
         ZqToKernelMapContext kernelMap;
@@ -88,7 +88,7 @@ struct UserToKernel {
         if (result == ZQ_E_OK) {
             return {kernelMap};
         } else {
-            return {Base::move (result)};
+            return {Utils::move (result)};
         }
     }
 
@@ -126,11 +126,11 @@ private:
     {
     }
 
-    Base::Optional<ZqToKernelMapContext> mMaybeKernelMapContext;
+    Utils::Optional<ZqToKernelMapContext> mMaybeKernelMapContext;
 };
 
 struct KernelToUser {
-    static Base::Expected<KernelToUser, Error>
+    static Utils::Expected<KernelToUser, Error>
             Create (ZqKernelAddress kernelAddress, SizeType length)
     {
         ZqToUserMapContext context;
@@ -180,7 +180,7 @@ private:
     {
     }
 
-    Base::Optional<ZqToUserMapContext> mMaybeUserMapContext;
+    Utils::Optional<ZqToUserMapContext> mMaybeUserMapContext;
 };
 } // namespace Map
 

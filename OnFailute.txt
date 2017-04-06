@@ -86,5 +86,3 @@ as itsown excpetion. For example: TcpStream::connect should not throw a Socket::
 on failure. It should catch Socket::SocketError and throw its own TcpStream::ConnectTimeout.
 That's a overhead for excpetions that simetimes even not happens because that there are
 lazy programmers in the world.
-
-

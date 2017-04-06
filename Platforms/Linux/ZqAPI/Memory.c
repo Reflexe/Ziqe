@@ -50,7 +50,7 @@ inline_hint pgprot_t memory_prot_to_pgprot_kernel(ZqMemoryProtection protection)
     case (PROT_READ|PROT_WRITE|PROT_EXEC):
         return PAGE_SHARED_EXEC;
     default:
-        ZqOnBug ("Invalid prot");
+        ZQ_ON_BUG ("Invalid prot");
     }
 
     return PAGE_NONE;
@@ -97,7 +97,7 @@ static int kernel_memory_vma_fault(struct vm_area_struct *vma,
     /* The offset is (the offset in the file: the kernel address)
         + (the fault offset from this kernel address \ from this
            vm_area). */
-    byte_offset_in_kernel_memory = ((ZqUserAddress)vmf->virtual_address - vma->vm_start)
+    byte_offset_in_kernel_memory = ((ZqUserAddress)vmf->address - vma->vm_start)
                                    + (vma->vm_pgoff << PAGE_SHIFT);
 
     /* Convert the offset in the kernel memory (=memory address)
@@ -205,8 +205,7 @@ ZqError ZQ_SYMBOL(ZqMmMapUserToKernel) (ZqToKernelMapContext *context) {
         /* Pin these pages */
         ret = get_user_pages(context->sourceAddress,
                              pagesCount,
-                             context->protection & PROT_WRITE, /* write */
-                             0, /* force */
+                             FOLL_GET | ((context->protection & PROT_WRITE) ? FOLL_WRITE : 0), /* write */
                              pagesArray,
                              NULL);
 

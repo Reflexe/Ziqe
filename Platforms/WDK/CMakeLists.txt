@@ -1,4 +1,4 @@
-set (SOURCES Memory.cpp OS/Memory.h Device.cpp OS/Device.hpp
-             )
+set (SOURCES OS/Memory.cpp OS/Memory.hpp OS/Device.cpp OS/Device.hpp
+             ZqAPI/Memory.h ZqAPI/EntryPoints.c)
 
-add_custom_target (_wdklib SOURCES ${SOURCES})
+zq_add_library (NAME _wdklib SOURCES ${SOURCES} INCLUDES /usr/include/wine/windows/)

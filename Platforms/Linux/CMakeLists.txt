@@ -33,5 +33,5 @@ function(zq_platform_add_driver)
                          LIBRARIES ${DRIVER_LIBRARIES}
                          LINUX_VERSION ${zq_linux_version}
                          SOURCES_PATH "${zq_linux_here}"
-                         INCLUDE_PATHS "${zq_root}" "${zq_linux_here}/../")
+                         INCLUDE_PATHS ${zq_include_directories})
 endfunction()

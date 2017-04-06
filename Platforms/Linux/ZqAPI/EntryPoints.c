@@ -19,13 +19,18 @@
  */
 
 #define _LINUX
-
 #include <linux/module.h>
 
 #include "ZqAPI/EntryPoints.h"
 
+/**
+ * @brief A global variable for private data that being forwarded to the
+ *        clients.
+ */
+void *g_private_data_ptr;
+
 static int __init linux_init(void) {
-        ZqOnLoad ();
+        ZQ_SYMBOL (ZqOnLoad) (&g_private_data_ptr);
 
         return 0;
 }
@@ -33,12 +38,12 @@ static int __init linux_init(void) {
 
 static void __exit linux_exit(void)
 {
-        ZqOnUnload ();
+        ZQ_SYMBOL(ZqOnUnload) (&g_private_data_ptr);
 }
 
 module_init(linux_init);
 module_exit(linux_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Shmuel Hazan");
+MODULE_AUTHOR("Shmuel H.");
 MODULE_DESCRIPTION("A ZiqeAPI Module");

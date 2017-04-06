@@ -17,17 +17,19 @@ set(zq_platform Linux)
 
 # Combining linux headers is impossible: inline functions with linux code would not work
 set(zq_cpp_compiler_arguments -std=c++14 -Wno-old-style-cast -Wno-c++98-compat -Wno-documentation -Wno-padded
-    -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -fno-rtti -fno-exceptions)
+    -Wno-c++98-c++11-compat-pedantic -Wno-c++98-compat-pedantic -fno-rtti -fno-exceptions
+    CACHE INTERNAL "")
 #                               -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include/generated/uapi -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include/generated  -I/lib/modules/4.8.13-1-ARCH/build/include -I/lib/modules/4.8.13-1-ARCH/build/arch/x86/include/uapi -I/lib/modules/4.8.13-1-ARCH/build/include/uapi -I/lib/modules/4.8.13-1-ARCH/build/include/generated/uapi -include /lib/modules/4.8.13-1-ARCH/build/include/linux/kconfig.h -D__KERNEL__
 #                               -nostdinc -nostdinc++)
-
 
 if (zq_test_build)
     set(zq_cpp_compiler_arguments ${zq_cpp_compiler_arguments} -DZQ_TEST_BUILD)
     enable_testing()
 endif()
 
-set(zq_include_directories ${zq_root} "${CMAKE_CURRENT_SOURCE_DIR}/Platforms/${zq_platform}/")
+set(zq_include_directories ${zq_root}
+    "${zq_root}/Platforms/${zq_platform}/"
+    "${zq_root}/Platforms/Common/")
 
 if(zq_test_build)
     set(CMAKE_BUILD_TYPE Debug)
@@ -90,17 +92,32 @@ function(zq_add_depend_modules caller_name)
     endforeach()
 endfunction()
 
-macro(zq_add_library library_name)
-#    project(${library_name})
+function(zq_add_library)
+    set(_OPTIONS_ARGS)
+    set(_ONE_VALUE_ARGS NAME)
+    set(_MULTI_VALUE_ARGS SOURCES CLASSES INCLUDES LIBRARIES)
 
-    foreach(class_name ${ARGN})
-        set(files_list ${files_list} "${class_name}.${zq_cpp_ext}" "${class_name}.${zq_h_ext}")
+    cmake_parse_arguments(LIBRARY "${_OPTIONS_ARGS}" "${_ONE_VALUE_ARGS}" "${_MULTI_VALUE_ARGS}" ${ARGN})
+
+    if (NOT LIBRARY_NAME)
+        message(FATAL_ERROR "NAME is required")
+    endif ()
+
+    foreach(file_name ${LIBRARY_SOURCES})
+        list(APPEND files_list "${file_name}")
     endforeach()
 
-    add_library("${zq_target_prefix}${library_name}" ${zq_library_type} ${files_list})
-    target_compile_options("${zq_target_prefix}${library_name}" PUBLIC ${zq_cpp_compiler_arguments})
-    target_include_directories ("${zq_target_prefix}${library_name}" PUBLIC ${zq_include_directories})
-endmacro()
+    foreach(class_name ${LIBRARY_CLASSES})
+        list(APPEND files_list "${class_name}.${zq_cpp_ext}" "${class_name}.${zq_h_ext}")
+    endforeach()
+
+    set (target "${zq_target_prefix}${LIBRARY_NAME}")
+
+    add_library("${target}" ${zq_library_type} ${files_list})
+    target_compile_options("${target}" PUBLIC ${zq_cpp_compiler_arguments})
+    target_include_directories ("${target}" PUBLIC ${zq_include_directories} ${LIBRARY_INCLUDES})
+    target_link_libraries ("${target}" ${LIBRARY_LIBRARIES})
+endfunction()
 
 macro (zq_add_test name)
     if (zq_test_build)
@@ -126,13 +143,17 @@ macro(zq_list_to_string input_list output_string_name)
     string (REPLACE ";" " " "${output_string_name}" "${input_list}")
 endmacro()
 
+function(zq_apply_global_compiler_options options)
+    list(APPEND zq_cpp_compiler_arguments ${options})
+endfunction()
+
 add_subdirectory (Platforms)
-add_subdirectory (Base)
+message(${zq_cpp_compiler_arguments})
+add_subdirectory (Utils)
 #add_subdirectory (ThirdParty)
 #add_subdirectory (Network)
 #add_subdirectory (Core)
 
 # Build Ziqe's main driver
-zq_add_library(MainLibrary main)
-#zq_add_driver (MainDriver CoreHost CoreClient MainLibrary)
-zq_platform_add_driver (NAME MainDriver LIBRARIES Ziqe_MainLibrary Ziqe_Base)
+zq_add_library (NAME MainDriver SOURCES MainDriver.cpp)
+zq_common_add_driver (NAME MainDriver LIBRARIES Ziqe_MainDriver)

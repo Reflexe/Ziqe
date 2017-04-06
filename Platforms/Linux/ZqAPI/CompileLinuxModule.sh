@@ -3,25 +3,25 @@
 # This script should run on the source directory.
 
 # The module sources, relative to this directory/SOMETHING
-export ZQ_MODULE_SOURCES=$1
+#export ZQ_MODULE_SOURCES=$1
 # The module's objects, the same as the previous.
-export ZQ_OBJECTS=$2
+#export ZQ_OBJECTS=$2
 #
-export ZQ_LINUX_VERSION=$4
+#export ZQ_LINUX_VERSION=$4
 
 # Output directory
-export ZQ_OUT_DIR=$5
+#export ZQ_OUT_DIR=$5
 
 # The module's name
-export name=$6
-makefile=$3
+#export name=$6
+#makefile=$3
 
 export ZQ_COMPILER_ARGUMENTS=$7
 
-#echo $ZQ_OUT_DIR
-#echo $makefile
-#echo $ZQ_MODULE_SOURCES
-#echo $ZQ_OBJECTS
+echo $ZQ_OUT_DIR
+echo $makefile
+echo $ZQ_MODULE_SOURCES
+echo $ZQ_OBJECTS
 
 #REAL_OUTPUT_DIR="$ZQ_OUT_DIR/$name""Output"
 
@@ -41,5 +41,5 @@ cp "$makefile" "$ZQ_OUT_DIR"
 
 #ls $ZQ_MODULE_SOURCES
 
-make -f "$makefile" && cp "$name.ko" ../
+make -f "$makefile" -C "/lib/modules/${ZQ_LINUX_VERSION}/build" M="$PWD" zq_modules && cp "$name.ko" ../
 # && cp "$REAL_OUTPUT_DIR/$name.ko" $ZQ_OUT_DIR
