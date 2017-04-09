@@ -1928,7 +1928,6 @@ Platforms/IOKit/dxd_base.h
 Platforms/IOKit/dxd_memory.h
 Platforms/Linux/BUILD
 Platforms/Linux/CMakeLists.txt
-Platforms/Linux/CompileLinuxModule.bzl
 Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/build/Kconfig
 Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/build/Module.symvers
 Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/build/arch/Kconfig
@@ -17509,7 +17508,6 @@ Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/modules.order
 Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/modules.softdep
 Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/modules.symbols
 Platforms/Linux/LinuxHeaders/4.10.6-1-ARCH/modules.symbols.bin
-Platforms/Linux/OS/BUILD
 Platforms/Linux/OS/CMakeLists.txt
 Platforms/Linux/OS/Memory.cpp
 Platforms/Linux/OS/Memory.hpp
@@ -17548,6 +17546,7 @@ Platforms/Linux/ZqAPI/SystemCalls.c
 Platforms/Linux/ZqAPI/SystemCalls.h
 Platforms/Linux/ZqAPI/SystemCallsList.inc.h
 Platforms/Linux/ZqAPI/Types.h
+Platforms/Linux/api.bzl
 Platforms/Posix/CMakeLists.txt
 Platforms/Posix/EntryPoint.c
 Platforms/Posix/Logging.c
@@ -18302,6 +18301,7 @@ Platforms/WDK/ZqAPI/Windows-Driver-Frameworks-master/src/publicinc/wdf/umdf/2.19
 Platforms/WDK/ZqAPI/Windows-Driver-Frameworks-master/src/publicinc/wdf/umdf/2.19/wudfwdm.h
 Platforms/WDK/dxd_base.h
 Platforms/WDK/dxd_memory.h
+Platforms/api.bzl
 Scripts/LinuxGenerateSystemCallList.py
 Scripts/LinuxGenerateSystemCallList.sh
 ThirdParty/CMakeLists.txt

@@ -13,7 +13,7 @@ cc_class_library (
     hdrs = ['Macros.hpp'],
     #includes = ['//.'],
     deps = [
-            '//Platforms/Linux:ZqAPI',
+            '//Platforms:ZqAPI',
     ],   
     copts = ['-std=gnu++14'],
     visibility = ["//visibility:public"],

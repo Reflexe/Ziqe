@@ -1,4 +1,4 @@
-load(":CompileLinuxModule.bzl", "linux_module")
+load(":api.bzl", "linux_module")
 
 cc_library (
     name = 'ZqAPI',
@@ -13,14 +13,23 @@ cc_library (
         'ZqAPI/Types.h', 
         'ZqAPI/Error.h',
     ],
-    
-    deps = [
-            '//Platforms/Common:ZqAPI',
-    ],
-    
+
     includes = ['.'],
     visibility = ["//visibility:public"],
 )
+
+cc_library (
+    name = 'OS',
+    hdrs = [
+        'OS/Memory.hpp',
+    ],
+
+    srcs = [
+        'OS/Memory.cpp',
+    ]
+
+
+    )
 
 exports_files(["LinuxHeaders/4.10.6-1-ARCH/build"])
 
@@ -44,4 +53,3 @@ filegroup(name = '_linux_build_srcs',
                 
 
 exports_files(["ZqAPI/Makefile"])
-

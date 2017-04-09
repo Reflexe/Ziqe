@@ -21,8 +21,12 @@
 
 ZQ_BEGIN_NAMESPACE
 
+namespace Utils {
+
 Logger::Logger()
 {
+
+}
 
 }
 

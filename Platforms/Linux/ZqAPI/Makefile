@@ -7,7 +7,7 @@ ko-m := $(name).ko
 #Linux-objs := $(filter-out Linux.o,$(ZQ_LINUX_MODULE_OBJECT)) DummyCPPForwarder.o
 $(name)-objs := $(OTHER_MODULE_OBJECTS) $(ZQ_OBJECTS)
 
-ccflags-y := $(addprefix -I$(PWD)/, $(ZQ_COMPILER_ARGUMENTS))
+ccflags-y := $(addprefix -I$(PWD)/, $(ZQ_INCLUDE_PATHS))
 
 #Linux-objs := ../../../../Build/Utils/libBase.a
 #EXTRA_CFLAGS+=-DLINUX_DRIVER -mhard-float
