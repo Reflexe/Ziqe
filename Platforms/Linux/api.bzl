@@ -30,9 +30,6 @@ def get_relative_file_path_to_workspace(file):
 def escape_spaces(string):
     return escape(string, (' '))
 
-def escape_quote(string):
-    return escape(string, ('"'))
-
 def _impl(ctx):
     # Add env vars to the default env.
     make_env_vars = ctx.configuration.default_shell_env
@@ -72,18 +69,15 @@ def _impl(ctx):
     # Add includes as compiler arguments.
     make_env_vars['ZQ_INCLUDE_PATHS'] = ''
     for d in includes_paths_depset.to_list():
-        make_env_vars['ZQ_INCLUDE_PATHS'] += escape_spaces(d) + '  '
+        make_env_vars['ZQ_INCLUDE_PATHS'] += escape_spaces(d) + ' '
 
     # build the linux targets with {linux_headers_path}/build;
     # compile it to the our Makefile's path and read
     # our Makefile from stdin to make its path simpler.
     #
-    command = ('make -f "-" zq_modules < "{0}" && '
+    command = ('make -f "-" zq_modules < "$1" && '
     # Then, copy the built target (X.ko) to the output directory.
-    + 'cp -r "{1}/{2}" "{3}"').format(escape_quote(ctx.file._makefile.path),
-                                      escape_quote(ctx.file._makefile.dirname),
-                                      escape_quote(ctx.outputs._output_ko.basename),
-                                      escape_quote(ctx.outputs._output_ko.path))
+    + 'cp -r "$2/$3" "$4"')
 
     # Run the actual action.
     ctx.action(
@@ -95,6 +89,10 @@ def _impl(ctx):
              + libs_depset.to_list(),
         outputs=[ctx.outputs._output_ko],
         command=command,
+        arguments=[ctx.file._makefile.path,
+                   ctx.file._makefile.dirname,
+                   ctx.outputs._output_ko.basename,
+                   ctx.outputs._output_ko.path],
         progress_message= "Compiling and linking Linux Module: %s" % ctx.attr.name,
         env = make_env_vars)
 
