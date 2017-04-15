@@ -226,7 +226,8 @@ constexpr T&& forward(typename remove_reference<T>::type& t) noexcept
 }
 
 template<class T>
-inline_hint constexpr T&& forward(typename remove_reference<T>::type&& t) noexcept
+inline_hint
+constexpr T&& forward(typename remove_reference<T>::type&& t) noexcept
 {
     return static_cast<T&&>(t);
 }
@@ -235,7 +236,8 @@ inline_hint constexpr T&& forward(typename remove_reference<T>::type&& t) noexce
   @brief Return an invalid (not-dereferencable) T.
  */
 template<class T>
-inline_hint constexpr T declval ()
+inline_hint
+constexpr T declval () noexcept
 {
     using NoReferenceT=typename remove_reference<T>::type;
     using PVoidType=void*;
