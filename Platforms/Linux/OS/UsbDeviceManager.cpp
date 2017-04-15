@@ -1,5 +1,5 @@
 /**
- * @file IDeviceManager.hpp
+ * @file UsbDeviceManager.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,28 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef IDEVICEMANAGER_HPP
-#define IDEVICEMANAGER_HPP
+#include "UsbDeviceManager.hpp"
 
-#include "OS/IDevice.hpp"
-#include "OS/DriverContext.hpp"
+#include "Utils/FunctionTools.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-class IDeviceManager
+UsbDeviceManager::UsbDeviceManager()
 {
-public:
-    IDeviceManager();
 
-    virtual void onDeviceAttached (IDevice &device) = 0;
+}
 
-    virtual void onDeviceDetached (IDevice &device) = 0;
+bool UsbDeviceManager::startListen(DriverContext *context) {
+    ZQ_UNUSED (context);
 
-    virtual void startListen (DriverContext *context) = 0;
-};
+    ZqLinuxRegisterUsbCallbacks (info, probe, disconnect, this);
+    auto a = &Utils::MemberFunction<UsbDeviceManager, void(const IDevice&)>::Call<&UsbDeviceManager::onDeviceAttached>;
+}
 
 } // namespace OS
 ZQ_END_NAMESPACE
-
-#endif // IDEVICEMANAGER_HPP

@@ -1,5 +1,5 @@
 /**
- * @file IDeviceManager.hpp
+ * @file DriverContext.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,28 +17,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef IDEVICEMANAGER_HPP
-#define IDEVICEMANAGER_HPP
+#ifndef DRIVERCONTEXT_HPP
+#define DRIVERCONTEXT_HPP
 
-#include "OS/IDevice.hpp"
-#include "OS/DriverContext.hpp"
+#include "Utils/UniquePointer.hpp"
+
+#include "OS/IDeviceManager.hpp"
 
 ZQ_BEGIN_NAMESPACE
+
 namespace OS {
 
-class IDeviceManager
+class DriverContext
 {
 public:
-    IDeviceManager();
+    DriverContext();
 
-    virtual void onDeviceAttached (IDevice &device) = 0;
+    bool registerDeviceManager (const Utils::UniquePointer<IDeviceManager> &deviceManager) {
+        ZQ_ASSERT_REPORT (mDeviceManager == nullptr, "Overriding old mDeviceManager");
+        mDeviceManager = deviceManager.get();
 
-    virtual void onDeviceDetached (IDevice &device) = 0;
+        ZqRegisterDeviceManager (mDeviceManager);
+    }
 
-    virtual void startListen (DriverContext *context) = 0;
+private:
+    IDeviceManager *mDeviceManager = nullptr;
+
 };
 
 } // namespace OS
+
 ZQ_END_NAMESPACE
 
-#endif // IDEVICEMANAGER_HPP
+#endif // DRIVERCONTEXT_HPP

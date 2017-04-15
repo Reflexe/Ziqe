@@ -1,5 +1,5 @@
 /**
- * @file IDeviceManager.hpp
+ * @file UsbDeviceManager.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,28 +17,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef IDEVICEMANAGER_HPP
-#define IDEVICEMANAGER_HPP
+#ifndef USBDEVICEMANAGER_HPP
+#define USBDEVICEMANAGER_HPP
 
-#include "OS/IDevice.hpp"
-#include "OS/DriverContext.hpp"
+#include "OS/IDeviceManager.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-class IDeviceManager
+class UsbDeviceManager : public IDeviceManager
 {
 public:
-    IDeviceManager();
+    UsbDeviceManager();
 
-    virtual void onDeviceAttached (IDevice &device) = 0;
+    virtual void onDeviceAttached(IDevice &device) override;
+    virtual void onDeviceDetached(IDevice &device) override;
 
-    virtual void onDeviceDetached (IDevice &device) = 0;
-
-    virtual void startListen (DriverContext *context) = 0;
+    virtual bool startListen(DriverContext *context) override;
 };
 
 } // namespace OS
 ZQ_END_NAMESPACE
 
-#endif // IDEVICEMANAGER_HPP
+#endif // USBDEVICEMANAGER_HPP
