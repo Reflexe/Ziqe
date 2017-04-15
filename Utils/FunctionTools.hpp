@@ -31,12 +31,26 @@ void runAndCallback(const CallbackT &callback, Args&&... args)
     callback(sFunc(Utils::forward<Args>(args)...));
 }
 
-
 template<class CallbackT, class ParameterType>
 struct runAndCallParam {
     CallbackT callback;
 
     ParameterType functionParameter;
+};
+
+template<class ClassType, class FunctionSignature>
+struct MemberFunction;
+
+template<class ClassType, class ReturnType, class...ArgsTypes>
+struct MemberFunction<ClassType, ReturnType(ArgsTypes...)>
+{
+    using Type=ReturnType (ClassType::*)(ArgsTypes...);
+
+    template<Type *sFunction>
+    static ReturnType Call (ClassType *classToCall, ArgsTypes&&...args)
+    {
+        classToCall->*sFunction (Utils::forward<ArgsTypes>(args)...);
+    }
 };
 
 template<ZQ_TemplateVariable (sFunc), class ParameterType>
