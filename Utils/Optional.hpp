@@ -47,12 +47,12 @@ public:
        @param optional
 
        Construct a new @tparam T from @a optional 's object.
-
-       @todo Move constructor
-     */
+      */
     Optional(Optional &&optional)
-        : mConsturctedObject{mConstructor.construct (Utils::move (optional.get ()))}
+        : mConstructor{Utils::move(optional.mConstructor)},
+          mConsturctedObject{mConstructor.construct (mStorageData, Utils::move (optional.get ()))}
     {
+        optional.mConsturctedObject = nullptr;
     }
 
     /**
