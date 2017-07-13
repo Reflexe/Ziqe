@@ -33,16 +33,7 @@ class DriverContext
 public:
     DriverContext();
 
-    bool registerDeviceManager (const Utils::UniquePointer<IDeviceManager> &deviceManager) {
-        ZQ_ASSERT_REPORT (mDeviceManager == nullptr, "Overriding old mDeviceManager");
-        mDeviceManager = deviceManager.get();
-
-        ZqRegisterDeviceManager (mDeviceManager);
-    }
-
 private:
-    IDeviceManager *mDeviceManager = nullptr;
-
 };
 
 } // namespace OS

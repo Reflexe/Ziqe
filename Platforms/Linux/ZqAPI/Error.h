@@ -33,6 +33,7 @@ typedef int ZqError;
 #define ZQ_E_MEM_FAULT EFAULT
 #define ZQ_E_INVALID_ARG EINVAL
 #define ZQ_E_SIZE EMSGSIZE
+#define ZQ_E_NO_MEMORY ENOMEM
 #define ZQ_E_OK 0
 
 #ifdef __cplusplus

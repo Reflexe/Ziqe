@@ -24,9 +24,6 @@
 
 #include "ZqAPI/EntryPoints.h"
 
-/**
-   @brief
- */
 class DriverMain
 {
 public:

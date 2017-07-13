@@ -78,8 +78,10 @@ ZqError ZQ_SYMBOL(ZqMmAllocateUserMemory)(ZqSizeType length,
                     0, /* flags */
                     0); /* offset */
 
+    if (addr == NULL)
+        return ZQ_E_NO_MEMORY;
+
     *result = addr;
-    // TODO: error handling.
 
     return ZQ_E_OK;
 }

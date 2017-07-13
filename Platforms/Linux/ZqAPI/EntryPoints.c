@@ -27,7 +27,7 @@
  * @brief A global variable for private data that being forwarded to the
  *        clients.
  */
-void *g_private_data_ptr;
+static void *g_private_data_ptr;
 
 static int __init linux_init(void) {
         ZQ_SYMBOL (ZqOnLoad) (&g_private_data_ptr);

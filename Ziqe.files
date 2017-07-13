@@ -108,10 +108,14 @@ Platforms/Linux/CMakeLists.txt
 Platforms/Linux/OS/CMakeLists.txt
 Platforms/Linux/OS/DriverContext.cpp
 Platforms/Linux/OS/DriverContext.hpp
+Platforms/Linux/OS/C_API/LinuxUsbApi.c
+Platforms/Linux/OS/C_API/LinuxUsbApi.h
 Platforms/Linux/OS/Memory.cpp
 Platforms/Linux/OS/Memory.hpp
 Platforms/Linux/OS/Types.cpp
 Platforms/Linux/OS/Types.hpp
+Platforms/Linux/OS/UsbDevice.cpp
+Platforms/Linux/OS/UsbDevice.hpp
 Platforms/Linux/OS/UsbDeviceManager.cpp
 Platforms/Linux/OS/UsbDeviceManager.hpp
 Platforms/Linux/ZqAPI/CMakeLists.txt
@@ -191,6 +195,7 @@ Utils/Callback.cpp
 Utils/Callback.hpp
 Utils/Checks.cpp
 Utils/Checks.hpp
+Utils/CompilerSymbols.cpp
 Utils/Constructor.cpp
 Utils/Constructor.hpp
 Utils/DummyPointer.cpp
@@ -209,6 +214,8 @@ Utils/FunctionTools.cpp
 Utils/FunctionTools.hpp
 Utils/HashTable.cpp
 Utils/HashTable.hpp
+Utils/IRawStream.cpp
+Utils/IRawStream.hpp
 Utils/IteratorTools.cpp
 Utils/IteratorTools.hpp
 Utils/LinkedList.cpp

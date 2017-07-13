@@ -45,6 +45,8 @@ class Vector
 public:
     typedef T ElementType;
     typedef Ziqe::SizeType SizeType;
+
+    // TODO: change it to UniquePointer.
     typedef T* PointerType;
     typedef T* Iterator;
     typedef const T* ConstIterator;
@@ -185,7 +187,7 @@ public:
     }
 
     /**
-     * @brief Insert a few pairs of [begin,end].
+     * @brief Insert a few pairs of [begin,end] or triples of [begin,end,(end-begin)]
      */
     template<class...InputIteratorsPairsOrTriples>
     void expandFew (const InputIteratorsPairsOrTriples&... beginAndEnds) {
@@ -271,8 +273,12 @@ private:
         PointerType pointer{Utils::move (mPointer)};
         auto pointerSize = mSize;
 
-        mPointer = mAllocator.allocate (newSize);
-        mSize = newSize;
+        if (newSize != 0) {
+            mPointer = mAllocator.allocate (newSize);
+            mSize = newSize;
+        } else {
+            makeEmpty();
+        }
 
         if (pointerSize != 0) {
             moveOldBufferToNew (pointer, pointerSize, newSize);

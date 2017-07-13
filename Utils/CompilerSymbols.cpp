@@ -1,5 +1,5 @@
 /**
- * @file DriverContext.cpp
+ * @file CompilerSymbols
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,17 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "DriverContext.hpp"
 
-ZQ_BEGIN_NAMESPACE
+#include "Utils/Checks.hpp"
 
-namespace OS {
-
-DriverContext::DriverContext()
+extern "C" void __cxa_pure_virtual()
 {
-
+    ZQ_ASSERT_REPORT_NOT_REACHED ("A pure virtual function has been called");
 }
-
-} // namespace OS
-
-ZQ_END_NAMESPACE

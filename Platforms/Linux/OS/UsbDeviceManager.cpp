@@ -20,20 +20,57 @@
 #include "UsbDeviceManager.hpp"
 
 #include "Utils/FunctionTools.hpp"
+#include "Utils/UniquePointer.hpp"
+
+#include "ZqAPI/Memory.h"
+#include "OS/C_API/LinuxUsbApi.h"
+
+#include "UsbDevice.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-UsbDeviceManager::UsbDeviceManager()
+static ZqError onProbe (ZqKernelAddress argument, ZqLinuxUsbInterface interface) {
+    auto device = Utils::makeUnique<Utils::SharedPointer<IDevice>>();
+    auto weakDevice = Utils::WeakPointer<IDevice>(*device);
+
+    ZQ_SYMBOL(ZqLinuxUsbSetInterfaceData) (interface, device.release ());
+
+    static_cast<UsbDeviceManager*>(argument)->onDeviceAttached(Utils::move(weakDevice));
+
+    return ZQ_E_OK;
+}
+
+static ZqError onDisconnect (ZqKernelAddress argument, ZqLinuxUsbInterface interface) {
+    auto rawDevicePointer = ZQ_SYMBOL(ZqLinuxUsbGetInterfaceData) (interface);
+    Utils::UniquePointer<Utils::SharedPointer<IDevice>> pDevice{rawDevicePointer};
+
+    static_cast<UsbDeviceManager*>(argument)->onDeviceDetached (Utils::move(pDevice));
+
+    // Call the device's virtual destructor.
+    return ZQ_E_OK;
+}
+
+UsbDeviceManager::UsbDeviceManager(Utils::SharedPointer<DriverContext> &&driver) {
+    mDriver = ZQ_SYMBOL (ZqLinuxUsbRegisterDevice) ("ABC",
+                                                    &onProbe,
+                                                    &onDisconnect,
+                                                    this);
+}
+
+UsbDeviceManager::~UsbDeviceManager()
+{
+    ZQ_SYMBOL (ZqLinuxUsbUnregisterDevice) (mDriver);
+}
+
+void UsbDeviceManager::onDeviceAttached(Utils::UniquePointer<IDevice> &&context)
 {
 
 }
 
-bool UsbDeviceManager::startListen(DriverContext *context) {
-    ZQ_UNUSED (context);
+void UsbDeviceManager::onDeviceDetached(Utils::UniquePointer<IDevice> &&context)
+{
 
-    ZqLinuxRegisterUsbCallbacks (info, probe, disconnect, this);
-    auto a = &Utils::MemberFunction<UsbDeviceManager, void(const IDevice&)>::Call<&UsbDeviceManager::onDeviceAttached>;
 }
 
 } // namespace OS

@@ -1,4 +1,5 @@
 load(":api.bzl", "linux_module")
+load("//BuildTools:test.bzl", 'cc_class_library')
 
 cc_library (
     name = 'ZqAPI',
@@ -12,23 +13,28 @@ cc_library (
         'ZqAPI/SystemCalls.h', 
         'ZqAPI/Types.h', 
         'ZqAPI/Error.h',
+        'OS/C_API/LinuxUsbApi.h',
     ],
 
     includes = ['.'],
     visibility = ["//visibility:public"],
 )
 
-cc_library (
+cc_class_library (
     name = 'OS',
-    hdrs = [
-        'OS/Memory.hpp',
+    classes = [ 'OS/Memory',
+                'OS/DriverContext',
+                'OS/Types',
+                'OS/UsbDeviceManager',
     ],
 
-    srcs = [
-        'OS/Memory.cpp',
-    ]
+    deps = [
+        '//Platforms:ZqAPI',
+        '//Platforms/Common:OS',
+        '//Utils:Utils',
+    ],
 
-
+    visibility = ["//visibility:public"],
     )
 
 exports_files(["LinuxHeaders/4.10.6-1-ARCH/build"])
@@ -42,6 +48,7 @@ filegroup(name = '_linux_build_srcs',
           #'ZqAPI/Memory.c', 
           #      ':ZqAPI/SpinLock.c', 
                 ':ZqAPI/Mutex.c', 
+                'OS/C_API/LinuxUsbApi.c',
                 #':ZqAPI/RWLock.c', 
                 #':ZqAPI/Socket.c', 
                 ':ZqAPI/Logging.c',

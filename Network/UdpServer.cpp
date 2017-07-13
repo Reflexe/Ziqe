@@ -76,8 +76,6 @@ Base::UniquePointer<Stream> UdpServer::acceptClient() {
     if (! maybeDataAndSocketAddress)
         return {};
 
-
-
     // FIXME: a big packets would not work, we should receive the next packet.
     return Base::makeUnique<ServerToClientUdpStream>();
 }

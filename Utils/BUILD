@@ -11,6 +11,9 @@ cc_class_library (
         'UniquePointer', 'SharedPointer', 'Allocator'
     ],
     hdrs = ['Macros.hpp'],
+    srcs = ['CompilerSymbols.cpp'],
+
+
     #includes = ['//.'],
     deps = [
             '//Platforms:ZqAPI',

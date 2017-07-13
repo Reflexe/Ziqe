@@ -10,8 +10,7 @@ cc_library (
 cc_library (
         name="OS",
         deps = [
-            '//Platforms/Linux:OS',
-            '//Platforms/Common:OS',
+            '//Platforms/Linux:OS'
         ],
         visibility = ["//visibility:public"]
         )

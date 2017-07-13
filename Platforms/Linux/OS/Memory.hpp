@@ -20,7 +20,7 @@
 #ifndef MEMORY_HPP
 #define MEMORY_HPP
 
-#include "Platforms/Macros.h"
+#include "ZqAPI/Macros.h"
 
 #include "Utils/Expected.hpp"
 #include "Utils/Optional.hpp"

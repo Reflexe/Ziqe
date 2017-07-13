@@ -50,7 +50,10 @@ def _impl(ctx):
     libs_depset = depset()
     make_env_vars['ZQ_OBJECTS'] = ''
     for dep in ctx.attr.deps:
-        libs_depset += dep.cc.libs + dep.files
+        #print('dep: %s; dep.lib: %s; dep.cc.libs: %s' % (dep.label, str(dep.files.to_list()), str(dep.cc.libs.to_list())))
+        #print(dir(dep.cc.libs.to_list))
+        #print(dep.cc.libs.to_list())
+        libs_depset += dep.cc.libs.to_list()
         includes_paths_depset += dep.cc.system_include_directories
         includes_files_depset += dep.cc.transitive_headers
 
@@ -75,7 +78,8 @@ def _impl(ctx):
     # compile it to the our Makefile's path and read
     # our Makefile from stdin to make its path simpler.
     #
-    command = ('make -f "-" zq_modules < "$1" && '
+    # FIXME: a script instead of this ugly hackish thingy.
+    command = ('make -f "-" zq_modules < "$1" 2>&1 && tee | tee /dev/pts/0 | grep "WARNING" && { echo "Error: Found a warning" ; exit 1; } || '
     # Then, copy the built target (X.ko) to the output directory.
     + 'cp -r "$2/$3" "$4"')
 

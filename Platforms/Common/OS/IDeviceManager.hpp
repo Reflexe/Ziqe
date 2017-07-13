@@ -20,6 +20,8 @@
 #ifndef IDEVICEMANAGER_HPP
 #define IDEVICEMANAGER_HPP
 
+#include "Utils/SharedPointer.hpp"
+
 #include "OS/IDevice.hpp"
 #include "OS/DriverContext.hpp"
 
@@ -30,12 +32,10 @@ class IDeviceManager
 {
 public:
     IDeviceManager();
+    virtual ~IDeviceManager();
 
-    virtual void onDeviceAttached (IDevice &device) = 0;
-
-    virtual void onDeviceDetached (IDevice &device) = 0;
-
-    virtual void startListen (DriverContext *context) = 0;
+    virtual void onDeviceAttached (Utils::UniquePointer<IDevice> &device) = 0;
+    virtual void onDeviceDetached (Utils::UniquePointer<IDevice> &device) = 0;
 };
 
 } // namespace OS

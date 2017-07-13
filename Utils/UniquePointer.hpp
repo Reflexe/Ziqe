@@ -87,7 +87,7 @@ public:
         auto pointer = mPointer;
         mPointer = nullptr;
 
-        return mPointer;
+        return pointer;
     }
 
     operator bool () const

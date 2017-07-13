@@ -1,5 +1,5 @@
 /**
- * @file DriverContext.cpp
+ * @file UsbDevice.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,17 +17,48 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "DriverContext.hpp"
+#ifndef USBDEVICE_HPP
+#define USBDEVICE_HPP
+
+#include "Utils/Macros.hpp"
+#include "Utils/Vector.hpp"
+#include "Utils/UniquePointer.hpp"
+
+#include "OS/IDevice.hpp"
 
 ZQ_BEGIN_NAMESPACE
-
 namespace OS {
 
-DriverContext::DriverContext()
-{
+inline namespace _Linux {
 
 }
 
-} // namespace OS
+class UsbDevice : public IDevice
+{
+public:
+    UsbDevice(void*)
+    {
 
+    }
+
+//    class UsbPipe
+//    {
+//        class Callback {
+
+//        };
+
+//    private:
+
+//    };
+
+
+
+//    UsbPipe createControlPipe (UsbPipe::Callback &call);
+private:
+
+};
+
+} // namespace OS
 ZQ_END_NAMESPACE
+
+#endif // USBDEVICE_HPP

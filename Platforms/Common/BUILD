@@ -8,13 +8,19 @@ cc_class_library (
         'OS/ILoadableModule',
     ],
     visibility = ['//Platforms:__subpackages__'],
+    deps = [
+        '//Utils:Utils',
+    ],
+
+    includes = ['.'],
 )    
+
 cc_class_library(
     name = 'ZqAPI',
 
     hdrs = [
         'ZqAPI/Macros.h',
-        'ZqAPI/EntryPoints.h'
+        'ZqAPI/EntryPoints.h',
     ],
     visibility = ['//Platforms:__subpackages__'],
 

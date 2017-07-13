@@ -113,18 +113,20 @@ public:
     template<typename T, SizeType sByteLength=sizeof (T)>
     bool canReadVectorT(SizeType numberOfElements)
     {
-        return haveBytes (numberOfElements * sByteLength);
+        return hasBytes (numberOfElements * sByteLength);
     }
 
     template<typename T, SizeType sByteLength=sizeof (T)>
     bool canReadVectorT(SizeType numberOfElements) const
     {
-        return haveBytes (numberOfElements * sByteLength);
+        return hasBytes (numberOfElements * sByteLength);
     }
 
     template <typename T, SizeType sByteLength=sizeof (T)>
     Utils::Vector<T> readTVector (SizeType numberOfElements) {
         Utils::Vector<T> elements;
+
+        // FIXME: initilized in here and then in the next line.
         elements.resize (numberOfElements);
 
         for (typename Utils::Vector<T>::SizeType i = 0; i < numberOfElements; ++i) {
@@ -159,12 +161,12 @@ public:
         getVector ().increaseBegin (length);
     }
 
-    bool haveBytes (SizeType length) const
+    bool hasBytes (SizeType length) const
     {
         return getVector ().hasLength (length);
     }
 
-    bool haveBytes (SizeType length)
+    bool hasBytes (SizeType length)
     {
         return getVector ().hasLength (length);
     }
@@ -177,13 +179,13 @@ public:
     template<class T, SizeType sByteLength=sizeof (T)>
     bool canReadT() const
     {
-        return haveBytes (sByteLength);
+        return hasBytes (sByteLength);
     }
 
     template<class T, SizeType sByteLength=sizeof (T)>
     bool canReadT()
     {
-        return haveBytes (sByteLength);
+        return hasBytes (sByteLength);
     }
 
     VectorType &getVector ()

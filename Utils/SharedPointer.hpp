@@ -22,24 +22,83 @@
 
 #include "Utils/Macros.hpp"
 #include "Utils/Memory.hpp"
+#include "Utils/RawPointer.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Utils {
+
 // TODO:  make CountType atomic: write an atomic API.
-template<class DeleterType>
+template<class T, class DeleterType>
 struct _SharedPointerReferenceType
 {
     typedef SizeType CountType;
+
+    struct WeakContainer {
+        WeakContainer(RawPointer<_SharedPointerReferenceType> reference)
+            : mReference{reference}
+        {
+            ++(reference->mWeakCount);
+        }
+
+        ~WeakContainer()
+        {
+            if (--(mReference->mWeakCount) == 0) {
+                delete mReference.get ();
+            }
+        }
+
+        ZQ_DEFINE_CONST_AND_NON_CONST(const _SharedPointerReferenceType&,
+                                      _SharedPointerReferenceType,
+                                      get,
+                                      (),
+        {
+            return *mReference;
+        })
+
+    private:
+        RawPointer<_SharedPointerReferenceType> mReference;
+    };
+
+    struct SharedContainer {
+        SharedContainer(RawPointer<_SharedPointerReferenceType> reference)
+            : mWeakContainer{reference}
+        {
+            ++(mWeakContainer.get().mReferenceCount);
+        }
+
+        ~SharedContainer()
+        {
+            --(mWeakContainer.get().mReferenceCount);
+        }
+
+        ZQ_DEFINE_CONST_AND_NON_CONST(const _SharedPointerReferenceType&,
+                                      _SharedPointerReferenceType,
+                                      get,
+                                      (),
+        {
+            return mWeakContainer.get ();
+        })
+
+    private:
+        WeakContainer mWeakContainer;
+    };
 
     _SharedPointerReferenceType() = default;
     explicit _SharedPointerReferenceType(CountType count)
         : mReferenceCount{count}
     {}
 
+    T *mPointer;
+
     DeleterType mDeleter;
 
     // The number of count-1
+    // 0 -> 1
+    // 1 -> 2
     CountType mReferenceCount = 0;
+
+    // Reference count for the reference type.
+    CountType mWeakCount = 0;
 };
 
 template<class T, class Deleter>
@@ -49,7 +108,10 @@ public:
     template<class OtherT, class OtherDeleter>
     friend class SharedPointerBase;
 
-    typedef _SharedPointerReferenceType<Deleter> _ReferenceType;
+    template<class OtherT, class OtherDeleter>
+    friend class WeakPointer;
+
+    typedef _SharedPointerReferenceType<T,Deleter> _ReferenceType;
     typedef typename _ReferenceType::CountType CountType;
 
     SharedPointerBase()
@@ -91,13 +153,12 @@ public:
 
     ~SharedPointerBase()
     {
-        decreaseCount ();
+        decreaseCountAndDeleteReferece ();
     }
 
     template<class OtherT, class OtherDeleter>
     SharedPointerBase &operator= (SharedPointerBase<OtherT, OtherDeleter> &&other) {
-        decreaseCount ();
-        deleteReference ();
+        decreaseCountAndDeleteReferece ();
 
         mPointer = other.mPointer;
         mReference = other.mReference;
@@ -110,8 +171,7 @@ public:
 
     template<class OtherT, class OtherDeleter>
     SharedPointerBase &operator= (const SharedPointerBase<OtherT, OtherDeleter> &other) {
-        decreaseCount ();
-        deleteReference ();
+        decreaseCountAndDeleteReferece ();
 
         mPointer = other.mPointer;
         mReference = other.mReference;
@@ -122,34 +182,20 @@ public:
     }
 
     SharedPointerBase &operator= (SharedPointerBase &&other) {
-        decreaseCount ();
-        deleteReference ();
-
-        mPointer = other.mPointer;
-        mReference = other.mReference;
-
-        other.mPointer = nullptr;
-        other.mReference = nullptr;
+        swap (other);
 
         return *this;
     }
 
     SharedPointerBase &operator= (const SharedPointerBase &other) {
-        decreaseCount ();
-        deleteReference ();
-
-        mPointer = other.mPointer;
         mReference = other.mReference;
-
-        increaseCount ();
 
         return *this;
     }
 
-    void reset (T *pointer = nullptr) {
-        decreaseCount ();
-
-        setPointer (pointer);
+    void reset (T *pointer = nullptr)
+    {
+        swap (SharedPointer(pointer));
     }
 
     T *get()
@@ -190,7 +236,7 @@ public:
         else if (mReference == nullptr)
             return 1;
         else
-            return mReference->mReferenceCount;
+            return mReference->mReferenceCount+1;
     }
 
     operator bool () const
@@ -206,6 +252,11 @@ public:
     operator const T& ()
     {
         return operator *();
+    }
+
+    void swap (SharedPointerBase &otherPointer)
+    {
+        Utils::swap (mReference, otherPointer.mReference);
     }
 
 protected:
@@ -228,7 +279,12 @@ protected:
             ++(mReference->mReferenceCount);
     }
 
-    void decreaseCount() {
+    void decreaseCountAndDeleteReferece ()
+    {
+        decreaseCount ();
+    }
+
+    void decreaseCount(bool shouldDeleteReferece=false) {
         // if count==0
         if (mPointer == nullptr)
             return;
@@ -236,9 +292,11 @@ protected:
         // if --count == 0
         if (mReference == nullptr) {
             deleteObject ();
-        } else {
-            if (mReference->mReferenceCount == 0)
-                deleteObject ();
+        } else if (mReference->mReferenceCount == 0) {
+            deleteObject ();
+
+            if (shouldDeleteReferece)
+                deleteReference ();
         }
 
         mReference = nullptr;
@@ -314,6 +372,32 @@ public:
     {
         return this->mPointer[index];
     }
+};
+
+template<class T, class Deleter=DefaultDeleter<T>>
+class WeakPointer
+{
+public:
+    typedef _SharedPointerReferenceType<T,Deleter> _ReferenceType;
+    typedef typename _ReferenceType::CountType CountType;
+
+    WeakPointer(const SharedPointer<T, Deleter> &sharedPointer)
+        : mReference{sharedPointer.mReference}
+    {
+    }
+
+    bool isExpired () const
+    {
+        return mReference->mReferenceCount == 0;
+    }
+
+    SharedPointer<T, Deleter> lock()
+    {
+        return SharedPointer<T, Deleter>{mReference};
+    }
+
+private:
+    typename _ReferenceType::WeakContainer mReference;
 };
 
 template<class T, class ...Args>

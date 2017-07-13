@@ -30,9 +30,11 @@
 #define ZQ_ALLOW_MOVE(name) name(name &&)      = default; name &operator= (name &&)      = default;
 
 #define ZQ_ALLOW_COPY_AND_MOVE(name) ZQ_ALLOW_COPY(name) ZQ_ALLOW_MOVE(name)
+#define ZQ_PURE_VIRTUAL_DESTRUCTOR(name) virtual ZQ_CAT(~,name) () = 0;
+
 
 #define ZQ_ALLOW_MAKE_UNIQUE() template<class T, class ...Args> friend ::Ziqe::Utils::UniquePointer<T> makeUnique(Args&&...)
-#define ZQ_ALLOW_EXPECTED() template<class A, class B> friend class ::Ziqe::Utils::Expected
+#define ZQ_ALLOW_EXPECTED() template<class A, class B> friend class ::Ziqe::Utils::CustomStorageConstructor
 
 #define ZQ_DISALLOW_COPY(name) name(const name &) = delete; name &operator= (const name &) = delete;
 #define ZQ_DISALLOW_MOVE(name) name(name &&)      = delete; name & operator= (name &&)     = delete;
@@ -78,10 +80,23 @@ constexpr T &max(T &one, T &two)
 }
 
 template<class T>
+constexpr const T &max(const T &one, const T &two)
+{
+    return (one > two) ? one : two;
+}
+
+template<class T>
 constexpr T &min(T &one, T &two)
 {
     return (one < two) ? one : two;
 }
+
+template<class T>
+constexpr const T &min(const T &one, const T &two)
+{
+    return (one < two) ? one : two;
+}
+
 
 /**
  * An holder for a build time known value. Used in places

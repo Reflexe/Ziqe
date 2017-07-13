@@ -1,5 +1,5 @@
 /**
- * @file DriverContext.cpp
+ * @file UsbDevice.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,17 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "DriverContext.hpp"
-
-ZQ_BEGIN_NAMESPACE
+#include "UsbDevice.hpp"
 
 namespace OS {
 
-DriverContext::DriverContext()
-{
-
-}
 
 } // namespace OS
-
-ZQ_END_NAMESPACE

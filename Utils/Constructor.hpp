@@ -49,7 +49,7 @@ struct CustomStorageConstructor {
         return ::new(static_cast<void*>(pointer)) T{Utils::forward<Args>(args)...};
     }
 
-    /// These function receives T* and not StorageType* because of
+    /// These functions receives T* and not StorageType* because of
     /// strict aliasing rule.
     void destruct(T *pointer, SizeType n) {
         // Destruct in reverse

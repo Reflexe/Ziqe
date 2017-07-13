@@ -27,5 +27,10 @@ IDeviceManager::IDeviceManager()
 
 }
 
+IDeviceManager::~IDeviceManager()
+{
+
+}
+
 } // namespace OS
 ZQ_END_NAMESPACE

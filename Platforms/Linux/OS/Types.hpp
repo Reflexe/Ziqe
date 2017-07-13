@@ -20,7 +20,7 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-#include "Platforms/Macros.h"
+#include "ZqAPI/Macros.h"
 
 #include "ZqAPI/Types.h"
 

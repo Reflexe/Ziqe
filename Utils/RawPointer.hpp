@@ -174,7 +174,7 @@ public:
 
     bool operator ==(const RawArray &other)
     {
-        return mSize == other.mSize && this->_PointerType == other._PointerType;
+        return mSize == other.mSize && this->operator == (static_cast<const _PointerType&>(other));
     }
 
     T &operator [](SizeType index)
