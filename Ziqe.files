@@ -1,6 +1,7 @@
 BUILD
 BuildTools/config_repo.bzl
 Platforms/Linux/ZqAPI/Makefile
+Platforms/Readme.md
 WORKSPACE
 Platforms/Linux/Scripts/CompileLinuxModule.sh
 Platforms/Linux/Scripts/ParseUsbIDs.py

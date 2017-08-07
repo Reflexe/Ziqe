@@ -4,14 +4,16 @@ ZiqeAPI a cross-platform C API for Drivers and Applications.
 ## Supported Platforms:
     * Linux (Drivers)
     * Posix (Applications)
-    * (TODO) Windows NT (Vista+)
+    * Windows NT (Vista+)
+    * IOKit: iOS, macOS.
 
 ## ZiqeAPI's model:
 To support a platform, there should be a directory with its name
 that contains a CMakeLists.txt and implements the following functions:
-    * zq_add_driver(name driver_sources): Add a driver for compiling.
-        @param name:            The driver's name.
-        @param driver_sources:  The sources to compile.
+
+    - zq_add_driver(name driver_sources): Add a driver for compiling.
+        - @param name:            The driver's name.
+        - @param driver_sources:  The sources to compile.
 
       The output directory should be CMAKE_CURRENT_BUILD_DIRECTORY.
 
