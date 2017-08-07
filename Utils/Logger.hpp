@@ -64,9 +64,9 @@ private:
 
 };
 
-#define ZQ_LOG(msg) Logger::logMessage (": \"" msg "\"")
-#define ZQ_WARNING(msg) Logger::logWarning (": \"" msg "\"")
-#define ZQ_ERROR(msg) Logger::logError (": \"" msg "\"")
+#define ZQ_LOG(msg) ::Ziqe::Utils::Logger::logMessage (": \"" msg "\"\n")
+#define ZQ_WARNING(msg) ::Ziqe::Utils::Logger::logWarning (": \"" msg "\"\n")
+#define ZQ_ERROR(msg) ::Ziqe::Utils::Logger::logError (": \"" msg "\"\n")
 
 }
 ZQ_END_NAMESPACE

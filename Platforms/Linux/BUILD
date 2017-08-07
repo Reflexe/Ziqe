@@ -1,5 +1,5 @@
-load(":api.bzl", "linux_module")
 load("//BuildTools:test.bzl", 'cc_class_library')
+load(':api.bzl', 'linux_lastest_path')
 
 cc_library (
     name = 'ZqAPI',
@@ -26,6 +26,7 @@ cc_class_library (
                 'OS/DriverContext',
                 'OS/Types',
                 'OS/UsbDeviceManager',
+                'OS/UsbDevice',
     ],
 
     deps = [
@@ -37,17 +38,19 @@ cc_class_library (
     visibility = ["//visibility:public"],
     )
 
-exports_files(["LinuxHeaders/4.10.6-1-ARCH/build"])
-
 ## TODO: filegroup for each linux headers and a macro
 filegroup(name = '_linux_build_headers', 
-          srcs=glob(include=['LinuxHeaders/**'], exclude_directories=0)
-            )
+          srcs=glob(include=['LinuxHeaders/**'], exclude_directories=0),
+          visibility = ["//visibility:public"],
+          )
+
+exports_files ([linux_lastest_path + '/build'])
+
 filegroup(name = '_linux_build_srcs', 
           srcs = [
           #'ZqAPI/Memory.c', 
           #      ':ZqAPI/SpinLock.c', 
-                ':ZqAPI/Mutex.c', 
+               # ':ZqAPI/Mutex.c',
                 'OS/C_API/LinuxUsbApi.c',
                 #':ZqAPI/RWLock.c', 
                 #':ZqAPI/Socket.c', 
@@ -58,5 +61,8 @@ filegroup(name = '_linux_build_srcs',
         visibility = ["//visibility:public"],
 )
                 
-
-exports_files(["ZqAPI/Makefile"])
+# TODO: real rules
+exports_files(["ZqAPI/Makefile",
+               'Scripts/ParseUsbIDs.py',
+               "Scripts/CompileLinuxModule.sh",
+               ])

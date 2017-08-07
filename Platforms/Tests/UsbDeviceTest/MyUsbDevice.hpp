@@ -1,5 +1,5 @@
 /**
- * @file UsbDevice.hpp
+ * @file MyUsbDevice.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,48 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef USBDEVICE_HPP
-#define USBDEVICE_HPP
+#ifndef MYUSBDEVICE_HPP
+#define MYUSBDEVICE_HPP
 
-#include "Utils/Macros.hpp"
-#include "Utils/Vector.hpp"
-#include "Utils/UniquePointer.hpp"
+#include "OS/UsbDevice.hpp"
 
-#include "OS/IDevice.hpp"
-
-ZQ_BEGIN_NAMESPACE
-namespace OS {
-
-inline namespace _Linux {
-
-}
-
-class UsbDevice : public IDevice
+class MyUsbDevice
 {
 public:
-    UsbDevice()
-    {
+    MyUsbDevice();
 
-    }
-
-//    class UsbPipe
-//    {
-//        class Callback {
-
-//        };
-
-//    private:
-
-//    };
-
-
-
-//    UsbPipe createControlPipe (UsbPipe::Callback &call);
-private:
 
 };
 
-} // namespace OS
-ZQ_END_NAMESPACE
-
-#endif // USBDEVICE_HPP
+#endif // MYUSBDEVICE_HPP

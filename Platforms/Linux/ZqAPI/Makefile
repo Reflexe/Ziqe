@@ -5,9 +5,10 @@ name := $(name)
 obj-m := $(name).o
 ko-m := $(name).ko
 #Linux-objs := $(filter-out Linux.o,$(ZQ_LINUX_MODULE_OBJECT)) DummyCPPForwarder.o
+#ZQ_OBJECTS := $(addprefix ${sandbox_pwd}/, $(ZQ_OBJECTS))
 $(name)-objs := $(OTHER_MODULE_OBJECTS) $(ZQ_OBJECTS)
 
-ccflags-y := $(addprefix -I$(PWD)/, $(ZQ_INCLUDE_PATHS))
+ccflags-y := $(addprefix -I${sandbox_pwd}/, $(ZQ_INCLUDE_PATHS))
 
 #Linux-objs := ../../../../Build/Utils/libBase.a
 #EXTRA_CFLAGS+=-DLINUX_DRIVER -mhard-float
@@ -21,8 +22,8 @@ ccflags-y := $(addprefix -I$(PWD)/, $(ZQ_INCLUDE_PATHS))
 #$(info $(M))
 #make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
-zq_info : ; make -s -C "${PWD}/${ZQ_LINUX_HEADERS_PATH}" M="${PWD}/${ZQ_MAKEFILE_PATH}" --eval='$$(info $$(KBUILD_CFLAGS))'
-zq_modules : ; make -C "${PWD}/${ZQ_LINUX_HEADERS_PATH}" M="${PWD}/${ZQ_MAKEFILE_PATH}" modules 
+zq_info : ;    make -s -C "${ZQ_LINUX_HEADERS_PATH}" M="${sandbox_pwd}/${ZQ_MAKEFILE_PATH}" -k --no-print-directory --eval='$$(info $$(KBUILD_CFLAGS))'
+zq_modules : ; make -C "${sandbox_pwd}/${ZQ_LINUX_HEADERS_PATH}" M="${sandbox_pwd}/${ZQ_MAKEFILE_PATH}" modules
 
 #ziqe_modules: modules ; env
 #ld -r --build-id -o $(ko-m).new Linux.mod.o $(OTHER_OBJECTS) $(ZQ_OBJECTS)

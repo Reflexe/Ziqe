@@ -1,5 +1,5 @@
 /**
- * @file UsbDevice.hpp
+ * @file MyUsbDeviceManager.hpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,48 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef USBDEVICE_HPP
-#define USBDEVICE_HPP
+#ifndef MYUSBDEVICEMANAGER_HPP
+#define MYUSBDEVICEMANAGER_HPP
 
-#include "Utils/Macros.hpp"
-#include "Utils/Vector.hpp"
-#include "Utils/UniquePointer.hpp"
+#include "OS/UsbDeviceManager.hpp"
 
-#include "OS/IDevice.hpp"
-
-ZQ_BEGIN_NAMESPACE
-namespace OS {
-
-inline namespace _Linux {
-
-}
-
-class UsbDevice : public IDevice
+class MyUsbDeviceManager : public Ziqe::OS::UsbDeviceManager
 {
 public:
-    UsbDevice()
-    {
+    MyUsbDeviceManager(const Ziqe::Utils::SharedPointer<Ziqe::OS::DriverContext> &driver);
 
-    }
-
-//    class UsbPipe
-//    {
-//        class Callback {
-
-//        };
-
-//    private:
-
-//    };
-
-
-
-//    UsbPipe createControlPipe (UsbPipe::Callback &call);
-private:
-
+    virtual void onDeviceAttached (Ziqe::OS::IDevice &context) final;
+    virtual void onDeviceDetached (Ziqe::OS::IDevice &context) final;
 };
 
-} // namespace OS
-ZQ_END_NAMESPACE
-
-#endif // USBDEVICE_HPP
+#endif // MYUSBDEVICEMANAGER_HPP

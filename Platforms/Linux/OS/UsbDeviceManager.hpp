@@ -23,13 +23,14 @@
 #include "OS/Memory.hpp"
 
 #include "OS/IDeviceManager.hpp"
+#include "OS/DriverContext.hpp"
+#include "OS/UsbDevice.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
 /**
  * @brief The UsbDeviceManager class
- *
  *
  * Terminology:
  *  IDevice: An active connection between a computer and a device.
@@ -40,13 +41,12 @@ namespace OS {
 class UsbDeviceManager : public IDeviceManager
 {
 public:
-    //typedef ZqLinuxUsbInterface DeviceContext;
+    UsbDeviceManager(const char *name,
+                     const Utils::SharedPointer<DriverContext> &driver);
+    ~UsbDeviceManager() override;
 
-    UsbDeviceManager(Utils::SharedPointer<DriverContext> &&driver);
-    ~UsbDeviceManager() final;
-
-    virtual void onDeviceAttached(Utils::UniquePointer<IDevice> &&context) final;
-    virtual void onDeviceDetached(Utils::UniquePointer<IDevice> &&context) final;
+    virtual void onDeviceAttached(IDevice &context) override;
+    virtual void onDeviceDetached(IDevice &context) override;
 
 private:
     ZqKernelAddress mDriver;

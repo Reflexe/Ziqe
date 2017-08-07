@@ -8,5 +8,6 @@ config = {
     'cpp': {
         'class_src_ext': 'cpp',
         'class_hdr_ext': 'hpp',
+        'opts'         : '%{opts}',
     },
 }

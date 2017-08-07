@@ -1,5 +1,5 @@
 /**
- * @file UsbDevice.hpp
+ * @file main.cpp
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,48 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef USBDEVICE_HPP
-#define USBDEVICE_HPP
 
-#include "Utils/Macros.hpp"
-#include "Utils/Vector.hpp"
-#include "Utils/UniquePointer.hpp"
+#include "ZqAPI/EntryPoints.h"
+#include "MyUsbDeviceManager.hpp"
 
-#include "OS/IDevice.hpp"
-
-ZQ_BEGIN_NAMESPACE
-namespace OS {
-
-inline namespace _Linux {
-
-}
-
-class UsbDevice : public IDevice
+struct Data
 {
-public:
-    UsbDevice()
-    {
-
-    }
-
-//    class UsbPipe
-//    {
-//        class Callback {
-
-//        };
-
-//    private:
-
-//    };
-
-
-
-//    UsbPipe createControlPipe (UsbPipe::Callback &call);
-private:
-
+    MyUsbDeviceManager device;
 };
 
-} // namespace OS
-ZQ_END_NAMESPACE
+void ZQ_SYMBOL(ZqOnLoad) (void *private_data_ptr)
+{
+    *static_cast<Data**>(private_data_ptr) = new Data{{Ziqe::Utils::makeShared<Ziqe::OS::DriverContext>()}};
+}
 
-#endif // USBDEVICE_HPP
+void ZQ_SYMBOL(ZqOnUnload) (void *private_data_ptr)
+{
+    delete *static_cast<Data**>(private_data_ptr);
+}

@@ -31,8 +31,8 @@ public:
     IDevice();
 
     enum class Class : uint64_t {
-        Usb     = 0x1,
-        Network = 0x2,
+        Usb,
+        Network,
     };
 
     Class getDeviceClass() const

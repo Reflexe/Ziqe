@@ -23,7 +23,6 @@
 #include "Utils/SharedPointer.hpp"
 
 #include "OS/IDevice.hpp"
-#include "OS/DriverContext.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
@@ -34,8 +33,8 @@ public:
     IDeviceManager();
     virtual ~IDeviceManager();
 
-    virtual void onDeviceAttached (Utils::UniquePointer<IDevice> &device) = 0;
-    virtual void onDeviceDetached (Utils::UniquePointer<IDevice> &device) = 0;
+    virtual void onDeviceAttached (IDevice &device) = 0;
+    virtual void onDeviceDetached (IDevice &device) = 0;
 };
 
 } // namespace OS

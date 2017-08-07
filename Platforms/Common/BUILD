@@ -1,4 +1,5 @@
 load("//BuildTools:test.bzl", "cc_class_library")
+package(default_visibility = ['//Platforms:__subpackages__'])
 
 cc_class_library (
     name = 'OS',
@@ -7,7 +8,6 @@ cc_class_library (
         'OS/IDeviceManager',
         'OS/ILoadableModule',
     ],
-    visibility = ['//Platforms:__subpackages__'],
     deps = [
         '//Utils:Utils',
     ],
@@ -22,8 +22,6 @@ cc_class_library(
         'ZqAPI/Macros.h',
         'ZqAPI/EntryPoints.h',
     ],
-    visibility = ['//Platforms:__subpackages__'],
 
     includes = ['.'],
 )
-

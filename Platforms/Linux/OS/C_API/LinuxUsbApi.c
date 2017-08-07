@@ -20,6 +20,9 @@
 #include "LinuxUsbApi.h"
 
 #include <linux/usb.h>
+#include <linux/module.h>
+
+#include "driver_usb_ids.h"
 
 struct zq_usb_callback {
     ZqLinuxUsbDisconnectCallback onDisconnect;
@@ -41,7 +44,8 @@ struct zq_usb_device_driver {
 #define usb_intf_to_zq_usb_device_driver(intf) \
     (to_zq_usb_device_driver (to_usb_driver (intf->dev.driver)))
 
-/* Wrappers around usb_device_driver's callbacks,
+/*
+   Wrappers around usb_device_driver's callbacks,
    required in order to make sure it will provide an additional argument
    and provide a stable API
 
@@ -49,8 +53,8 @@ struct zq_usb_device_driver {
             to take the same prototype as the regular callbacks which
             should be stable. The internal implementation of UsbDeviceManager
             should be private anyway.
-
 */
+
 static ZqError
 forward_probe_callback (struct usb_interface *intf,
                         const struct usb_device_id *id)
@@ -89,8 +93,7 @@ ZQ_SYMBOL (ZqLinuxUsbRegisterDevice) (const char *name,
     zq_driver->callback.onProbe = probe_callback;
     zq_driver->callback.argument = argument;
 
-    //TODO
-    driver->id_table = NULL;
+    driver->id_table = driver_usb_table;
 
     driver->no_dynamic_id = 1;
     driver->disable_hub_initiated_lpm = 1;
@@ -102,15 +105,14 @@ ZQ_SYMBOL (ZqLinuxUsbRegisterDevice) (const char *name,
     return (ZqLinuxUsbHandle) driver;
 }
 
-void ZQ_SYMBOL (ZqLinuxUsbUnregisterDevice) (ZqLinuxUsbHandle handle)
-{
-    usb_deregister(handle);
+void ZQ_SYMBOL (ZqLinuxUsbUnregisterDevice) (ZqLinuxUsbHandle handle) {
+    usb_deregister (handle);
     ZQ_SYMBOL (ZqDeallocate) (handle);
 }
 
 void ZQ_SYMBOL (ZqLinuxUsbSetInterfaceData) (ZqLinuxUsbInterface interface, ZqKernelAddress data)
 {
-    usb_set_intfdata(interface, data);
+    usb_set_intfdata (interface, data);
 }
 
 ZqKernelAddress ZQ_SYMBOL (ZqLinuxUsbGetInterfaceData) (ZqLinuxUsbInterface interface)

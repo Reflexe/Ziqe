@@ -31,28 +31,29 @@ ZQ_BEGIN_NAMESPACE
 namespace OS {
 
 static ZqError onProbe (ZqKernelAddress argument, ZqLinuxUsbInterface interface) {
-    auto device = Utils::makeUnique<Utils::SharedPointer<IDevice>>();
-    auto weakDevice = Utils::WeakPointer<IDevice>(*device);
+    auto pDevice = Utils::makeUnique<UsbDevice>();
+    auto &device = *pDevice;
 
-    ZQ_SYMBOL(ZqLinuxUsbSetInterfaceData) (interface, device.release ());
+    ZQ_SYMBOL(ZqLinuxUsbSetInterfaceData) (interface, pDevice.release ());
 
-    static_cast<UsbDeviceManager*>(argument)->onDeviceAttached(Utils::move(weakDevice));
+    static_cast<UsbDeviceManager*>(argument)->onDeviceAttached(device);
 
     return ZQ_E_OK;
 }
 
 static ZqError onDisconnect (ZqKernelAddress argument, ZqLinuxUsbInterface interface) {
     auto rawDevicePointer = ZQ_SYMBOL(ZqLinuxUsbGetInterfaceData) (interface);
-    Utils::UniquePointer<Utils::SharedPointer<IDevice>> pDevice{rawDevicePointer};
+    auto uniqueDevice = Utils::UniquePointer<UsbDevice>{static_cast<UsbDevice*>(rawDevicePointer)};
 
-    static_cast<UsbDeviceManager*>(argument)->onDeviceDetached (Utils::move(pDevice));
+    static_cast<UsbDeviceManager*>(argument)->onDeviceDetached (*uniqueDevice);
 
     // Call the device's virtual destructor.
     return ZQ_E_OK;
 }
 
-UsbDeviceManager::UsbDeviceManager(Utils::SharedPointer<DriverContext> &&driver) {
-    mDriver = ZQ_SYMBOL (ZqLinuxUsbRegisterDevice) ("ABC",
+UsbDeviceManager::UsbDeviceManager(const char *name,
+                                   const Utils::SharedPointer<DriverContext> &driver) {
+    mDriver = ZQ_SYMBOL (ZqLinuxUsbRegisterDevice) (name,
                                                     &onProbe,
                                                     &onDisconnect,
                                                     this);
@@ -63,12 +64,12 @@ UsbDeviceManager::~UsbDeviceManager()
     ZQ_SYMBOL (ZqLinuxUsbUnregisterDevice) (mDriver);
 }
 
-void UsbDeviceManager::onDeviceAttached(Utils::UniquePointer<IDevice> &&context)
+void UsbDeviceManager::onDeviceAttached(IDevice &context)
 {
 
 }
 
-void UsbDeviceManager::onDeviceDetached(Utils::UniquePointer<IDevice> &&context)
+void UsbDeviceManager::onDeviceDetached(IDevice &context)
 {
 
 }

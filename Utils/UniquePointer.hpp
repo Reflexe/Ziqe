@@ -95,42 +95,22 @@ public:
         return mPointer != nullptr;
     }
 
-    T *get()
+    T *get() const
     {
         return mPointer;
     }
 
-    const T *get() const
-    {
-        return mPointer;
-    }
-
-    T &operator *()
+    T &operator *() const
     {
         return *mPointer;
     }
 
-    const T &operator *() const
-    {
-        return *mPointer;
-    }
-
-    T *operator ->()
+    T *operator ->() const
     {
         return mPointer;
     }
 
-    const T *operator ->() const
-    {
-        return mPointer;
-    }
-
-    operator T& ()
-    {
-        return *(this);
-    }
-
-    operator const T& ()
+    operator T& () const
     {
         return *(this);
     }
@@ -153,7 +133,6 @@ public:
     using _UniquePointerBase::operator ->;
     using _UniquePointerBase::operator bool;
     using _UniquePointerBase::operator T&;
-    using _UniquePointerBase::operator const T&;
 
     using _UniquePointerBase::UniquePointerBase;
 };
@@ -169,7 +148,6 @@ public:
     using _UniquePointerBase::operator bool;
     using _UniquePointerBase::operator ->;
     using _UniquePointerBase::operator T&;
-    using _UniquePointerBase::operator const T&;
 
     // Don't allow converting of array.
     UniquePointer() = default;
