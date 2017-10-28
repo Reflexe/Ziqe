@@ -1,20 +1,16 @@
 #include "Utils/Expected.hpp"
-
-#include "ZqAPI/EntryPoints.h"
+#include "PerDriver/EntryPoints.h"
 
 enum class Error {
     FirstError,
     SecondError
 };
 
-void ZQ_SYMBOL(ZqOnLoad) (void*) {
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnLoad) (void*) {
     using namespace Ziqe;
-    using Ziqe::Utils::Logger;
 
     Ziqe::Utils::Expected<int, Error> error{Error::FirstError};
     Ziqe::Utils::Expected<int, Error> value{123};
-
-    ZQ_LOG("HELLOW!!");
 
     ZQ_ASSERT (value.get () == 123);
     ZQ_ASSERT (error.isError ());
@@ -31,8 +27,6 @@ void ZQ_SYMBOL(ZqOnLoad) (void*) {
     ZQ_ASSERT (value.get () == 123);
 }
 
-void ZQ_SYMBOL(ZqOnUnload) (void*)
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (void*)
 {
-    using Ziqe::Utils::Logger;
-    ZQ_LOG("GUDBAY!");
 }

@@ -20,9 +20,9 @@
 #ifndef LINUXUSBAPI_H
 #define LINUXUSBAPI_H
 
-#include "ZqAPI/Macros.h"
-#include "ZqAPI/Types.h"
-#include "ZqAPI/Memory.h"
+#include "CppCore/Macros.h"
+#include "CppCore/Types.h"
+#include "CppCore/Memory.h"
 
 ZQ_BEGIN_C_DECL
 

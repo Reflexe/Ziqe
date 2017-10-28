@@ -20,7 +20,7 @@
 #ifndef LINUX_SOCKETCONFIG_GEN_H
 #define LINUX_SOCKETCONFIG_GEN_H
 
-#include "ZqAPI/Macros.h"
+#include "CppCore/Macros.h"
 #include "Errors.gen.h"
 
 #ifdef _LINUX

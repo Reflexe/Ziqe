@@ -1,5 +1,5 @@
 /**
- * @file Mutex.h
+ * @file SpinLock.c
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2016 Shmuel Hazan
@@ -17,24 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQE_API_MUTEX_H
-#define ZIQE_API_MUTEX_H
 
-#include "ZqAPI/Macros.h"
-#include "Memory.h"
+#include <linux/spinlock.h>
 
-ZQ_BEGIN_C_DECL
+#include "CppCore/SpinLock.h"
 
-typedef ZqKernelAddress ZqMutex;
-#define ZQ_UNDEFINED_MUTEX (0)
+void ZqSpinLockInit(ZqSpinLock *spinlock) {
+    *spinlock = (ZqSpinLock) ZQ_SYMBOL(ZqAllocate) (sizeof (spinlock_t));
 
-void ZqMutexInit(ZqMutex *mutex);
-void ZqMutexDeinit(ZqMutex *mutex);
+    spin_lock_init ((spinlock_t *) *spinlock);
+}
 
-ZqBool ZqMutexTryLock(ZqMutex *mutex);
-void ZqMutexLock(ZqMutex *mutex);
-void ZqMutexUnlock(ZqMutex *mutex);
+void ZqSpinLockDeinit(ZqSpinLock *spinlock)
+{
+    ZQ_SYMBOL(ZqDeallocate) ((ZqKernelAddress) *spinlock);
+}
 
-ZQ_END_C_DECL
+void ZqSpinLockLock(ZqSpinLock *spinlock)
+{
+    spin_lock ((spinlock_t*)  spinlock);
+}
 
-#endif // ZIQE_API_MUTEX_H
+void ZqSpinLockUnlock(ZqSpinLock *spinlock)
+{
+    spin_unlock ((spinlock_t*)  spinlock);
+}
+
+ZqBool ZqSpinLockTryLock(ZqSpinLock *spinlock)
+{
+    return (spin_trylock ((spinlock_t *) spinlock) == 1) ? ZQ_TRUE : ZQ_FALSE;
+}

@@ -20,7 +20,7 @@
 #ifndef ZIQEAPI_SOCKET_H
 #define ZIQEAPI_SOCKET_H
 
-#include "ZqAPI/Macros.h"
+#include "CppCore/Macros.h"
 #include "Types.h"
 #include "Memory.h"
 

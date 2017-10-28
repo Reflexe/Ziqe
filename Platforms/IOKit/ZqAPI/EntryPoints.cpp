@@ -34,7 +34,7 @@ typedef IOReturn os_result;
 #include <IOKit/IOLib.h>
 #include <IOKit/IOService.h>
 
-#include "ZqAPI/EntryPoints.h"
+#include "CppCore/EntryPoints.h"
 
 #include "Platforms/Macros.h"
 

@@ -1,8 +1,8 @@
 /**
- * @file SpinLock.c
+ * @file Logging.h
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 Shmuel Hazan
+ * Ziqe: copyright (C) 2017 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,33 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef LOGGING_H
+#define LOGGING_H
 
-#include <linux/spinlock.h>
+#include "CppCore/Macros.h"
 
-#include "ZqAPI/SpinLock.h"
-
-void ZqSpinLockInit(ZqSpinLock *spinlock) {
-    *spinlock = (ZqSpinLock) ZQ_SYMBOL(ZqAllocate) (sizeof (spinlock_t));
-
-    spin_lock_init ((spinlock_t *) *spinlock);
-}
-
-void ZqSpinLockDeinit(ZqSpinLock *spinlock)
+inline_hint void ZQ_SYMBOL(ZqLogText) (const char *)
 {
-    ZQ_SYMBOL(ZqDeallocate) ((ZqKernelAddress) *spinlock);
+
+}
+inline_hint void ZQ_SYMBOL(ZqLogWarning) (const char *)
+{
+
+}
+inline_hint void ZQ_SYMBOL(ZqOnBug) (const char *)
+{
+
 }
 
-void ZqSpinLockLock(ZqSpinLock *spinlock)
-{
-    spin_lock ((spinlock_t*)  spinlock);
-}
-
-void ZqSpinLockUnlock(ZqSpinLock *spinlock)
-{
-    spin_unlock ((spinlock_t*)  spinlock);
-}
-
-ZqBool ZqSpinLockTryLock(ZqSpinLock *spinlock)
-{
-    return (spin_trylock ((spinlock_t *) spinlock) == 1) ? ZQ_TRUE : ZQ_FALSE;
-}
+#endif // LOGGING_H

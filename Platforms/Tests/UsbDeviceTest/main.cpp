@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ZqAPI/EntryPoints.h"
+#include "PerDriver/EntryPoints.h"
 #include "MyUsbDeviceManager.hpp"
 
 struct Data
@@ -26,12 +26,12 @@ struct Data
     MyUsbDeviceManager device;
 };
 
-void ZQ_SYMBOL(ZqOnLoad) (void *private_data_ptr)
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnLoad) (void *private_data_ptr)
 {
     *static_cast<Data**>(private_data_ptr) = new Data{{Ziqe::Utils::makeShared<Ziqe::OS::DriverContext>()}};
 }
 
-void ZQ_SYMBOL(ZqOnUnload) (void *private_data_ptr)
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (void *private_data_ptr)
 {
     delete *static_cast<Data**>(private_data_ptr);
 }

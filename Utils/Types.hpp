@@ -22,8 +22,8 @@
 
 /* Types that aren't big enough to have their own file */
 
-#include "ZqAPI/Types.h"
-#include "ZqAPI/Macros.h"
+#include "CppCore/Types.h"
+#include "CppCore/Macros.h"
 
 ZQ_BEGIN_NAMESPACE
 

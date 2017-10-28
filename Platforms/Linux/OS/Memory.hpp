@@ -20,12 +20,12 @@
 #ifndef MEMORY_HPP
 #define MEMORY_HPP
 
-#include "ZqAPI/Macros.h"
+#include "CppCore/Macros.h"
 
 #include "Utils/Expected.hpp"
 #include "Utils/Optional.hpp"
 
-#include "ZqAPI/Memory.h"
+#include "CppCore/Memory.h"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {

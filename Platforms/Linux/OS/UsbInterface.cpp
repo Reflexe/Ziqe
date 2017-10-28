@@ -19,6 +19,7 @@
  */
 #include "UsbInterface.hpp"
 
+ZQ_BEGIN_NAMESPACE
 namespace OS {
 
 UsbInterface::UsbInterface()
@@ -27,3 +28,4 @@ UsbInterface::UsbInterface()
 }
 
 } // namespace OS
+ZQ_END_NAMESPACE

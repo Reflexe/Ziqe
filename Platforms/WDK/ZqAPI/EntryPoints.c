@@ -1,6 +1,6 @@
 #include <ntddk.h>
 
-#include "ZqAPI/EntryPoints.h"
+#include "CppCore/EntryPoints.h"
 
 DRIVER_INITIALIZE DriverEntry;
 DRIVER_UNLOAD DriverUnload;

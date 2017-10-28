@@ -45,7 +45,7 @@
 static int __init linux_init(void)
 {
         pr_info("in linux_init\n");
-        ZqAPIInit();
+        CppCoreInit();
 
         return 0;
 }
@@ -53,7 +53,7 @@ static int __init linux_init(void)
 
 static void __exit linux_exit(void)
 {
-        ZqAPIExit();
+        CppCoreExit();
         pr_info("in linux_exit\n");
 }
 

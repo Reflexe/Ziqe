@@ -1,14 +1,17 @@
-load ('//Platforms:api.bzl', 'zq_config')
+load('//Platforms:repo_api.bzl', 'platform_functions')
 
 def _repo_impl(repo_ctx):
-    repo_ctx.file("BUILD", "cc_library(name='ZiqeConfig', srcs=[], visibility=['//visibility:public'])")
-    zq_config(repo_ctx)
+    repo_ctx.file("BUILD", "")
 
+    for name, functions in platform_functions.items():
+        functions['zq_config'](repo_ctx)
 
-ziqe_repo_rule = repository_rule(
+ziqe_config_repo_rule = repository_rule(
                     _repo_impl,
-                    local=True,
+                    local=False
                 )
 
-def ziqe_repo():
-    ziqe_repo_rule(name='ZiqeConfig')
+def config_repo():
+    ziqe_config_repo_rule(
+        name='ZiqeConfig',
+    )

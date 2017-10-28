@@ -1,3 +1,2 @@
-load("//BuildTools:config_repo.bzl", "ziqe_repo")
-
-ziqe_repo()
+load('//BuildTools:config_repo.bzl', 'config_repo')
+config_repo()

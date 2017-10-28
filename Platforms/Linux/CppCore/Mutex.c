@@ -20,7 +20,7 @@
 
 #define _LINUX
 
-#include "ZqAPI/Mutex.h"
+#include "CppCore/Mutex.h"
 
 #include <linux/mutex.h>
 

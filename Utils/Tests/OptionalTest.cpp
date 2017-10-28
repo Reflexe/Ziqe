@@ -1,8 +1,8 @@
 #include "Utils/Optional.hpp"
 #include "Utils/Checks.hpp"
-#include "ZqAPI/EntryPoints.h"
+#include "CppCore/EntryPoints.h"
 
-void ZQ_SYMBOL (ZqOnLoad) (void*) {
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL (ZqOnLoad) (void*) {
     using Ziqe::Utils::Optional;
 
     Optional<int> integer;
@@ -17,6 +17,6 @@ void ZQ_SYMBOL (ZqOnLoad) (void*) {
 }
 
 
-void ZQ_SYMBOL (ZqOnUnload) (void*)
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL (ZqOnUnload) (void*)
 {
 }

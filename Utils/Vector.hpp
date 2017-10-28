@@ -29,6 +29,7 @@
 #include "Utils/IteratorTools.hpp"
 #include "Utils/RawPointer.hpp"
 #include "Utils/Checks.hpp"
+#include "Utils/UniquePointer.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace Utils {
@@ -59,8 +60,7 @@ public:
     {
     }
 
-    // TODO: fix this to take unique array.
-    static Vector TakeRawArray (RawArray<T> &&array)
+    static Vector TakeUniqueArray (UniquePointer<T[]> &&array)
     {
          return Vector{Utils::move (array)};
     }
@@ -241,8 +241,8 @@ public:
     }
 
 private:
-    Vector(RawArray<T> &&array)
-        : mPointer{array.get ()}, mSize{array.size ()}
+    Vector(UniquePointer<T[]> &&array)
+        : mPointer{array.release ()}, mSize{array.size ()}
     {
         array.reset ();
     }

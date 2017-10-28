@@ -20,7 +20,7 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#include "ZqAPI/Macros.h"
+#include "CppCore/Macros.h"
 
 #include "Utils/Types.hpp"
 

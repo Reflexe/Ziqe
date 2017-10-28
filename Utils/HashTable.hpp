@@ -114,7 +114,7 @@ private:
 // TODO: numeric_limits
 namespace {
 /// @b Default vector size.
-static const SizeType kVectorInitialSize = 1000;
+static const SizeType kVectorInitialSize = 0xfffff;
 
 //template<class KeyType, bool value = std::numeric_limits<KeyType>::is_specialized>
 //struct GetVectorInitialSize
@@ -156,8 +156,6 @@ struct GetVectorInitialSize
  * To identify a end of one of those "mini-lists" we need to compare each PairType's
  * tableIterator: if it not equal to the previous key entry, this key entry's key has
  * different hash that the previous one and therefore, it is not a part of this "mini-list".
-
- @todo Untested enough.
  */
 template<class KeyType,
          class T,

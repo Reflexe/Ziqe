@@ -20,7 +20,7 @@
 #ifndef ZIQE_API_SPINLOCK_H
 #define ZIQE_API_SPINLOCK_H
 
-#include "ZqAPI/Macros.h"
+#include "CppCore/Macros.h"
 #include "Memory.h"
 
 ZQ_BEGIN_C_DECL

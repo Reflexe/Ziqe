@@ -20,15 +20,36 @@
 #ifndef USBINENDPOINT_HPP
 #define USBINENDPOINT_HPP
 
+#include "Utils/Macros.hpp"
+#include "Utils/Expected.hpp"
 
+ZQ_BEGIN_NAMESPACE
 namespace OS {
 
 class UsbInEndpoint
 {
 public:
-    UsbInEndpoint();
+    typedef int Reference;
+    typedef int Address;
+
+    class Callback {
+        Callback()
+        {
+        }
+
+        ZQ_ALLOW_COPY_AND_MOVE (Callback)
+        virtual ~Callback();
+
+        virtual void onDataReceived (UsbInEndpoint &endpoint) = 0;
+
+    private:
+        Reference mEndpoint;
+    };
+
+    UsbInEndpoint(Address address);
 };
 
 } // namespace OS
+ZQ_END_NAMESPACE
 
 #endif // USBINENDPOINT_HPP

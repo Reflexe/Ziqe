@@ -1,5 +1,5 @@
 /**
- * @file UsbOutEndpoint.cpp
+ * @file EntryPoints.c
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
  * Ziqe: copyright (C) 2017 Shmuel Hazan
@@ -17,15 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "UsbOutEndpoint.hpp"
+#include "PerDriver/EntryPoints.h"
 
-ZQ_BEGIN_NAMESPACE
-namespace OS {
+int main(int argc, char *argv[]) {
+    void *p;
 
-UsbOutEndpoint::UsbOutEndpoint()
-{
+    ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnLoad) (&p);
+    ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (&p);
 
+    return 0;
 }
-
-} // namespace OS
-ZQ_END_NAMESPACE

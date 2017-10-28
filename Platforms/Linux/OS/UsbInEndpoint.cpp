@@ -19,11 +19,17 @@
  */
 #include "UsbInEndpoint.hpp"
 
+ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-UsbInEndpoint::UsbInEndpoint()
+UsbInEndpoint::UsbInEndpoint(Address address)
 {
 
 }
 
+UsbInEndpoint::Callback::~Callback()
+{
+}
+
 } // namespace OS
+ZQ_END_NAMESPACE

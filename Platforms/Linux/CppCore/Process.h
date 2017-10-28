@@ -23,7 +23,7 @@
 #ifndef ZIQE_API_PROCESS_H
 #define ZIQE_API_PROCESS_H
 
-#include "ZqAPI/Macros.h"
+#include "CppCore/Macros.h"
 #include "Types.h"
 #include "Memory.h"
 

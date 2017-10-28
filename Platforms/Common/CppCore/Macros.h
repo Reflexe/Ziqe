@@ -73,7 +73,7 @@
 
 /**
   It is not simply A ## B because that we want macro arguments to be
-  replace before the actual combination of the arguments (e.g. 1_A instead of
+  replaced before the actual combination of the arguments (e.g. 1_A instead of
   VAR_NAME_A).
   */
 #define ZQ_CAT(arg1, arg2) _ZQ_CAT(arg1, arg2)
@@ -102,6 +102,9 @@ inline namespace ZQ_SYMBOL_VERSION {
   @brief A per version symbol.
   */
 #define ZQ_SYMBOL(name) ZQ_CAT(ZQ_SYMBOL_VERSION, name)
+
+#define ZQ_DRIVER_UNIQUE_SYMBOL(name) ZQ_CAT(ZQ_GENERATED_DRIVER_NAME, ZQ_SYMBOL(name))
+
 
 #define ZQ_ARRAY_LENGTH(symbol) (sizeof (symbol[0]) * sizeof (symbol))
 

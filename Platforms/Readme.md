@@ -17,5 +17,23 @@ that contains a CMakeLists.txt and implements the following functions:
 
       The output directory should be CMAKE_CURRENT_BUILD_DIRECTORY.
 
-On the begining, the driver should call `void ZqAPIInit (void);` and `void ZqAPIExit (void);` on
+On the begining, the driver should call `void CppCoreInit (void);` and `void CppCoreExit (void);` on
 exit. These functions should not block.
+
+
+# The build system
+What I want?
+    copts being resolved in runtime by a provider and deps.
+
+The problem:
+    No way to change copts in runtime.
+
+What I want:
+    Platforms being detected and loaded dynamicly in runtime.
+The problem:
+    No way to load() dynamicly.
+
+
+What I want:
+    special cc_library API like zq_config and zq_driver
+No problem.

@@ -22,10 +22,10 @@
 #ifndef ZIQE_API_LINUX_MEMORY_H
 #define ZIQE_API_LINUX_MEMORY_H
 
-#include "ZqAPI/Types.h"
-#include "ZqAPI/Macros.h"
+#include "CppCore/Types.h"
+#include "CppCore/Macros.h"
 
-#include "ZqAPI/Error.h"
+#include "CppCore/Error.h"
 
 ZQ_BEGIN_C_DECL
 

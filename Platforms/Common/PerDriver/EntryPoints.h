@@ -24,11 +24,13 @@
 
 #include "config.generated.h"
 
+#define ZQ_PER_DRIVER_UNIQUE_SYMBOL(name) ZQ_CAT(ZQ_DRIVER_NAME, ZQ_SYMBOL(name))
+
 ZQ_BEGIN_C_DECL
 
-void ZQ_SYMBOL(ZqOnLoad) (void *private_data_ptr);
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnLoad) (void *private_data_ptr);
 
-void ZQ_SYMBOL(ZqOnUnload) (void *private_data_ptr);
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (void *private_data_ptr);
 
 ZQ_END_C_DECL
 

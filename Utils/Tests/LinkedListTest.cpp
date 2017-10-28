@@ -20,11 +20,11 @@
 
 #include "Utils/LinkedList.hpp"
 #include "Utils/IteratorTools.hpp"
-#include "ZqAPI/EntryPoints.h"
+#include "PerDriver/EntryPoints.h"
 
 #define N 20
 
-void ZQ_SYMBOL(ZqOnLoad) (void*)
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnLoad) (void*)
 {
     using Ziqe::Utils::LinkedList;
     using Ziqe::Utils::next;
@@ -88,6 +88,6 @@ void ZQ_SYMBOL(ZqOnLoad) (void*)
     }
 }
 
-void ZQ_SYMBOL(ZqOnUnload) (void*)
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (void*)
 {
 }

@@ -1,7 +1,7 @@
 #ifndef ZIQEAPI_TYPES_H
 #define ZIQEAPI_TYPES_H
 
-#include "ZqAPI/Macros.h"
+#include "CppCore/Macros.h"
 
 #ifdef __x86_64__
 typedef unsigned long ZqRegisterType;

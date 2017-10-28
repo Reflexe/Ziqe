@@ -1,7 +1,7 @@
-load("//BuildTools:test.bzl", "cc_class_library")
+load("//Platforms:api.bzl", "zq_library_no_auto_deps")
 
-cc_class_library (
-    'Utils',
+zq_library_no_auto_deps (
+    name = 'Utils',
     classes = [
         'Memory', 'Checks', 'Types', 'FunctionTools', 'Optional',
         'Expected', 'RawPointer', 'Constructor', 'DummyPointer',
@@ -15,8 +15,8 @@ cc_class_library (
 
 
     #includes = ['//.'],
-    deps = [
-            '//Platforms:ZqAPI',
+    platform_deps = [
+            'CppCore',
     ],   
     copts = ['-std=gnu++14'],
     visibility = ["//visibility:public"],

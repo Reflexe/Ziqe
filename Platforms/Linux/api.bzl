@@ -1,3 +1,6 @@
+load ('@ZiqeConfig//:linux_config.bzl', 'config')
+load ('//BuildTools:cc_class_library.bzl', 'cc_class_library')
+
 linux_lastest_path = 'LinuxHeaders/4.12.3-1-ARCH'
 
 # @brief                    Escape @string from @chars_to_escape with @escape_char.
@@ -75,13 +78,13 @@ def _impl(ctx):
         includes_paths_depset += [file.dirname for file in target.files]
 
     # Get the relative path from our makefile's dir to the workspace.
-    zqapi_to_workspace = get_relative_file_path_to_workspace (ctx.file._makefile)
+    CppCore_to_workspace = get_relative_file_path_to_workspace (ctx.file._makefile)
 
     # Get the module sources and add it the env var.
     make_env_vars['ZQ_MODULE_SOURCES'] = ''
 
     for f in ctx.files.srcs:
-        make_env_vars['ZQ_MODULE_SOURCES'] += escape_spaces(zqapi_to_workspace + f.path) + ' '
+        make_env_vars['ZQ_MODULE_SOURCES'] += escape_spaces(CppCore_to_workspace + f.path) + ' '
 
     libs_depset = depset()
     make_env_vars['ZQ_OBJECTS'] = ''
@@ -92,7 +95,7 @@ def _impl(ctx):
             includes_files_depset += dep.cc.transitive_headers
 
     for object in libs_depset.to_list():
-        make_env_vars['ZQ_OBJECTS'] += escape_spaces(zqapi_to_workspace + object.path) + ' '
+        make_env_vars['ZQ_OBJECTS'] += escape_spaces(CppCore_to_workspace + object.path) + ' '
 
     # Set the target's name.
     make_env_vars['name'] = ctx.attr.name
@@ -137,7 +140,7 @@ linux_module = rule(
     attrs={
         '_script': attr.label(default=Label('//Platforms/Linux:Scripts/CompileLinuxModule.sh'),
                               allow_single_file=True),
-        '_makefile': attr.label(default=Label('//Platforms/Linux:ZqAPI/Makefile'),
+        '_makefile': attr.label(default=Label('//Platforms/Linux:CppCore/Makefile'),
                                 allow_single_file=True),
         'srcs': attr.label_list(allow_files=True),
         'linux_headers_path': attr.label(default=Label('//Platforms/Linux:'+linux_lastest_path+'/build'),
@@ -150,7 +153,7 @@ linux_module = rule(
 )
 
 def zq_linux_driver(**args):
-    deps = ['//Platforms/Linux:ZqAPI']
+    deps = []
 
     hdr_name = args['name'] + '_usb_ids'
     deps += [':' + hdr_name]
@@ -179,41 +182,9 @@ def zq_linux_driver(**args):
         **args
     )
 
-def zq_linux_config(repo_ctx):
-    root_path = str(repo_ctx.path('./'))
+def zq_linux_library(**args):
+    args['copts'] = args.get('copts', []) + config['cpp']['opts']
 
-    script_path = str(repo_ctx.path(Label('//Platforms/Linux:Scripts/CompileLinuxModule.sh')))
-    makefile_path = repo_ctx.path(Label('//Platforms/Linux:ZqAPI/Makefile'))
+    args['linkstatic'] = 1
 
-    #empty_path = repo_ctx.path('//Platforms/Linux:ZqAPI/Linux.c')
-
-    make_env_vars = {}
-
-    #make_env_vars['ZQ_MAKEFILE_PATH'] = str(makefile_path.dirname)
-
-    # Set the header's path.
-    headers = repo_ctx.path(Label('//Platforms/Linux:'+linux_lastest_path+'/build/Makefile'))
-
-    make_env_vars['ZQ_LINUX_HEADERS_PATH'] = str(headers.dirname)
-    make_env_vars['name'] = 'test'
-    # exec_result repository_ctx.execute(arguments, timeout=600, environment={}, quiet=True)
-    result = repo_ctx.execute([script_path,
-                              'info',
-                              makefile_path,
-                              makefile_path],
-                              environment=make_env_vars,
-                      )
-    flags = result.stdout
-    l = flags[1:].strip().split(' ')
-    invalid_cpp_flags = ['-Wstrict-prototypes',
-                         '-Wdeclaration-after-statement',
-                         '-Wno-pointer-sign',
-                        ]
-
-    l = [e.strip() for e in l if e != '' and e[0:4] != '-std' and e not in invalid_cpp_flags]
-    l += ['-fno-exceptions', '-fno-rtti']
-
-    repo_ctx.template('config.bzl',
-                      Label('//BuildTools:config.bzl'),
-                      {'\'%{opts}\'': str(l)}
-                      )
+    cc_class_library(**args)

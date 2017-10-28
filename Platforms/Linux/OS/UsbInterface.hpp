@@ -20,7 +20,9 @@
 #ifndef USBINTERFACE_HPP
 #define USBINTERFACE_HPP
 
+#include "Utils/Macros.hpp"
 
+ZQ_BEGIN_NAMESPACE
 namespace OS {
 
 class UsbInterface
@@ -30,5 +32,6 @@ public:
 };
 
 } // namespace OS
+ZQ_END_NAMESPACE
 
 #endif // USBINTERFACE_HPP

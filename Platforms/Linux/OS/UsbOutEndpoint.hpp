@@ -20,7 +20,9 @@
 #ifndef USBOUTENDPOINT_HPP
 #define USBOUTENDPOINT_HPP
 
+#include "Utils/Macros.hpp"
 
+ZQ_BEGIN_NAMESPACE
 namespace OS {
 
 class UsbOutEndpoint
@@ -30,5 +32,6 @@ public:
 };
 
 } // namespace OS
+ZQ_END_NAMESPACE
 
 #endif // USBOUTENDPOINT_HPP

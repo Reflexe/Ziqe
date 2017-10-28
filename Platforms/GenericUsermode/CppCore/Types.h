@@ -1,8 +1,8 @@
 /**
- * @file RWLock
+ * @file Types.h
  * @author Shmuel Hazan (shmuelhazan0@gmail.com)
  *
- * Ziqe: copyright (C) 2016 Shmuel Hazan
+ * Ziqe: copyright (C) 2017 Shmuel Hazan
  *
  * Ziqe is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,29 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ZIQEAPI_RWLOCK_H
-#define ZIQEAPI_RWLOCK_H
+#ifndef TYPES_H
+#define TYPES_H
 
-#include "ZqAPI/Macros.h"
-#include "Memory.h"
+#include "CppCore/Macros.h"
 
-ZQ_BEGIN_C_DECL
+#ifdef __cplusplus
+# include <cstdint>
+typedef std::size_t size_t;
+#else
+# include <stdint.h>
+#endif
 
-#define ZQ_UNDEFINED_RWLOCK (0)
-
-typedef ZqKernelAddress ZqRWLock;
-
-void ZqRWLockInit(ZqRWLock *rw_lock);
-void ZqRWLockDeinit(ZqRWLock *rw_lock);
-
-ZqBool ZqRWLockTryLockWrite(ZqRWLock *rw_lock);
-void ZqRWLockLockWrite(ZqRWLock *rw_lock);
-void ZqRWLockUnlockWrite(ZqRWLock *rw_lock);
-
-ZqBool ZqRWLockTryLockRead(ZqRWLock *rw_lock);
-void ZqRWLockLockRead(ZqRWLock *rw_lock);
-void ZqRWLockUnlockRead(ZqRWLock *rw_lock);
-
-ZQ_END_C_DECL
-
-#endif // ZIQEAPI_RWLOCK_H
+#endif // TYPES_H

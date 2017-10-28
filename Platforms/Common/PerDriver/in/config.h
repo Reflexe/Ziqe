@@ -22,4 +22,6 @@
 
 #define ZQ_DRIVER_NAME %{DRIVER_NAME}
 
+#define TEST_TO_COMPILE ABCD
+
 #endif // CONFIG_H

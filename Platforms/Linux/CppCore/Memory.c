@@ -26,8 +26,8 @@
 
 #include "asm/uaccess.h"
 
-#include "ZqAPI/Memory.h"
-#include "ZqAPI/Logging.h"
+#include "CppCore/Memory.h"
+#include "CppCore/Logging.h"
 
 /**
    @brief Convert ZqMemoryProtection to page protection flags.

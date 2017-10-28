@@ -1,27 +1,38 @@
-load("//BuildTools:test.bzl", "cc_class_library")
+load("//Platforms:api.bzl", "zq_library_no_auto_deps")
 package(default_visibility = ['//Platforms:__subpackages__'])
 
-cc_class_library (
+zq_library_no_auto_deps (
     name = 'OS',
     classes = [
         'OS/IDevice',
         'OS/IDeviceManager',
         'OS/ILoadableModule',
     ],
-    deps = [
+    zq_deps = [
         '//Utils:Utils',
     ],
 
     includes = ['.'],
 )    
 
-cc_class_library(
-    name = 'ZqAPI',
+zq_library_no_auto_deps(
+    name = 'CppCore',
 
     hdrs = [
-        'ZqAPI/Macros.h',
-        'ZqAPI/EntryPoints.h',
+        'CppCore/Macros.h',
     ],
 
     includes = ['.'],
 )
+
+zq_library_no_auto_deps(
+    name = 'PerDriver',
+
+    hdrs = [
+        'PerDriver/EntryPoints.h',
+    ],
+
+    includes = ['.'],
+)
+
+exports_files(["PerDriver/in/config.h"])

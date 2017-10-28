@@ -20,7 +20,7 @@
 #ifndef ZIQE_LOGGER_H
 #define ZIQE_LOGGER_H
 
-#include "ZqAPI/Logging.h"
+#include "CppCore/Logging.h"
 #include "Macros.hpp"
 
 ZQ_BEGIN_NAMESPACE
@@ -38,7 +38,7 @@ public:
      */
     static void logError (const char *string)
     {
-        ZqOnBug (string);
+        ZQ_SYMBOL(ZqOnBug) (string);
     }
 
     /**
@@ -47,7 +47,7 @@ public:
      */
     static void logWarning (const char *string)
     {
-        ZqLogWarning (string);
+        ZQ_SYMBOL(ZqLogWarning) (string);
     }
 
     /**
@@ -56,7 +56,7 @@ public:
      */
     static void logMessage (const char *string)
     {
-        ZqLogText (string);
+        ZQ_SYMBOL(ZqLogText) (string);
     }
 
 private:

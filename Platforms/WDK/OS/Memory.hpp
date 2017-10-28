@@ -35,7 +35,7 @@ typedef void* PIO_STATUS_BLOCK;
 #include "Base/UniquePointer.hpp"
 #include "Base/Expected.hpp"
 
-#include "ZqAPI/Memory.h"
+#include "CppCore/Memory.h"
 
 #include "Types.hpp"
 

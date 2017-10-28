@@ -7,7 +7,7 @@
 #include "Base/UniquePointer.hpp"
 #include "Base/Expected.hpp"
 
-#include "ZqAPI/Memory.h"
+#include "CppCore/Memory.h"
 
 ZQ_BEGIN_NAMESPACE
 

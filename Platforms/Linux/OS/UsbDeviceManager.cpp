@@ -22,7 +22,7 @@
 #include "Utils/FunctionTools.hpp"
 #include "Utils/UniquePointer.hpp"
 
-#include "ZqAPI/Memory.h"
+#include "CppCore/Memory.h"
 #include "OS/C_API/LinuxUsbApi.h"
 
 #include "UsbDevice.hpp"

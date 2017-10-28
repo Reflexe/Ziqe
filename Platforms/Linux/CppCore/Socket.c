@@ -24,7 +24,7 @@
 #include <linux/ioctl.h>
 #include <linux/net.h>
 
-#include "ZqAPI/Socket.h"
+#include "CppCore/Socket.h"
 
 #define zqsocket_to_socket(zqsocket) ((struct socket *) zqsocket)
 

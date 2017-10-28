@@ -24,36 +24,32 @@
 #include "Utils/Vector.hpp"
 #include "Utils/UniquePointer.hpp"
 
+#include "OS/UsbInterface.hpp"
 #include "OS/IDevice.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-inline namespace _Linux {
-
-}
-
 class UsbDevice : public IDevice
 {
 public:
+    // TODO: Define it elsewhere
+    typedef uint8_t InterfaceNumber;
+
     UsbDevice()
     {
-
     }
 
-//    class UsbPipe
-//    {
-//        class Callback {
+    UsbInterface findInterface (InterfaceNumber number);
 
-//        };
+    void setConfiguration ();
 
-//    private:
-
-//    };
+    // TODO: Blocking or not?
+    void reset();
+    void eject();
 
 
 
-//    UsbPipe createControlPipe (UsbPipe::Callback &call);
 private:
 
 };

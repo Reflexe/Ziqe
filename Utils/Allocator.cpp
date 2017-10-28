@@ -20,7 +20,7 @@
 #include "Allocator.hpp"
 #include "Checks.hpp"
 
-#include "ZqAPI/Memory.h"
+#include "CppCore/Memory.h"
 
 void *operator new(size_t count) {
     auto ptr = ZQ_SYMBOL(ZqAllocate) (count);
