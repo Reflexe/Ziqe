@@ -30,8 +30,7 @@
 #define ZQ_ALLOW_MOVE(name) name(name &&)      = default; name &operator= (name &&)      = default;
 
 #define ZQ_ALLOW_COPY_AND_MOVE(name) ZQ_ALLOW_COPY(name) ZQ_ALLOW_MOVE(name)
-#define ZQ_PURE_VIRTUAL_DESTRUCTOR(name) virtual ZQ_CAT(~,name) () = 0;
-
+#define ZQ_PURE_VIRTUAL_DESTRUCTOR(name) virtual ~ name () = 0;
 
 #define ZQ_ALLOW_MAKE_UNIQUE() template<class T, class ...Args> friend ::Ziqe::Utils::UniquePointer<T> makeUnique(Args&&...)
 #define ZQ_ALLOW_EXPECTED() template<class A, class B> friend class ::Ziqe::Utils::CustomStorageConstructor
