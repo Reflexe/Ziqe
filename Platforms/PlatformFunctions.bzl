@@ -1,13 +1,7 @@
-load('//Platforms/Linux:api.bzl', 'zq_linux_driver', 'zq_linux_library')
-load('//Platforms/Linux:repo_api.bzl', 'zq_linux_config')
+load('//Platforms/Linux:api.bzl', 'linux_functions')
+load ('//Platforms/GenericUsermode:api.bzl', 'generic_functions')
 
 platform_functions = {
-    'Linux': {
-        'zq_driver'  : zq_linux_driver,
-        'zq_library' : zq_linux_library,
-    },
-    'GenericUsermode': {
-        'zq_driver'  : zq_generic_driver,
-        'zq_library' : zq_generic_library,
-    },
+    'Linux': linux_functions,
+    'GenericUsermode': generic_functions,
 }

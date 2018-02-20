@@ -1,4 +1,4 @@
-linux_lastest_path = 'LinuxHeaders/4.12.3-1-ARCH'
+linux_lastest_path = 'LinuxHeaders/4.15.3-2-ARCH'
 
 _INVALID_CPP_FLAGS = ['-Wstrict-prototypes',
                      '-Wdeclaration-after-statement',

@@ -22,8 +22,8 @@
 
 #include "CppCore/Macros.h"
 
-#include "Utils/Expected.hpp"
-#include "Utils/Optional.hpp"
+#include "Base/Expected.hpp"
+#include "Base/Optional.hpp"
 
 #include "CppCore/Memory.h"
 
@@ -40,7 +40,7 @@ namespace Allocators {
          the same page).
  */
 struct Kernel {
-     static Utils::Expected<ZqKernelAddress, Error>
+     static Base::Expected<ZqKernelAddress, Error>
              Allocate(ZqSizeType size)
      {
          return {ZQ_SYMBOL(ZqAllocate) (size)};
@@ -55,13 +55,13 @@ struct Kernel {
 struct User {
     typedef ZqUserMemoryAreaProtection Protection;
 
-    static Utils::Expected<ZqUserAddress, Error>
+    static Base::Expected<ZqUserAddress, Error>
             Allocate(ZqSizeType size, Protection protection) {
         ZqUserAddress addressResult;
         auto result = ZQ_SYMBOL(ZqMmAllocateUserMemory) (size, protection, &addressResult);
 
         if (result != ZQ_E_OK)
-            return {Utils::move (result)};
+			return {Base::Error(static_cast<Error> (result))};
         else
             return {addressResult};
     }
@@ -76,7 +76,7 @@ struct User {
 
 namespace Map {
 struct UserToKernel {
-    static Utils::Expected<UserToKernel, Error>
+    static Base::Expected<UserToKernel, Error>
             Create (ZqUserAddress userAddress, SizeType length)
     {
         ZqToKernelMapContext kernelMap;
@@ -88,7 +88,7 @@ struct UserToKernel {
         if (result == ZQ_E_OK) {
             return {kernelMap};
         } else {
-            return {Utils::move (result)};
+            return {Base::Error (Base::move(result))};
         }
     }
 
@@ -126,11 +126,11 @@ private:
     {
     }
 
-    Utils::Optional<ZqToKernelMapContext> mMaybeKernelMapContext;
+    Base::Optional<ZqToKernelMapContext> mMaybeKernelMapContext;
 };
 
 struct KernelToUser {
-    static Utils::Expected<KernelToUser, Error>
+    static Base::Expected<KernelToUser, Error>
             Create (ZqKernelAddress kernelAddress, SizeType length)
     {
         ZqToUserMapContext context;
@@ -142,7 +142,7 @@ struct KernelToUser {
         if (result == ZQ_E_OK) {
             return {context};
         } else {
-            return {static_cast<Error>(result)};
+            return {Base::Error(Base::move(result))};
         }
     }
 
@@ -180,7 +180,7 @@ private:
     {
     }
 
-    Utils::Optional<ZqToUserMapContext> mMaybeUserMapContext;
+    Base::Optional<ZqToUserMapContext> mMaybeUserMapContext;
 };
 } // namespace Map
 

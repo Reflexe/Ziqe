@@ -22,12 +22,6 @@
 ZQ_BEGIN_NAMESPACE
 
 namespace OS {
-
-DriverContext::DriverContext()
-{
-
-}
-
 } // namespace OS
 
 ZQ_END_NAMESPACE

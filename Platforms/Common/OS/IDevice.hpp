@@ -20,15 +20,15 @@
 #ifndef IDEVICE_HPP
 #define IDEVICE_HPP
 
-#include "Utils/Macros.hpp"
+#include "Base/Macros.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-class IDevice
+class IDeviceConnection
 {
 public:
-    IDevice();
+    IDeviceConnection();
 
     enum class Class : uint64_t {
         Usb,

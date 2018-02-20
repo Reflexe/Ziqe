@@ -18,20 +18,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PerDriver/EntryPoints.h"
+#include "PerDriver/EntryPoints.hpp"
+#include "OS/AbstractDriverContext.hpp"
 #include "MyUsbDeviceManager.hpp"
 
-struct Data
+struct Data : Ziqe::OS::DriverContext::IDestructable
 {
-    MyUsbDeviceManager device;
+    Data(Ziqe::OS::UsbDeviceManager &&manager)
+        : deviceManager{Ziqe::Base::move(manager)}
+    {
+        ZQ_LOG("Data\n");
+    }
+
+    ~Data() override
+    {
+        ZQ_LOG("~Data\n");
+    }
+
+    Ziqe::OS::UsbDeviceManager deviceManager;
 };
 
-void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnLoad) (void *private_data_ptr)
+ZQ_BEGIN_C_DECL
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnLoad) (Ziqe::Base::RawPointer<Ziqe::OS::DriverContext> pointer)
 {
-    *static_cast<Data**>(private_data_ptr) = new Data{{Ziqe::Utils::makeShared<Ziqe::OS::DriverContext>()}};
+    using namespace Ziqe;
+
+    // TODO: allow expected to have a costom allocator
+    // to allocate the var in place instead of moving it again and again.
+    auto maybeMyDeviceManager = MyUsbDeviceManager::Create ();
+    if (! maybeMyDeviceManager) {
+        ZQ_WARNING("Couldn't initialize my usb device manager!\n");
+        return;
+    }
+
+    auto maybeUsbDeviceManager = Ziqe::OS::UsbDeviceManager::Create ("MyUsbDeviceTest ",
+                                                                     pointer,
+                                                                     Ziqe::Base::makeUnique<MyUsbDeviceManager>(Ziqe::Base::move(maybeMyDeviceManager.get())));
+    if (! maybeUsbDeviceManager) {
+        ZQ_WARNING("Couldn't initialize usb device manager!\n");
+        return;
+    }
+
+   pointer->setUserData (Base::UniquePointer<OS::DriverContext::IDestructable>{new Data(Base::move(maybeUsbDeviceManager.get ()))});
 }
 
-void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (void *private_data_ptr)
+void ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (Ziqe::Base::RawPointer<Ziqe::OS::DriverContext> pointer)
 {
-    delete *static_cast<Data**>(private_data_ptr);
+    ZQ_LOG("Unload\n");
 }
+
+ZQ_END_C_DECL

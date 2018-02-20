@@ -1,3 +1,5 @@
+** This page is obselete **
+
 ## ZiqeAPI
 ZiqeAPI a cross-platform C API for Drivers and Applications.
 

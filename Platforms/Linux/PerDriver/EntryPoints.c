@@ -21,7 +21,10 @@
 #define _LINUX
 #include <linux/module.h>
 
-#include "PerDriver/EntryPoints.h"
+#include "PerDriver/Macros.h"
+
+int ZQ_PER_DRIVER_UNIQUE_SYMBOL(CppForwardOnLoad) (void *ptr);
+int ZQ_PER_DRIVER_UNIQUE_SYMBOL(CppForwardOnUnload) (void *ptr);
 
 /**
  * @brief A global variable for private data that being forwarded to the
@@ -29,16 +32,15 @@
  */
 static void *g_private_data_ptr;
 
-static int __init linux_init(void) {
-        ZQ_PER_DRIVER_UNIQUE_SYMBOL (ZqOnLoad) (&g_private_data_ptr);
-
-        return 0;
+static int __init linux_init(void)
+{
+        ZQ_PER_DRIVER_UNIQUE_SYMBOL (CppForwardOnLoad) (&g_private_data_ptr);
 }
 
 
 static void __exit linux_exit(void)
 {
-        ZQ_PER_DRIVER_UNIQUE_SYMBOL(ZqOnUnload) (&g_private_data_ptr);
+        ZQ_PER_DRIVER_UNIQUE_SYMBOL(CppForwardOnUnload) (&g_private_data_ptr);
 }
 
 module_init(linux_init);

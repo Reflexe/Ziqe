@@ -26,6 +26,13 @@
 #include "OS/DriverContext.hpp"
 #include "OS/UsbDevice.hpp"
 
+#include "Base/Vector.hpp"
+#include "Base/Expected.hpp"
+#include "Base/ZQObject.hpp"
+#include "Base/ScopedContainer.hpp"
+
+#include "PerDriver/C_API/LinuxUsbApi.h"
+
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
@@ -38,18 +45,44 @@ namespace OS {
  *
  * MAYBE: rename IDevice to IDeviceConnection / IActiveDevice.
  */
-class UsbDeviceManager : public IDeviceManager
+class UsbDeviceManager
 {
+    ZQ_DEFINE_D_FORWARDING_CONSTRUCTOR(UsbDeviceManager)
+    ZQ_ALLOW_EXPECTED();
 public:
-    UsbDeviceManager(const char *name,
-                     const Utils::SharedPointer<DriverContext> &driver);
-    ~UsbDeviceManager() override;
+    ZQ_ALLOW_MOVE(UsbDeviceManager)
 
-    virtual void onDeviceAttached(IDevice &context) override;
-    virtual void onDeviceDetached(IDevice &context) override;
+    class ICallback {
+    public:
+        ICallback() = default;
+
+        virtual void onDeviceAttached(UsbDevice &context) = 0;
+        virtual void onDeviceDetached(UsbDevice &context) = 0;
+    };
+
+    static Base::Expected<UsbDeviceManager, int>
+            Create(const char *name,
+                   const Base::RawPointer<DriverContext> &driver,
+                   Base::UniquePointer<ICallback> &&callback);
+
+    ~UsbDeviceManager();
 
 private:
-    ZqKernelAddress mDriver;
+    UsbDeviceManager(const char *name,
+                     const Base::RawPointer<DriverContext> &driver);
+
+    struct DriverDeleter {
+        void operator() (ZqKernelAddress address) {
+            if (address != nullptr)
+                ZQ_SYMBOL (ZqLinuxUsbUnregisterDevice) (address);
+        }
+    };
+
+    struct Data {
+        Base::MovableScopedContainer<ZqKernelAddress, DriverDeleter> mDriver;
+
+        Base::UniquePointer<ICallback> mCallback;
+    }d;
 };
 
 } // namespace OS

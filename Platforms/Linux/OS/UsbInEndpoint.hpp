@@ -20,8 +20,8 @@
 #ifndef USBINENDPOINT_HPP
 #define USBINENDPOINT_HPP
 
-#include "Utils/Macros.hpp"
-#include "Utils/Expected.hpp"
+#include "Base/Macros.hpp"
+#include "Base/Expected.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {

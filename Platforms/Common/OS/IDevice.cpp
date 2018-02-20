@@ -22,7 +22,7 @@
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-IDevice::IDevice()
+IDeviceConnection::IDeviceConnection()
 {
 
 }

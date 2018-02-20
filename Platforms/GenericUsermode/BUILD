@@ -1,9 +1,29 @@
-load("//Platforms:api.bzl", 'zq_library_no_auto_deps')
+load("//Platforms:api.bzl", 'zq_library_for_platform')
 
 package(default_visibility=['//visibility:public'])
 
-zq_library_no_auto_deps(name='OS')
-zq_library_no_auto_deps(
+PLATFORM = 'GenericUsermode'
+
+zq_library_for_platform(
+    PLATFORM,
+    name='OS',
+    classes = [
+        'OS/DriverContext',
+        'OS/UsbDeviceManager',
+        'OS/UsbDevice',
+        'OS/Internal/Context',
+        'OS/Internal/UsbDevice'
+    ],
+
+    zq_deps = [
+         '//Platforms/Common:OS',
+         '//Platforms/GenericUsermode:PerDriver',
+    ],
+
+    linkopts = ['-lusb-1.0'],
+)
+zq_library_for_platform(
+    PLATFORM,
     name='CppCore',
     hdrs = [
         'CppCore/Types.h',
@@ -17,11 +37,24 @@ zq_library_no_auto_deps(
 
     includes = ['.'],
 )
-zq_library_no_auto_deps(
+
+zq_library_for_platform(
+    PLATFORM,
     name='PerDriver',
-    zq_deps = ['//Platforms/Common:PerDriver'],
+    hdrs = ['PerDriver/UsbIds.hpp'],
+    zq_deps = ['//Platforms/Common:PerDriver',
+               '//Base:Base'],
 )
 
 filegroup(name='per_driver_srcs',
-          srcs=['PerDriver/EntryPoints.c']
+          srcs=['PerDriver/UsbIds.cpp',
+                'PerDriver/UsbIds.hpp']
 )
+
+filegroup(name='main_driver_srcs',
+    srcs = [
+        'PerDriver/EntryPoints.cpp'
+    ],
+)
+
+exports_files(["PerDriver/in/per_driver_macros.h"])

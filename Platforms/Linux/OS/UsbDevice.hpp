@@ -20,9 +20,9 @@
 #ifndef USBDEVICE_HPP
 #define USBDEVICE_HPP
 
-#include "Utils/Macros.hpp"
-#include "Utils/Vector.hpp"
-#include "Utils/UniquePointer.hpp"
+#include "Base/Macros.hpp"
+#include "Base/Vector.hpp"
+#include "Base/UniquePointer.hpp"
 
 #include "OS/UsbInterface.hpp"
 #include "OS/IDevice.hpp"
@@ -30,7 +30,7 @@
 ZQ_BEGIN_NAMESPACE
 namespace OS {
 
-class UsbDevice : public IDevice
+class UsbDevice : public IDeviceConnection
 {
 public:
     // TODO: Define it elsewhere

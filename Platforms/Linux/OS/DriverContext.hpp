@@ -20,7 +20,10 @@
 #ifndef DRIVERCONTEXT_HPP
 #define DRIVERCONTEXT_HPP
 
-#include "Utils/UniquePointer.hpp"
+#include "Base/Expected.hpp"
+#include "Base/ZQObject.hpp"
+
+#include "OS/AbstractDriverContext.hpp"
 
 #include "OS/IDeviceManager.hpp"
 
@@ -28,12 +31,22 @@ ZQ_BEGIN_NAMESPACE
 
 namespace OS {
 
-class DriverContext
+class DriverContext : public Common::OS::AbstractDriverContext
 {
+    ZQ_OBJECT(DriverContext)
+
 public:
-    DriverContext();
+    static Base::Expected<DriverContext,
+                   int>
+            Create()
+    {
+        return {Base::makeDataInit()};
+    }
 
 private:
+    struct Data {
+
+    }d;
 };
 
 } // namespace OS

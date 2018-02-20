@@ -22,13 +22,21 @@
 
 #include "OS/UsbDeviceManager.hpp"
 
-class MyUsbDeviceManager : public Ziqe::OS::UsbDeviceManager
+class MyUsbDeviceManager : public Ziqe::OS::UsbDeviceManager::ICallback
 {
-public:
-    MyUsbDeviceManager(const Ziqe::Utils::SharedPointer<Ziqe::OS::DriverContext> &driver);
+    ZQ_DEFINE_D_FORWARDING_CONSTRUCTOR(MyUsbDeviceManager)
+    ZQ_ALLOW_EXPECTED();
 
-    virtual void onDeviceAttached (Ziqe::OS::IDevice &context) final;
-    virtual void onDeviceDetached (Ziqe::OS::IDevice &context) final;
+public:
+    static Ziqe::Base::Expected<MyUsbDeviceManager, int>
+        Create();
+
+    virtual void onDeviceAttached (Ziqe::OS::UsbDevice &context) final;
+    virtual void onDeviceDetached (Ziqe::OS::UsbDevice &context) final;
+
+    struct {
+
+    }d;
 };
 
 #endif // MYUSBDEVICEMANAGER_HPP

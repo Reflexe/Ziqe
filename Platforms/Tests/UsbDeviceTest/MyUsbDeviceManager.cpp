@@ -19,20 +19,22 @@
  */
 #include "MyUsbDeviceManager.hpp"
 
-#include "Utils/Logger.hpp"
+#include "Base/Logger.hpp"
 
-MyUsbDeviceManager::MyUsbDeviceManager(const Ziqe::Utils::SharedPointer<Ziqe::OS::DriverContext> &driver)
-    : UsbDeviceManager{"MyUsbDeviceManager", driver}
+Ziqe::Base::Expected<MyUsbDeviceManager, int>
+    MyUsbDeviceManager::Create()
 {
-    ZQ_LOG ("MyUsbDeviceManager");
+    ZQ_LOG ("MyUsbDeviceManager\n");
+
+    return {Ziqe::Base::makeDataInit()};
 }
 
-void MyUsbDeviceManager::onDeviceAttached(Ziqe::OS::IDevice &context)
+void MyUsbDeviceManager::onDeviceAttached(Ziqe::OS::UsbDevice &context)
 {
-    ZQ_LOG ("onDeviceAttached");
+    ZQ_LOG ("onDeviceAttached\n");
 }
 
-void MyUsbDeviceManager::onDeviceDetached(Ziqe::OS::IDevice &context)
+void MyUsbDeviceManager::onDeviceDetached(Ziqe::OS::UsbDevice &context)
 {
-    ZQ_LOG ("onDeviceDetached");
+    ZQ_LOG ("onDeviceDetached\n");
 }

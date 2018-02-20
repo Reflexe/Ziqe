@@ -22,17 +22,19 @@
 
 #include "CppCore/Macros.h"
 
-inline_hint void ZQ_SYMBOL(ZqLogText) (const char *)
-{
+#include <cstdio>
 
+inline_hint void ZQ_SYMBOL(ZqLogText) (const char *text)
+{
+    ::puts (text);
 }
-inline_hint void ZQ_SYMBOL(ZqLogWarning) (const char *)
+inline_hint void ZQ_SYMBOL(ZqLogWarning) (const char *text)
 {
-
+    ::fputs (text, stderr);
 }
-inline_hint void ZQ_SYMBOL(ZqOnBug) (const char *)
+inline_hint void ZQ_SYMBOL(ZqOnBug) (const char *text)
 {
-
+    ::fputs (text, stderr);
 }
 
 #endif // LOGGING_H

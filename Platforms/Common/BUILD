@@ -7,9 +7,10 @@ zq_library_no_auto_deps (
         'OS/IDevice',
         'OS/IDeviceManager',
         'OS/ILoadableModule',
+        'OS/AbstractDriverContext',
     ],
     zq_deps = [
-        '//Utils:Utils',
+        '//Base:Base',
     ],
 
     includes = ['.'],
@@ -29,7 +30,8 @@ zq_library_no_auto_deps(
     name = 'PerDriver',
 
     hdrs = [
-        'PerDriver/EntryPoints.h',
+        'PerDriver/EntryPoints.hpp',
+        'PerDriver/Macros.h',
     ],
 
     includes = ['.'],

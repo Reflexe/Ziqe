@@ -72,8 +72,8 @@ typedef struct {
 #endif
 
 #ifdef __cplusplus
-# include <stdint.h>
-# include <stddef.h>
+# include <cstdint>
+# include <cstddef>
 #else
 # include <linux/types.h>
 typedef u8 uint8_t;

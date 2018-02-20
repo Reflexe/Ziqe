@@ -2,8 +2,6 @@ load('//BuildTools:platform_settings.bzl', 'select_platform_target', 'add_platfo
 
 package(default_visibility = ["//visibility:public"])
 
-add_platform_config_settings()
-
 #cc_library (
         #name="CppCore",
         #deps = select_platform_target(

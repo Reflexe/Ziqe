@@ -20,7 +20,7 @@
 #ifndef USBINTERFACE_HPP
 #define USBINTERFACE_HPP
 
-#include "Utils/Macros.hpp"
+#include "Base/Macros.hpp"
 
 ZQ_BEGIN_NAMESPACE
 namespace OS {

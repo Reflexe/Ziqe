@@ -40,7 +40,7 @@
 
 #include <linux/module.h>
 
-#include "../EntryPoints.h"
+#include "../EntryPoints.hpp"
 
 static int __init linux_init(void)
 {

@@ -30,7 +30,7 @@ if test $? -eq 1; then
     exit 1
 fi
 
-warnings=`echo "$make_output" | grep 'WARNING:'`
+warnings=`grep 'WARNING:' <<< "$make_output"`
 if test $? -eq 0; then
     echo "Error: Found a warning: " 1>&2
     echo "$warnings" 1>&2

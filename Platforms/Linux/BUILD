@@ -1,7 +1,10 @@
-load("//Platforms:api.bzl", 'zq_library_no_auto_deps')
+load("//Platforms:api.bzl", 'zq_library_for_platform')
 load(':api.bzl', 'linux_lastest_path')
 
-zq_library_no_auto_deps (
+PLATFORM = 'Linux'
+
+zq_library_for_platform (
+    PLATFORM,
     name = 'CppCore',
     hdrs = [
         'CppCore/Memory.h', 
@@ -13,16 +16,15 @@ zq_library_no_auto_deps (
         'CppCore/SystemCalls.h', 
         'CppCore/Types.h', 
         'CppCore/Error.h',
-        'OS/C_API/LinuxUsbApi.h',
+        'PerDriver/C_API/LinuxUsbApi.h',
     ],
     zq_deps = ['//Platforms/Common:CppCore'],
     includes = ['.'],
     visibility = ["//visibility:public"],
 )
 
-# FIXME: we're creating all the libraries for each platform (eg. LIB_Linux, LIB_Windows)
-#        but we leave the deps as it is. We need to dig into the cfg thingy in bazel.
-zq_library_no_auto_deps (
+zq_library_for_platform (
+    PLATFORM,
     name = 'OS',
     classes = [ 'OS/Memory',
                 'OS/DriverContext',
@@ -37,15 +39,24 @@ zq_library_no_auto_deps (
     zq_deps = [
         ':CppCore',
         '//Platforms/Common:OS',
-        '//Utils:Utils',
+        '//Base:Base',
     ],
 
     visibility = ["//visibility:public"],
     )
 
-zq_library_no_auto_deps(
+zq_library_for_platform(
+    PLATFORM,
     name = 'PerDriver',
     zq_deps = ['//Platforms/Common:PerDriver'],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = 'linux_per_driver_srcs',
+    srcs = [
+        'PerDriver/CppEntryPoints.cpp',
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -62,7 +73,7 @@ filegroup(name = '_linux_build_srcs',
           #'CppCore/Memory.c', 
           #      ':CppCore/SpinLock.c', 
                # ':CppCore/Mutex.c',
-                'OS/C_API/LinuxUsbApi.c',
+                'PerDriver/C_API/LinuxUsbApi.c',
                 #':CppCore/RWLock.c', 
                 #':CppCore/Socket.c', 
                 ':CppCore/Logging.c',

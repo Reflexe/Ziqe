@@ -20,7 +20,7 @@
 #ifndef IDEVICEMANAGER_HPP
 #define IDEVICEMANAGER_HPP
 
-#include "Utils/SharedPointer.hpp"
+#include "Base/SharedPointer.hpp"
 
 #include "OS/IDevice.hpp"
 
@@ -33,8 +33,8 @@ public:
     IDeviceManager();
     virtual ~IDeviceManager();
 
-    virtual void onDeviceAttached (IDevice &device) = 0;
-    virtual void onDeviceDetached (IDevice &device) = 0;
+    virtual void onDeviceAttached (IDeviceConnection &device) = 0;
+    virtual void onDeviceDetached (IDeviceConnection &device) = 0;
 };
 
 } // namespace OS

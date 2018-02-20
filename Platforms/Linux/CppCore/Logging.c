@@ -15,5 +15,5 @@ void ZQ_SYMBOL(ZqLogWarning) (const char *string)
 
 void ZQ_SYMBOL(ZqOnBug) (const char *string) {
     printk(KERN_ERR"%s", string);
-//    BUG ();
+    BUG ();
 }

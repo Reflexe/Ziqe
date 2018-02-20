@@ -1,7 +1,7 @@
 load ('@ZiqeConfig//:linux_config.bzl', 'config')
-load ('//BuildTools:cc_class_library.bzl', 'cc_class_library')
+load (':repo_api.bzl', 'linux_lastest_path')
 
-linux_lastest_path = 'LinuxHeaders/4.12.3-1-ARCH'
+load ('//BuildTools:cc_class_library.bzl', 'cc_class_library')
 
 # @brief                    Escape @string from @chars_to_escape with @escape_char.
 # @param string             [str]           A string to escape.
@@ -90,11 +90,11 @@ def _impl(ctx):
     make_env_vars['ZQ_OBJECTS'] = ''
     for dep in ctx.attr.deps:
         if 'cc' in dir(dep):
-            libs_depset += dep.cc.libs.to_list()
+            libs_depset += dep.cc.libs
             includes_paths_depset += dep.cc.system_include_directories
             includes_files_depset += dep.cc.transitive_headers
 
-    for object in libs_depset.to_list():
+    for object in libs_depset.to_list()[::-1]:
         make_env_vars['ZQ_OBJECTS'] += escape_spaces(CppCore_to_workspace + object.path) + ' '
 
     # Set the target's name.
@@ -104,7 +104,6 @@ def _impl(ctx):
     #linux_headers_path_to_workspace = get_relative_file_path_to_workspace (ctx.file.linux_headers_path)
     make_env_vars['ZQ_LINUX_HEADERS_PATH'] = escape_spaces(ctx.file.linux_headers_path.path)
     make_env_vars['ZQ_MAKEFILE_PATH']      = escape_spaces(ctx.file._makefile.dirname)
-
 
     # Add includes as compiler arguments.
     make_env_vars['ZQ_INCLUDE_PATHS'] = ''
@@ -188,3 +187,19 @@ def zq_linux_library(**args):
     args['linkstatic'] = 1
 
     cc_class_library(**args)
+
+
+def zq_linux_per_driver(**args):
+    zq_linux_library(
+        name=args['name'],
+        hdrs = args.get('hdrs', []),
+        srcs = ['//Platforms/Linux:linux_per_driver_srcs'] + args.get('srcs', []),
+        includes = args.get('includes', []),
+        deps = args.get('deps', []),
+    )
+
+linux_functions = {
+    'zq_library': zq_linux_library,
+    'zq_driver' : zq_linux_driver,
+    'zq_per_driver': zq_linux_per_driver,
+}
